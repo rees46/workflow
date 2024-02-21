@@ -63,6 +63,6 @@ jobs:
         with:
           commit: -S
           default_author: github_actions
-          author_email: github-bot@rees46.ru
+          author_email: github-bot@rees46.com
           message: 'chore(common): publish'
           add: '["*.lock", "*.json", "*.yml", "*.md"]'
