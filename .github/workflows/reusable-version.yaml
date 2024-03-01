@@ -8,6 +8,13 @@ on:
         default: '18.19'
         required: false
         type: string
+      appId:
+        description: 'App ID for commiting and pushing'
+        required: true
+        type: string
+    secrets:
+      appSecret:
+        required: true
 
 jobs:
   run:
@@ -18,8 +25,8 @@ jobs:
       - uses: actions/create-github-app-token@v1
         id: app-token
         with:
-          app-id: ${{ vars.PUBLIVERSIONER_ID }}
-          private-key: ${{ secrets.PUBLIVERSIONER_SECRET }}
+          app-id: ${{ inputs.appId }}
+          private-key: ${{ secrets.appSecret }}
 
       - name: Checkout
         uses: actions/checkout@v4
