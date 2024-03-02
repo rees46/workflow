@@ -5,7 +5,7 @@ on:
     outputs:
       committed:
         description: 'Have the changes in version been committed?'
-        value: ${{ steps.committer.outputs.committed }}
+        value: ${{ jobs.run.outputs.committed }}
     inputs:
       node-version:
         description: 'Node version to run this workflow. Default: 18.19 as it is in action cache'
@@ -24,6 +24,8 @@ jobs:
   run:
     name: Version
     runs-on: ubuntu-latest
+    outputs:
+      committed: ${{ steps.committer.outputs.committed }}
 
     steps:
       - uses: actions/create-github-app-token@v1
