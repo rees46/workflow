@@ -9,7 +9,7 @@ on:
         required: false
         type: string
       appId:
-        description: 'App ID for commiting and pushing'
+        description: 'App ID for committing and pushing'
         required: true
         type: string
     secrets:

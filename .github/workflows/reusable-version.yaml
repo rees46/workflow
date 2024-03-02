@@ -2,6 +2,10 @@ name: Reusable version
 
 on:
   workflow_call:
+    outputs:
+      committed:
+        description: 'Have the changes in version been committed?'
+        value: ${{ steps.committer.outputs.committed }}
     inputs:
       node-version:
         description: 'Node version to run this workflow. Default: 18.19 as it is in action cache'
@@ -9,7 +13,7 @@ on:
         required: false
         type: string
       appId:
-        description: 'App ID for commiting and pushing'
+        description: 'App ID for committing and pushing'
         required: true
         type: string
     secrets:
@@ -63,6 +67,7 @@ jobs:
 
       - name: Commit changes
         if: ${{ !env.ACT }}
+        id: committer
         uses: EndBug/add-and-commit@v9
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
