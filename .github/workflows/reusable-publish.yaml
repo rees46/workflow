@@ -43,7 +43,7 @@ jobs:
           node-version: ${{ inputs.node-version }}
 
       - name: Install
-        run: yarn install --mode=update-lockfile --inline-builds
+        run: yarn install
 
       - name: Find Base Commit for master
         id: find_base_commit
