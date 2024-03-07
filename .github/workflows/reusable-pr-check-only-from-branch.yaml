@@ -8,6 +8,11 @@ on:
         type: string
         required: true
         default: 'stage'
+      allowedTarget:
+        description: 'Which target branch is allowed'
+        type: string
+        required: false
+        default: 'master'
 
 jobs:
   check-branch-name:
@@ -15,10 +20,16 @@ jobs:
     steps:
       - name: Check if PR is from allowed branches
         run: |
-          if [[ ! "$GITHUB_HEAD_REF" == "$ALLOWED_BRANCH" ]]; then
-            echo "Merging is only allowed from '$ALLOWED_BRANCH' branch."
-            exit 1
+          echo "Source branch: $GITHUB_HEAD_REF"
+          echo "Target branch: $GITHUB_BASE_REF"
+          if [[ "$GITHUB_BASE_REF" == "$ALLOWED_BASE_BRANCH" ]]; then
+            if [[ ! "$GITHUB_HEAD_REF" == "$ALLOWED_HEAD_BRANCH" ]]; then
+              echo "Merging to '$ALLOWED_BASE_BRANCH' is only allowed from '$ALLOWED_HEAD_BRANCH' branch"
+              exit 1
+            fi
           fi
         env:
           GITHUB_HEAD_REF: ${{ github.head_ref }}
-          ALLOWED_BRANCH: ${{ inputs.allowedBranch }}
+          GITHUB_BASE_REF: ${{ github.base_ref }}
+          ALLOWED_HEAD_BRANCH: ${{ inputs.allowedBranch }}
+          ALLOWED_BASE_BRANCH: ${{ inputs.allowedTarget }}
