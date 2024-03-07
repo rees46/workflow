@@ -59,6 +59,7 @@ jobs:
         run: |
           for package in ${{ steps.changed_packages.outputs.packages }}
           do
+            echo "$package"
             if [ -f "./docker/$package.yml" ]; then
               docker compose -f ./docker/$package.yml build -t ghcr.io/${{ github.repository }}/package-$package:latest ./packages/$package
               echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
