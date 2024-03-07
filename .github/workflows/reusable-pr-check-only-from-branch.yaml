@@ -1,0 +1,24 @@
+name: Enforce merge source rule
+
+on:
+  workflow_call:
+    inputs:
+      allowedBranch:
+        description: 'Which branch is allowed to be merged from'
+        type: string
+        required: true
+        default: 'stage'
+
+jobs:
+  check-branch-name:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check if PR is from allowed branches
+        run: |
+          if [[ ! "$GITHUB_HEAD_REF" == "$ALLOWED_BRANCH" ]]; then
+            echo "Merging is only allowed from '$ALLOWED_BRANCH' branch."
+            exit 1
+          fi
+        env:
+          GITHUB_HEAD_REF: ${{ github.head_ref }}
+          ALLOWED_BRANCH: ${{ inputs.allowedBranch }}
