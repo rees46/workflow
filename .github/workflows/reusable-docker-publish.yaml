@@ -58,16 +58,19 @@ jobs:
         env:
           PACKAGES: ${{ steps.changed_packages.outputs.packages }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPOSITORY_OWNER: ${{ github.repository_owner }}
         if: ${{ steps.changed_packages.outputs.packages }} != ''
         run: |
           echo "Trying to build $PACKAGES"
           for package in $PACKAGES
           do
-            echo "$package"
-            if [ -f "./docker/$package.yml" ]; then
+            echo "Building $package..."
+            if [ -f "./docker/Dockerfile-$package" ]; then
               echo "Building package: $package"
-              docker compose -f ./docker/$package.yml build
-              echo $GITHUB_TOKEN | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-              docker push ghcr.io/${{ github.repository }}/package-$package:latest
+              image_name=ghcr.io/$REPOSITORY_OWNER/package-$package:latest
+              docker build -f docker/Dockerfile-$package . -t $image_name
+              echo $GITHUB_TOKEN | docker login ghcr.io -u $REPOSITORY_OWNER --password-stdin
+              docker push $image_name
+              echo "Pushed $image_name"
             fi
           done
