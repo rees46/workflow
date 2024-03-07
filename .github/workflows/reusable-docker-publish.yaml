@@ -35,38 +35,39 @@ jobs:
         id: find_base_commit
         run: |
           echo "Finding base commit between HEAD and origin/master"
-          base_commit=$(git log --merges -n 2 --format=format:%H | tail -n 1)
-          echo "::set-output name=base_commit::$base_commit"
+          echo "base_commit=$(git log --merges -n 2 --format=format:%H | tail -n 1)" >> "$GITHUB_OUTPUT"
           echo "Base Commit: $base_commit"
 
       - name: Find latest merge commit for master
         id: find_last_commit
         run: |
           echo "Finding base commit between HEAD and origin/master"
-          last_commit=$(git log --merges -n 1 --format=format:%H)
-          echo "::set-output name=last_commit::$last_commit"
+          echo "last_commit=$(git log --merges -n 1 --format=format:%H)" >> "$GITHUB_OUTPUT"
           echo "Last Commit: $last_commit"
 
       - name: Get changed packages
+        env:
+          BASE_COMMIT: ${{ steps.find_base_commit.outputs.base_commit }}
+          LAST_COMMIT: ${{ steps.find_last_commit.outputs.last_commit }}
         id: changed_packages
         run: |
-          packages=$(git diff --name-only ${{ steps.find_last_commit.outputs.last_commit }} ${{ steps.find_base_commit.outputs.base_commit }} | grep '${{ inputs.changeLookUpPath }}/' | awk 'BEGIN {FS="/"} {print $2}' | uniq)
-          echo "::set-output name=packages::packages"
-          echo "Detected changes: $packages"
+          echo "packages=$(git diff --name-only $LAST_COMMIT $BASE_COMMIT | grep '${{ inputs.changeLookUpPath }}/' | awk 'BEGIN {FS="/"} {print $2}' | uniq)" >> "$GITHUB_OUTPUT"
+          echo "Detected changes: packages"
 
       - name: Build and Push Docker images
-        if: ${{ steps.changed_packages.outputs.packages }} != ''
+        env:
+          PACKAGES: ${{ steps.changed_packages.outputs.packages }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        if: $PACKAGES != ''
         run: |
-          echo "Trying to build ${{ steps.changed_packages.outputs.packages }}"
-          for package in ${{ steps.changed_packages.outputs.packages }}
+          echo "Trying to build $PACKAGES"
+          for package in $PACKAGES
           do
             echo "$package"
             if [ -f "./docker/$package.yml" ]; then
               echo "Building package: $package"
               docker compose -f ./docker/$package.yml build -t ghcr.io/${{ github.repository }}/package-$package:latest ./packages/$package
-              echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+              echo $GITHUB_TOKEN | docker login ghcr.io -u ${{ github.actor }} --password-stdin
               docker push ghcr.io/${{ github.repository }}/package-$package:latest
             fi
           done
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
