@@ -55,7 +55,7 @@ jobs:
           echo "Detected changes: $packages"
 
       - name: Build and Push Docker images
-        if: env.CHANGED_PACKAGES != ''
+        if: ${{ steps.changed_packages.outputs.packages }} != ''
         run: |
           for package in ${{ steps.changed_packages.outputs.packages }}
           do
