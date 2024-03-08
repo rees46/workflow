@@ -54,7 +54,7 @@ jobs:
             echo "🏗🏗🏗️  Building $package..."
             if [ -f "./docker/Dockerfile-$package" ]; then
               echo "🔎🔎🔎  Found Dockerfile for $package"
-              image_name=ghcr.io/$REPOSITORY_OWNER/package-$package:latest
+              image_name=ghcr.io/$REPOSITORY_OWNER/$package:latest
               docker build -f docker/Dockerfile-$package . -t $image_name
               echo $GITHUB_TOKEN | docker login ghcr.io -u $REPOSITORY_OWNER --password-stdin
               docker push $image_name
