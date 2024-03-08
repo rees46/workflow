@@ -45,18 +45,30 @@ jobs:
           echo "last_commit=$(git log --merges -n 1 --format=format:%H)" >> "$GITHUB_OUTPUT"
           echo "Last Commit: $last_commit"
 
+      - name: Changed files
+        id: changed_files
+        uses: tj-actions/changed-files@v42
+
       - name: Get changed packages
         env:
-          BASE_COMMIT: ${{ steps.find_base_commit.outputs.base_commit }}
-          LAST_COMMIT: ${{ steps.find_last_commit.outputs.last_commit }}
+          CHANGED_FILES: ${{ steps.changed_files.outputs.all_changed_files }}
         id: changed_packages
         run: |
-          echo "packages=$(git diff --name-only $LAST_COMMIT $BASE_COMMIT | grep '${{ inputs.changeLookUpPath }}/' | awk 'BEGIN {FS="/"} {print $2}' | uniq)" >> "$GITHUB_OUTPUT"
-          echo "Detected changes: $packages"
+          echo "Changed files: $CHANGED_FILES"
+          echo "packages=$(echo "$CHANGED_FILES" | grep '${{ inputs.changeLookUpPath }}/' | awk 'BEGIN {FS="/"} {print $2}' | uniq)" >> "$GITHUB_OUTPUT"
+
+#      - name: Get changed packages
+#        env:
+#          BASE_COMMIT: ${{ steps.find_base_commit.outputs.base_commit }}
+#          LAST_COMMIT: ${{ steps.find_last_commit.outputs.last_commit }}
+#        id: changed_packages
+#        run: |
+#          echo "packages=$(git diff --name-only $LAST_COMMIT $BASE_COMMIT | grep '${{ inputs.changeLookUpPath }}/' | awk 'BEGIN {FS="/"} {print $2}' | uniq)" >> "$GITHUB_OUTPUT"
+#          echo "Detected changes: $packages"
 
       - name: Build and Push Docker images
         env:
-          PACKAGES: ${{ steps.changed_packages.outputs.packages }}
+          PACKAGES: ${{ steps.changed_packages.outputs.all_changed_files }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPOSITORY_OWNER: ${{ github.repository_owner }}
         if: ${{ steps.changed_packages.outputs.packages }} != ''
