@@ -31,20 +31,6 @@ jobs:
         with:
           node-version: ${{ inputs.node-version }}
 
-      - name: Find Base Commit for master
-        id: find_base_commit
-        run: |
-          echo "Finding base commit between HEAD and origin/master"
-          echo "base_commit=$(git log --merges -n 2 --format=format:%H | tail -n 1)" >> "$GITHUB_OUTPUT"
-          echo "Base Commit: $base_commit"
-
-      - name: Find latest merge commit for master
-        id: find_last_commit
-        run: |
-          echo "Finding base commit between HEAD and origin/master"
-          echo "last_commit=$(git log --merges -n 1 --format=format:%H)" >> "$GITHUB_OUTPUT"
-          echo "Last Commit: $last_commit"
-
       - name: Changed files
         id: changed_files
         uses: tj-actions/changed-files@v42
@@ -55,20 +41,11 @@ jobs:
         id: changed_packages
         run: |
           echo "Changed files: $CHANGED_FILES"
-          echo "packages=$(echo "$CHANGED_FILES" | grep '${{ inputs.changeLookUpPath }}/' | awk 'BEGIN {FS="/"} {print $2}' | uniq)" >> "$GITHUB_OUTPUT"
-
-#      - name: Get changed packages
-#        env:
-#          BASE_COMMIT: ${{ steps.find_base_commit.outputs.base_commit }}
-#          LAST_COMMIT: ${{ steps.find_last_commit.outputs.last_commit }}
-#        id: changed_packages
-#        run: |
-#          echo "packages=$(git diff --name-only $LAST_COMMIT $BASE_COMMIT | grep '${{ inputs.changeLookUpPath }}/' | awk 'BEGIN {FS="/"} {print $2}' | uniq)" >> "$GITHUB_OUTPUT"
-#          echo "Detected changes: $packages"
+          echo "IFS=$'\n' packages=($(echo "$CHANGED_FILES" | tr ' ' '\n' | grep 'packages/' | awk -F'/' '{print $2}' | uniq))" >> "$GITHUB_OUTPUT"
 
       - name: Build and Push Docker images
         env:
-          PACKAGES: ${{ steps.changed_packages.outputs.all_changed_files }}
+          PACKAGES: ${{ steps.changed_packages.outputs.packages }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPOSITORY_OWNER: ${{ github.repository_owner }}
         if: ${{ steps.changed_packages.outputs.packages }} != ''
@@ -78,11 +55,11 @@ jobs:
           do
             echo "Building $package..."
             if [ -f "./docker/Dockerfile-$package" ]; then
-              echo "Building package: $package"
+              echo "Found Dockerfile for $package"
               image_name=ghcr.io/$REPOSITORY_OWNER/package-$package:latest
               docker build -f docker/Dockerfile-$package . -t $image_name
               echo $GITHUB_TOKEN | docker login ghcr.io -u $REPOSITORY_OWNER --password-stdin
               docker push $image_name
-              echo "Pushed $image_name"
+              echo "Pushed successfully $image_name"
             fi
           done
