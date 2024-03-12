@@ -1,11 +1,13 @@
-type Callback = (value: string) => unknown
+type Callback = (value: string | Error) => unknown
 
 type ErrorHandler = (error: unknown, callback: Callback) => void
 
 export const errorHandler: ErrorHandler = (error, callback) => {
-  let errorMessage = 'Something went wrong'
+  if (error instanceof Error || typeof error === 'string') {
+    callback(error)
+  }
 
-  if (error instanceof Error) errorMessage = error.message
+  let errorMessage = 'Something went wrong'
 
   callback(errorMessage)
 }

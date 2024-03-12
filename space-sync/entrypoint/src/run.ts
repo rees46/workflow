@@ -16,13 +16,9 @@ export const run = async () => {
     process.env.SPACE_URL = getInput('spaceURL', { required: true })
     process.env.SPACE_SECRET = getInput('spaceSecret', { required: true })
 
-    console.log(getInput('spaceURL', { required: true }))
-    console.log(process.env.SPACE_URL)
-
     const issueBody = getIssueBody(context)
 
     console.log(JSON.stringify(context, undefined, 2))
-
 
     const url = getSpaceUrl(issueBody, issueTitleWithTicketID)
 
