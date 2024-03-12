@@ -4,10 +4,6 @@ on:
   issue_comment:
   issues:
 
-env:
-  SPACE_URL: ${{ secrets.SPACE_URL }}
-  SPACE_SECRET: ${{ secrets.SPACE_SECRET }}
-
 jobs:
   run:
     name: Sync
@@ -15,5 +11,6 @@ jobs:
     permissions: write-all
     with:
       blockWithTicketID: 'Саппорт тикет'
+    secrets:
       spaceURL: ${{ secrets.SPACE_URL }}
       spaceSecret: ${{ secrets.SPACE_SECRET }}
