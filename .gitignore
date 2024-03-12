@@ -42,6 +42,7 @@ node_modules
 
 # Build directory
 .next
+dist
 
 # JetBrains Files
 .idea
