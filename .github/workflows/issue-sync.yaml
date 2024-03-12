@@ -4,10 +4,14 @@ on:
   issue_comment:
   issues:
 
+env:
+  SPACE_URL: ${{ secrets.SPACE_URL }}
+  SPACE_SECRET: ${{ secrets.SPACE_SECRET }}
+
 jobs:
   run:
     name: Sync
     uses: rees46/workflow/.github/workflows/reusable-issue-sync.yaml@master
     permissions: write-all
     with:
-      blockWithTicketID: Саппорт тикет
+      blockWithTicketID: 'Саппорт тикет'

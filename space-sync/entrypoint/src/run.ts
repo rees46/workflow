@@ -25,6 +25,7 @@ export const run = async () => {
 
     if (context.payload.action === 'created' && context.payload.comment) {
       const chatMessage: string = context.payload.comment.body
+      const author = context.payload.comment.user.login
 
       const response = await client.chatsMessagesSendMessagePost({
         content: {
@@ -35,7 +36,7 @@ export const run = async () => {
               className: '',
               elements: [
                 {
-                  content: 'Sent by Github Actions',
+                  content: author,
                   className: '',
                   elements: [],
                   fields: [],
