@@ -4,11 +4,14 @@
   "private": true,
   "description": "This package is responsible for sending issue comment to Jetbrains Space",
   "license": "BSD-3-Clause",
+  "installConfig": {
+    "hoistingLimits": "workspaces"
+  },
   "exports": {
     ".": "./src/index.ts"
   },
   "scripts": {
-    "build": "ncc build src/index.ts --license licenses.txt --out bin",
+    "build": "ncc build src/index.ts --license licenses.txt --out bin --source-map",
     "prepack": "run build",
     "postpack": "rm -rf dist"
   },
