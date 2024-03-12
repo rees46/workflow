@@ -1,0 +1,15 @@
+{
+  "name": "@space/error-handler",
+  "version": "1.0.0",
+  "license": "BSD-3-Clause",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "build": "tsc src/*.ts --outDir dist",
+    "prepack": "run build"
+  },
+  "dependencies": {
+    "typescript": "5.4.2"
+  }
+}

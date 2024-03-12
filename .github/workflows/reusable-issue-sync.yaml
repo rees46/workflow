@@ -1,0 +1,26 @@
+name: Reusable issue sync
+
+on:
+  workflow_call:
+    inputs:
+      blockWithTicketID:
+        required: true
+        type: string
+        description: 'Title or another block ID in issue where space URL is defined'
+
+jobs:
+  run:
+    name: Sync issue
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Sync status
+        uses: actions/checkout@v4
+        with:
+          repository: rees46/workflow
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Action
+        uses: ./space-sync/send-comment
+        with:
+          blockWithTicketID: ${{ inputs.blockWithTicketID }}
