@@ -8,14 +8,19 @@ export const errorHandler: ErrorHandler = (error, callback) => {
   if (error instanceof AxiosError) {
     callback(error.message)
     error.status && callback(error.status)
+    callback('Response: ')
     callback(JSON.stringify(error.response?.data, undefined, 2))
+    callback('Request: ')
+    callback(JSON.stringify(error.response?.request, undefined, 2))
+    return
   }
 
   if (error instanceof Error || typeof error === 'string') {
     callback(error)
+    return
   }
 
-  let errorMessage = 'Something went wrong'
+  const errorMessage = 'Something went wrong'
 
   callback(errorMessage)
 }
