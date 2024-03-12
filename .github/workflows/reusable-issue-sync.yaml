@@ -14,13 +14,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Sync status
-        uses: actions/checkout@v4
-        with:
-          repository: rees46/workflow
-          token: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Action
-        uses: ./space-sync/send-comment
+        uses: rees46/workflow/space-sync/send-comment@master
         with:
           blockWithTicketID: ${{ inputs.blockWithTicketID }}

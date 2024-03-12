@@ -10,4 +10,4 @@ jobs:
     uses: rees46/workflow/.github/workflows/reusable-issue-sync.yaml@master
     permissions: write-all
     with:
-      blockWithTicketID: 'Саппорт тикет'
+      blockWithTicketID: Саппорт тикет
