@@ -1,0 +1,5 @@
+name: 'Send comment'
+description: 'Sends new comment from Github to Space'
+runs:
+  using: 'node20'
+  main: 'dist/index.js'
