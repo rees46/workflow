@@ -55,5 +55,6 @@ jobs:
         with:
           commit: -S
           default_author: github_actions
+          add: '["*.js", "*.txt", "*.js.map"]'
           author_email: github-bot@rees46.com
           message: 'chore(common): build actions'
