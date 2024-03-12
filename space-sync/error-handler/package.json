@@ -11,5 +11,8 @@
   },
   "dependencies": {
     "typescript": "5.4.2"
+  },
+  "devDependencies": {
+    "axios": "0.27.2"
   }
 }
