@@ -1,0 +1,36 @@
+import { describe }     from 'vitest'
+import { it }           from 'vitest'
+import { expect }       from 'vitest'
+import { findTicketID } from './find-ticket-id'
+
+const issueBody = '### Описание бага\n' +
+  '\n' +
+  'тестовое описание теста\n' +
+  '\n' +
+  '### Воспроизведение\n' +
+  '\n' +
+  'тестовое воспроизведение\n' +
+  '\n' +
+  '### Ожидаемое поведение\n' +
+  '\n' +
+  'тестовое ожидание\n' +
+  '\n' +
+  '### Материалы\n' +
+  '\n' +
+  'тестовый материал\n' +
+  '\n' +
+  '### Данные окружения\n' +
+  '\n' +
+  'тестовое окружение\n' +
+  '\n' +
+  '### Саппорт тикет\n' +
+  '\n' +
+  'https://rees46.jetbrains.space/p/pro/issues/112'
+
+describe('Getting ticket ID', () => {
+  it('Gets correct id', () => {
+    const result = findTicketID(issueBody, 'Саппорт тикет')
+
+    expect(result).toEqual('112')
+  })
+})
