@@ -671,6 +671,7 @@ const RAW_RUNTIME_STATE =
           ["@space/error-handler", "workspace:space-sync/error-handler"],\
           ["@types/node", "npm:20.11.25"],\
           ["@vercel/ncc", "npm:0.38.1"],\
+          ["undici", "npm:6.7.1"],\
           ["vitest", "virtual:429721f9c5f1f85b1fcb3c9c3e448aead7a8a688cd4b65ca9e5d2e32383dd3ebb4a49b42820158d2f494d1646b80203198dede6a0cc35bdad754814fa8fcf2ad#npm:1.3.1"]\
         ],\
         "linkType": "SOFT"\
@@ -2250,6 +2251,13 @@ const RAW_RUNTIME_STATE =
         "packageDependencies": [\
           ["undici", "npm:5.28.3"],\
           ["@fastify/busboy", "npm:2.1.1"]\
+        ],\
+        "linkType": "HARD"\
+      }],\
+      ["npm:6.7.1", {\
+        "packageLocation": "./.yarn/cache/undici-npm-6.7.1-cc741edc29-bd72f26420.zip/node_modules/undici/",\
+        "packageDependencies": [\
+          ["undici", "npm:6.7.1"]\
         ],\
         "linkType": "HARD"\
       }]\
