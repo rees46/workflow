@@ -1,12 +1,13 @@
-import { getInput }        from '@actions/core'
-import { setFailed }       from '@actions/core'
-import { context }         from '@actions/github'
-import { getClient }       from '@space/client'
-import { errorHandler }    from '@space/error-handler'
-import { getSpaceProject } from './parsers'
-import { getSpaceUrl }     from './parsers'
-import { getIssueID }      from './parsers'
-import { getIssueBody }    from './parsers'
+import { getInput }                  from '@actions/core'
+import { setFailed }                 from '@actions/core'
+import { context }                   from '@actions/github'
+import { SpaceApiClient }            from '@space/api'
+import { SendCommentCommandHandler } from '@space/commands'
+import { errorHandler }              from '@space/error-handler'
+import { getSpaceProject }           from './parsers'
+import { getSpaceUrl }               from './parsers'
+import { getIssueID }                from './parsers'
+import { getIssueBody }              from './parsers'
 
 export const run = async () => {
   try {
@@ -18,75 +19,21 @@ export const run = async () => {
 
     const spaceURL = getSpaceUrl(issueBody, issueTitleWithTicketID)
 
-    const spaceIssueId = getIssueID(spaceURL)
+    const issue = getIssueID(spaceURL)
 
-    const spaceProjectId = getSpaceProject(spaceURL)
-    const client = getClient({ basePath: process.env.SPACE_URL, accessToken: process.env.SPACE_SECRET })
+    const project = getSpaceProject(spaceURL)
+
+    const client = new SpaceApiClient()
 
     if (context.payload.action === 'created' && context.payload.comment) {
-      const chatMessage: string = context.payload.comment.body
+      const text: string = context.payload.comment.body
       const author = context.payload.comment.user.login
 
-      const response = await client.chatsMessagesSendMessagePost({
-        content: {
-          text: chatMessage,
-          sections: [
-            {
-              footer: 'Sent by',
-              className: '',
-              elements: [
-                {
-                  content: author,
-                  className: '',
-                  elements: [],
-                  fields: [],
-                }],
-            }],
-          className: '',
-        },
-        channel: {
-          issue: {
-            key: `DEV-T-${spaceIssueId}`,
-            project: {
-              key: spaceProjectId.toUpperCase(),
-              className: '',
-              id: '',
-            },
-            className: '',
-            externalId: '',
-            id: '',
-          },
-          id: '',
-          message: '',
-          codeReview: {
-            className: '',
-            id: '',
-            key: '',
-            number: 0,
-          },
-          member: {
-            className: '',
-            externalId: '',
-            id: '',
-            username: '',
-          },
-          contactKey: '',
-          article: '',
-          channel: {
-            className: '',
-            id: '',
-            name: '',
-          },
-          className: '',
-          application: {
-            className: '',
-            clientId: '',
-            id: '',
-          }
-        }
-      })
+      const command = new SendCommentCommandHandler({ author, text, project, issue }, client)
 
-      console.log(JSON.stringify(response, undefined,  2))
+      const result = await command.execute()
+
+      console.log(JSON.stringify(result, undefined, 2))
     }
   } catch (error) {
     errorHandler(error, setFailed)

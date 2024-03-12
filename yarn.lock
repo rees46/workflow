@@ -466,12 +466,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@space/client@workspace:*, @space/client@workspace:space-sync/client":
+"@space/api@workspace:*, @space/api@workspace:space-sync/api":
   version: 0.0.0-use.local
-  resolution: "@space/client@workspace:space-sync/client"
+  resolution: "@space/api@workspace:space-sync/api"
   dependencies:
     jetbrains-space-api: "npm:1.7.0"
-    typescript: "npm:5.4.2"
+  languageName: unknown
+  linkType: soft
+
+"@space/commands@workspace:*, @space/commands@workspace:space-sync/commands":
+  version: 0.0.0-use.local
+  resolution: "@space/commands@workspace:space-sync/commands"
   languageName: unknown
   linkType: soft
 
@@ -481,7 +486,8 @@ __metadata:
   dependencies:
     "@actions/core": "npm:1.10.1"
     "@actions/github": "npm:6.0.0"
-    "@space/client": "workspace:*"
+    "@space/api": "workspace:*"
+    "@space/commands": "workspace:*"
     "@space/error-handler": "workspace:*"
     "@types/node": "npm:20.11.25"
     "@vercel/ncc": "npm:0.38.1"
