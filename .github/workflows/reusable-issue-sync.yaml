@@ -21,6 +21,6 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Action
-        uses: space-sync/send-comment
+        uses: ./space-sync/send-comment
         with:
           blockWithTicketID: ${{ inputs.blockWithTicketID }}
