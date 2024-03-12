@@ -7,6 +7,7 @@ export class SpaceApiClient extends ApiRepository {
 
   public constructor(url?: string, key?: string) {
     console.log(JSON.stringify(url))
+    console.log(JSON.stringify(process.env.SPACE_URL))
 
     if (!process.env.SPACE_URL && !url) {
       throw Error('URL must be provided')
