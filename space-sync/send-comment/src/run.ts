@@ -10,7 +10,7 @@ export const run = () => {
   try {
     const issueBody = getIssueBody(context)
 
-    console.log(context)
+    console.log(JSON.stringify(context))
 
     const issueTitleWithTicketID = getInput('blockWithTicketID', { required: true })
 
