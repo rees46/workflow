@@ -11,17 +11,21 @@ import { getIssueBody }              from './parsers'
 
 export const run = async () => {
   try {
+    const issueTitleWithTicketID = getInput('blockWithTicketID', { required: true })
+
+    process.env.SPACE_URL = getInput('spaceURL', { required: true })
+    process.env.SPACE_SECRET = getInput('spaceSecret', { required: true })
+
     const issueBody = getIssueBody(context)
 
     console.log(JSON.stringify(context, undefined, 2))
 
-    const issueTitleWithTicketID = getInput('blockWithTicketID', { required: true })
 
-    const spaceURL = getSpaceUrl(issueBody, issueTitleWithTicketID)
+    const url = getSpaceUrl(issueBody, issueTitleWithTicketID)
 
-    const issue = getIssueID(spaceURL)
+    const issue = getIssueID(url)
 
-    const project = getSpaceProject(spaceURL)
+    const project = getSpaceProject(url)
 
     const client = new SpaceApiClient()
 
