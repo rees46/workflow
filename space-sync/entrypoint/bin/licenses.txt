@@ -241,7 +241,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 
-@space/client
+@space/api
+BSD-3-Clause
+
+@space/commands
 BSD-3-Clause
 
 @space/error-handler
