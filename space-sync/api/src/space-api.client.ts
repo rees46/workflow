@@ -10,11 +10,11 @@ export class SpaceApiClient extends ApiRepository {
       throw Error('URL must be provided')
     }
 
-    if (!process.env.SPACE_KEY && !key) {
+    if (!process.env.SPACE_SECRET && !key) {
       throw Error('Space key must be provided')
     }
 
-    super(process.env.SPACE_URL ?? url!, process.env.SPACE_KEY ?? key!)
+    super(process.env.SPACE_URL ?? url!, process.env.SPACE_SECRET ?? key!)
 
     const configuration = new Configuration({ basePath: this.url, apiKey: this.key })
 

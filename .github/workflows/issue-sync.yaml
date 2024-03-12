@@ -15,3 +15,5 @@ jobs:
     permissions: write-all
     with:
       blockWithTicketID: 'Саппорт тикет'
+      spaceURL: ${{ secrets.SPACE_URL }}
+      spaceSecret: ${{ secrets.SPACE_SECRET }}

@@ -7,6 +7,14 @@ on:
         required: true
         type: string
         description: 'Title or another block ID in issue where space URL is defined'
+      spaceURL:
+        required: true
+        type: string
+        description: 'Base URL for Jetbrains Space org'
+      spaceSecret:
+        required: true
+        type: string
+        description: 'API key with access to issues and messages'
 
 jobs:
   run:
@@ -18,3 +26,5 @@ jobs:
         uses: rees46/workflow/space-sync/entrypoint@master
         with:
           blockWithTicketID: ${{ inputs.blockWithTicketID }}
+          spaceSecret: ${{ inputs.spaceSecret }}
+          spaceURL: ${{ inputs.spaceURL }}
