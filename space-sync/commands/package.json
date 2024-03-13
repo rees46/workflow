@@ -5,5 +5,11 @@
     ".": "./src/index.ts"
   },
   "license": "BSD-3-Clause",
-  "packageManager": "yarn@4.1.1"
+  "packageManager": "yarn@4.1.1",
+  "devDependencies": {
+    "@space/api": "workspace:*"
+  },
+  "dependencies": {
+    "@space/constants": "workspace:*"
+  }
 }

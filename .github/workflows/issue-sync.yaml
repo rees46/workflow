@@ -3,6 +3,9 @@ name: Sync issue
 on:
   issue_comment:
   issues:
+  project:
+  project_card:
+  project_column:
 
 jobs:
   run:

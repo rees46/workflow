@@ -5,8 +5,5 @@
     ".": "./src/index.ts"
   },
   "license": "BSD-3-Clause",
-  "packageManager": "yarn@4.1.1",
-  "dependencies": {
-    "jetbrains-space-api": "1.7.0"
-  }
+  "packageManager": "yarn@4.1.1"
 }

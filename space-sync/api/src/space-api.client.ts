@@ -1,14 +1,11 @@
-import { Configuration } from 'jetbrains-space-api'
-import { SpaceApi }      from 'jetbrains-space-api'
+import { Changes }       from './api.repository'
 import { ApiRepository } from './api.repository'
+import { Fetcher }       from './fetcher'
 
 export class SpaceApiClient extends ApiRepository {
-  protected client: SpaceApi
+  protected client: Fetcher
 
   public constructor(url?: string, key?: string) {
-    console.log(JSON.stringify(url))
-    console.log(JSON.stringify(process.env.SPACE_URL))
-
     if (!process.env.SPACE_URL && !url) {
       throw Error('URL must be provided')
     }
@@ -19,70 +16,56 @@ export class SpaceApiClient extends ApiRepository {
 
     super(process.env.SPACE_URL ?? url!, process.env.SPACE_SECRET ?? key!)
 
-    const configuration = new Configuration({ basePath: this.url, apiKey: this.key })
-
-    this.client = new SpaceApi(configuration)
+    this.client = new Fetcher(this.url, this.key)
   }
 
-  async sendComment(issue: string, project: string, text: string, author: string): Promise<unknown> {
-    return this.client.chatsMessagesSendMessagePost({
+  async sendComment(
+    issue: string,
+    project: string,
+    text: string,
+    author: string,
+  ): Promise<unknown> {
+    const data = {
+      channel: `issue:key:${project.toUpperCase()}-T-${issue}`,
       content: {
-        text,
+        className: 'ChatMessage.Block',
         sections: [
           {
-            footer: 'Sent by',
-            className: '',
+            className: 'MessageSection',
             elements: [
               {
-                content: author,
-                className: '',
-                elements: [],
-                fields: [],
-              }],
-          }],
-        className: '',
-      },
-      channel: {
-        issue: {
-          key: `DEV-T-${issue}`,
-          project: {
-            key: project.toUpperCase(),
-            className: '',
-            id: '',
+                className: 'MessageText',
+                content: text,
+                accessory: {
+                  className: 'MessageIcon',
+                  icon: {
+                    icon: 'github-small',
+                  },
+                },
+              },
+            ],
+            footer: `Sent by GitHub from ${author}`,
           },
-          className: '',
-          externalId: '',
-          id: '',
-        },
-        id: '',
-        message: '',
-        codeReview: {
-          className: '',
-          id: '',
-          key: '',
-          number: 0,
-        },
-        member: {
-          className: '',
-          externalId: '',
-          id: '',
-          username: '',
-        },
-        contactKey: '',
-        article: '',
-        channel: {
-          className: '',
-          id: '',
-          name: '',
-        },
-        className: '',
-        application: {
-          className: '',
-          clientId: '',
-          id: '',
-        }
-      }
-    })
+        ],
+      },
+    }
+
+    return await this.client.fetch('/api/http/chats/messages/send-message', 'POST', data)
+  }
+
+  async updateIssueBody(issue: string, project: string, changes: Changes): Promise<unknown> {
+    const data = {
+      assignee: changes.assignee,
+      description: changes.body,
+      title: changes.title,
+      status: changes.status,
+    }
+
+    return await this.client.fetch(
+      `/api/http/projects/key:${project.toUpperCase()}/planning/issues/key:${project.toUpperCase()}-T-${issue}`,
+      'PATCH',
+      data,
+    )
   }
 
   updateLabel(issue: string, label: string): Promise<unknown> {
