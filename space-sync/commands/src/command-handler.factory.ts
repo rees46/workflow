@@ -58,18 +58,11 @@ export const commandHandlerFactory: CommandHandlerFactory = (
           const changesData: Record<string, any> = {}
 
           for (const [key, value] of Object.entries(changes)) {
-            console.log('Key: ' + JSON.stringify(key))
-            console.log('Value: ' + JSON.stringify(value))
-
             if (value.from !== '') {
-              console.log('This is not empty: ' + value.from)
               // @ts-ignore
               changesData[key] = issuePayload[key]
             }
           }
-
-          console.log('changesData')
-          console.log(changesData)
 
           return new UpdateIssueBodyCommandHandler({
             issue,

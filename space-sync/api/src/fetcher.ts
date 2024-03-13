@@ -5,18 +5,15 @@ export class Fetcher {
   }
 
   async fetch(postfix: string, method: Method, data: Object): Promise<unknown> {
-    const response = await fetch(this.url + postfix, {
-      method,
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'Authorization': `Bearer ${this.secret}`,
-      },
-      body: JSON.stringify(data),
-    })
-
-    console.log(await response.json())
-
-    return await response.json()
+    return (await fetch(this.url + postfix, {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Authorization': `Bearer ${this.secret}`,
+        },
+        body: JSON.stringify(data),
+      })
+    ).json()
   }
 }

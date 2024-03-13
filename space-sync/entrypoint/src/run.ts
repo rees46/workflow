@@ -20,7 +20,7 @@ export const run = async () => {
 
     const result = await command.execute()
 
-    console.log(JSON.stringify(result, undefined, 2))
+    console.log(result)
   } catch (error) {
     errorHandler(error, setFailed)
   }
