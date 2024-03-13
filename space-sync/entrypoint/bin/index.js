@@ -54066,11 +54066,16 @@ const commandHandlerFactory = (context, client, blockWithURL) => {
                     }
                     const changesData = {};
                     for (const [key, value] of Object.entries(changes)) {
+                        console.log('Key: ' + JSON.stringify(key));
+                        console.log('Value: ' + JSON.stringify(value));
                         if (value.from !== '') {
+                            console.log('This is not empty: ' + value.from);
                             // @ts-ignore
                             changesData[key] = issuePayload[value];
                         }
                     }
+                    console.log('changesData');
+                    console.log(changesData);
                     return new command_handlers_2.UpdateIssueBodyCommandHandler({
                         issue,
                         project,
