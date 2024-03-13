@@ -54068,7 +54068,7 @@ const commandHandlerFactory = (context, client, blockWithURL) => {
                     }
                     const changesData = {};
                     for (const [key, value] of Object.entries(changes)) {
-                        if (value.body.from !== '') {
+                        if (value.from !== '') {
                             // @ts-ignore
                             changesData[key] = issuePayload[value];
                         }
