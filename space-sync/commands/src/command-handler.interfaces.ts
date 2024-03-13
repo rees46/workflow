@@ -1,6 +1,6 @@
-import { ApiRepository }             from '@space/api'
-import { SendCommentCommandHandler } from './command-handlers'
-import { UpdateIssueBodyCommandHandler } from './command-handlers/update-issue-body.command-handler'
+import { ApiRepository }                 from '@space/api'
+import { SendCommentCommandHandler }     from './command-handlers'
+import { UpdateIssueBodyCommandHandler } from './command-handlers'
 
 export type CommandHandlerFactory = (
   context: Context,

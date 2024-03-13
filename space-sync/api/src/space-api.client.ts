@@ -50,7 +50,7 @@ export class SpaceApiClient extends ApiRepository {
       },
     }
 
-    return await this.client.fetch('/api/http/chats/messages/send-message', 'POST', data)
+    return await this.client.fetch('/api/http/chats/messages/send-message', 'POST', data, true)
   }
 
   async updateIssueBody(issue: string, project: string, changes: Changes): Promise<unknown> {
