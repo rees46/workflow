@@ -54177,9 +54177,15 @@ class UpdateIssueBodyCommandHandler extends commands_1.UpdateIssueBodyCommand {
             spaceAssigneeID = constants_1.SPACE_USERS.find((item) => {
                 const githubName = assignee.toLowerCase();
                 const spaceUsername = item.username.toLowerCase();
-                return githubName.includes(spaceUsername) || spaceUsername.includes(githubName);
+                const spaceLastname = item.name.lastName.toLowerCase();
+                return githubName.includes(spaceUsername) ||
+                    spaceUsername.includes(githubName) ||
+                    spaceLastname.includes(githubName) ||
+                    githubName.includes(spaceLastname);
             })?.id;
-            console.log(spaceAssigneeID);
+            if (!spaceAssigneeID) {
+                console.log(`🔎🔎🔎  User with GitHub name ${assignee} not found in Space nor in username nor in last name`);
+            }
         }
         const changes = {
             body,
@@ -55217,44 +55223,35 @@ exports.SPACE_USERS = [
 
 /***/ }),
 
-/***/ 4652:
+/***/ 7764:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.runTest = void 0;
+exports.run = void 0;
 const core_1 = __nccwpck_require__(2186);
+const core_2 = __nccwpck_require__(2186);
 const github_1 = __nccwpck_require__(5438);
 const api_1 = __nccwpck_require__(4595);
 const commands_1 = __nccwpck_require__(4920);
 const error_handler_1 = __nccwpck_require__(1117);
-const runTest = async () => {
+const run = async () => {
     try {
-        process.env.SPACE_URL = 'https://rees46.jetbrains.space';
-        process.env.SPACE_SECRET
-            = 'eyJhbGciOiJSUzUxMiJ9.eyJzdWIiOiIxMHg2TmQwcll4aW4iLCJhdWQiOiJjaXJjbGV0LXdlYi11aSIsIm9yZ0RvbWFpbiI6InJlZXM0NiIsIm5hbWUiOiJuZWxmaW1vdiIsImlzcyI6Imh0dHBzOlwvXC9yZWVzNDYuamV0YnJhaW5zLnNwYWNlIiwicGVybV90b2tlbiI6IjQ2ajgzSzNxc3RhVyIsInByaW5jaXBhbF90eXBlIjoiVVNFUiIsImlhdCI6MTcxMDMwOTUyMH0.XitSrgBUJEIUaC4SFZyf7_GosupDw_zQOj2DAwYKmY1diysp5KuKn9Z0EwVPno9Jws4ayrUwDq9HcDLLvGCAiNtRbzpCKKQ_fPpbmXEI0ojumr0SXlUZckxY5i3LQquGgQXw1ZHACUsG_38mlLf9ib7ow1SDlOgwD1L1sZyykfk';
+        const issueTitleWithTicketID = (0, core_1.getInput)('blockWithTicketID', { required: true });
+        process.env.SPACE_URL = (0, core_1.getInput)('spaceURL', { required: true });
+        process.env.SPACE_SECRET = (0, core_1.getInput)('spaceSecret', { required: true });
         console.log(JSON.stringify(github_1.context, undefined, 2));
-        const issue = '2653';
-        const project = 'dev';
         const client = new api_1.SpaceApiClient();
-        const text = 'test comment';
-        const author = 'nelfimov';
-        const command = new commands_1.UpdateIssueBodyCommandHandler({
-            issue,
-            project,
-            status: 'incoming',
-            title: 'new title test',
-            assignee: 'gochicus',
-            body: 'This is from api',
-        }, client);
-        await command.execute();
+        const command = (0, commands_1.commandHandlerFactory)(github_1.context, client, issueTitleWithTicketID);
+        const result = await command.execute();
+        console.log(JSON.stringify(result, undefined, 2));
     }
     catch (error) {
-        (0, error_handler_1.errorHandler)(error, core_1.setFailed);
+        (0, error_handler_1.errorHandler)(error, core_2.setFailed);
     }
 };
-exports.runTest = runTest;
+exports.run = run;
 
 
 /***/ }),
@@ -57334,8 +57331,8 @@ var __webpack_exports__ = {};
 var exports = __webpack_exports__;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-const run_test_1 = __nccwpck_require__(4652);
-(0, run_test_1.runTest)();
+const run_1 = __nccwpck_require__(7764);
+(0, run_1.run)();
 
 })();
 
