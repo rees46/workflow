@@ -53901,8 +53901,8 @@ class Fetcher {
         this.url = url;
         this.secret = secret;
     }
-    async fetch(postfix, method, data) {
-        return (await fetch(this.url + postfix, {
+    async fetch(postfix, method, data, shouldReturnData = false) {
+        const response = await fetch(this.url + postfix, {
             method,
             headers: {
                 'Content-Type': 'application/json',
@@ -53910,7 +53910,8 @@ class Fetcher {
                 'Authorization': `Bearer ${this.secret}`,
             },
             body: JSON.stringify(data),
-        })).json();
+        });
+        return shouldReturnData ? await response.json() : response.statusText;
     }
 }
 exports.Fetcher = Fetcher;
@@ -53990,7 +53991,7 @@ class SpaceApiClient extends api_repository_1.ApiRepository {
                 ],
             },
         };
-        return await this.client.fetch('/api/http/chats/messages/send-message', 'POST', data);
+        return await this.client.fetch('/api/http/chats/messages/send-message', 'POST', data, true);
     }
     async updateIssueBody(issue, project, changes) {
         const data = {
