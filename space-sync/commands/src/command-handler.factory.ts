@@ -64,7 +64,7 @@ export const commandHandlerFactory: CommandHandlerFactory = (
             if (value.from !== '') {
               console.log('This is not empty: ' + value.from)
               // @ts-ignore
-              changesData[key] = issuePayload[value]
+              changesData[key] = issuePayload[key]
             }
           }
 
