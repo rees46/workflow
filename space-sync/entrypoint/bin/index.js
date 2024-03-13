@@ -53902,7 +53902,7 @@ class Fetcher {
         this.secret = secret;
     }
     async fetch(postfix, method, data) {
-        const response = await fetch(this.url + postfix, {
+        return (await fetch(this.url + postfix, {
             method,
             headers: {
                 'Content-Type': 'application/json',
@@ -53910,9 +53910,7 @@ class Fetcher {
                 'Authorization': `Bearer ${this.secret}`,
             },
             body: JSON.stringify(data),
-        });
-        console.log(await response.json());
-        return await response.json();
+        })).json();
     }
 }
 exports.Fetcher = Fetcher;
@@ -54066,16 +54064,11 @@ const commandHandlerFactory = (context, client, blockWithURL) => {
                     }
                     const changesData = {};
                     for (const [key, value] of Object.entries(changes)) {
-                        console.log('Key: ' + JSON.stringify(key));
-                        console.log('Value: ' + JSON.stringify(value));
                         if (value.from !== '') {
-                            console.log('This is not empty: ' + value.from);
                             // @ts-ignore
                             changesData[key] = issuePayload[key];
                         }
                     }
-                    console.log('changesData');
-                    console.log(changesData);
                     return new command_handlers_2.UpdateIssueBodyCommandHandler({
                         issue,
                         project,
@@ -55251,7 +55244,7 @@ const run = async () => {
         const client = new api_1.SpaceApiClient();
         const command = (0, commands_1.commandHandlerFactory)(github_1.context, client, issueTitleWithTicketID);
         const result = await command.execute();
-        console.log(JSON.stringify(result, undefined, 2));
+        console.log(result);
     }
     catch (error) {
         (0, error_handler_1.errorHandler)(error, core_2.setFailed);
