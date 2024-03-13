@@ -43,8 +43,6 @@ export const commandHandlerFactory: CommandHandlerFactory = (
       }
     case 'issues':
       switch (action) {
-        case 'assigned':
-        case 'unassigned':
         case 'edited':
           const changes = context.payload.changes
           const issuePayload = context.payload.issue
@@ -72,8 +70,11 @@ export const commandHandlerFactory: CommandHandlerFactory = (
             assignee: changesData['assignee'],
             body: changesData['body'],
             status: changesData['status'],
-            title: changesData['title']
+            title: changesData['title'],
           }, client)
+
+        case 'assigned':
+        case 'unassigned':
         case 'milestoned':
         case 'demilestoned':
         case 'created':
@@ -82,7 +83,7 @@ export const commandHandlerFactory: CommandHandlerFactory = (
         case 'reopened':
         case 'opened':
         default:
-          throw Error('Unknown action')
+          throw Error('Unimplemented action')
       }
     default:
       throw Error('Unknown event name')
