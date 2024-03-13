@@ -1,10 +1,14 @@
-import { CommandHandlerFactory }         from './command-handler.interfaces'
-import { SendCommentCommandHandler }     from './command-handlers'
-import { UpdateIssueBodyCommandHandler } from './command-handlers'
-import { getSpaceUrl }                   from './parsers'
-import { getIssueBody }                  from './parsers'
-import { getSpaceProject }               from './parsers'
-import { getIssueID }                    from './parsers'
+import { CommandHandlerFactory }                from './command-handler.interfaces'
+import { CloseIssueCommandHandler }             from './command-handlers'
+import { NotifyOnNewGithubIssueCommandHandler } from './command-handlers'
+import { AssignIssueCommandHandler }            from './command-handlers'
+import { SendCommentCommandHandler }            from './command-handlers'
+import { UpdateIssueBodyCommandHandler }        from './command-handlers'
+import { UnassignIssueCommandHandler }          from './command-handlers'
+import { getSpaceUrl }                          from './parsers'
+import { getIssueBody }                         from './parsers'
+import { getSpaceProject }                      from './parsers'
+import { getIssueID }                           from './parsers'
 
 export const commandHandlerFactory: CommandHandlerFactory = (
   context,
@@ -24,6 +28,8 @@ export const commandHandlerFactory: CommandHandlerFactory = (
   const issue = getIssueID(spaceURL)
   const project = getSpaceProject(spaceURL)
 
+  let author: string = ''
+
   switch (eventName) {
     case 'issue_comment':
       switch (action) {
@@ -36,6 +42,7 @@ export const commandHandlerFactory: CommandHandlerFactory = (
           const text = context.payload.comment.body
 
           return new SendCommentCommandHandler({ author, text, issue, project }, client)
+
         case 'deleted':
         case 'edited':
         default:
@@ -74,14 +81,31 @@ export const commandHandlerFactory: CommandHandlerFactory = (
           }, client)
 
         case 'assigned':
+          const assignee = context.payload.issue?.assignee?.login ?? ''
+
+          return new AssignIssueCommandHandler({ issue, project, assignee }, client)
+
         case 'unassigned':
-        case 'milestoned':
-        case 'demilestoned':
+          return new UnassignIssueCommandHandler({ issue, project }, client)
+
         case 'created':
-        case 'labeled':
+          author = context.payload.issue?.assignee?.login ?? ''
+          const url = context.payload.issue?.html_url ?? ''
+
+          return new NotifyOnNewGithubIssueCommandHandler({ issue, project, url, author }, client)
+
         case 'closed':
+          author = context.payload.issue?.assignee?.login ?? ''
+
+          return new CloseIssueCommandHandler({ author, project, issue }, client)
+
         case 'reopened':
         case 'opened':
+
+
+        case 'milestoned':
+        case 'demilestoned':
+        case 'labeled':
         default:
           throw Error('Unimplemented action')
       }

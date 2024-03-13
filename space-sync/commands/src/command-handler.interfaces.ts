@@ -13,8 +13,14 @@ export type Comment = {
   id: number,
 }
 
+export type Assignee = {
+  login: string
+}
+
 export type Issue = {
   body?: string | undefined
+  html_url?: string | undefined
+  assignee?: Assignee
 }
 
 export type Context = {
@@ -23,6 +29,7 @@ export type Context = {
     action?: string
     issue?: Issue
     changes?: Record<string, any>
+    assignee?: Record<string, any>
   }
   changes?: Object
   eventName: string

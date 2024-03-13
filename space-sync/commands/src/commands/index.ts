@@ -1,2 +1,6 @@
 export * from './send-comment.command'
 export * from './update-issue-body.command'
+export * from './unassign-issue.command'
+export * from './assign-issue.command'
+export * from './notify-on-new-github-issue.command'
+export * from './close-issue.command'
