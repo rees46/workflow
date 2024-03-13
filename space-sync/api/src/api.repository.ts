@@ -1,8 +1,8 @@
 export type Changes = {
   body?: string,
   title?: string,
-  status?: string,
-  assignee?: string,
+  status?: string | null,
+  assignee?: string | null,
 }
 
 export abstract class ApiRepository {
@@ -12,6 +12,8 @@ export abstract class ApiRepository {
   abstract sendComment(issue: string, project: string, text: string, author: string): Promise<unknown>
 
   abstract updateIssueBody(issue: string, project: string, changes: Changes): Promise<unknown>
+
+  abstract updateAssignee(issue: string, project: string, assignee?: string | null): Promise<unknown>
 
   abstract updateLabel(issue: string, label: string): Promise<unknown>
 

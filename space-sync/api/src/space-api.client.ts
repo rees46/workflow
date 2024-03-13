@@ -4,7 +4,6 @@ import { Fetcher }       from './fetcher'
 
 export class SpaceApiClient extends ApiRepository {
   protected client: Fetcher
-
   public constructor(url?: string, key?: string) {
     if (!process.env.SPACE_URL && !url) {
       throw Error('URL must be provided')
@@ -44,7 +43,7 @@ export class SpaceApiClient extends ApiRepository {
                 },
               },
             ],
-            footer: `Sent by GitHub from ${author}`,
+            footer: `Sent by GitHub on behalf of ${author}`,
           },
         ],
       },
@@ -65,6 +64,18 @@ export class SpaceApiClient extends ApiRepository {
       `/api/http/projects/key:${project.toUpperCase()}/planning/issues/key:${project.toUpperCase()}-T-${issue}`,
       'PATCH',
       data,
+    )
+  }
+
+  async updateAssignee(issue: string, project: string, assignee: string | null = null): Promise<unknown> {
+    const data = {
+      assignee
+    }
+
+    return await this.client.fetch(
+      `/api/http/projects/key:${project.toUpperCase()}/planning/issues/key:${project.toUpperCase()}-T-${issue}`,
+      'PATCH',
+      data
     )
   }
 

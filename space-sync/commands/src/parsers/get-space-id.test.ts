@@ -1,7 +1,6 @@
 import { describe }     from 'vitest'
 import { it }           from 'vitest'
 import { expect }       from 'vitest'
-import { getIssueBody } from './get-issue-body'
 import { getIssueID }   from './get-space-id'
 import { getSpaceUrl }  from './get-space-url'
 

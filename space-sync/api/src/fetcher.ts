@@ -1,5 +1,3 @@
-import { log } from 'node:util'
-
 type Method = 'POST' | 'PATCH' | 'GET'
 
 export class Fetcher {
