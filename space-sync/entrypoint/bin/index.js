@@ -54055,8 +54055,6 @@ const commandHandlerFactory = (context, client, blockWithURL) => {
             }
         case 'issues':
             switch (action) {
-                case 'assigned':
-                case 'unassigned':
                 case 'edited':
                     const changes = context.payload.changes;
                     const issuePayload = context.payload.issue;
@@ -54079,8 +54077,10 @@ const commandHandlerFactory = (context, client, blockWithURL) => {
                         assignee: changesData['assignee'],
                         body: changesData['body'],
                         status: changesData['status'],
-                        title: changesData['title']
+                        title: changesData['title'],
                     }, client);
+                case 'assigned':
+                case 'unassigned':
                 case 'milestoned':
                 case 'demilestoned':
                 case 'created':
@@ -54089,7 +54089,7 @@ const commandHandlerFactory = (context, client, blockWithURL) => {
                 case 'reopened':
                 case 'opened':
                 default:
-                    throw Error('Unknown action');
+                    throw Error('Unimplemented action');
             }
         default:
             throw Error('Unknown event name');
@@ -54193,6 +54193,7 @@ class UpdateIssueBodyCommandHandler extends commands_1.UpdateIssueBodyCommand {
             assignee: spaceAssigneeID,
             status: spaceStatusID,
         };
+        console.log(changes);
         return this.client.updateIssueBody(issue, project, changes);
     }
 }
