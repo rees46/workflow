@@ -49,6 +49,8 @@ export class UpdateIssueBodyCommandHandler extends UpdateIssueBodyCommand {
       status: spaceStatusID,
     }
 
+    console.log(changes)
+
     return this.client.updateIssueBody(issue, project, changes)
   }
 }
