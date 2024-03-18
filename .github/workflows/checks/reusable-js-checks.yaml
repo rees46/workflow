@@ -1,0 +1,43 @@
+name: Reusable JS checks
+
+on:
+  workflow_call:
+    inputs:
+      node-version:
+        description: 'Node version to run this workflow. Default: 18.19 as it is in action cache'
+        default: '18.19'
+        required: false
+        type: string
+      mainBranch:
+        description: 'Main branch of repo to which there will be comparisons'
+        default: 'master'
+        required: false
+        type: string
+
+jobs:
+  run:
+    name: Version
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ inputs.node-version }}
+
+      - name: Install
+        run: yarn install --mode=update-lockfile --inline-builds
+        env:
+          GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
+
+      - name: Lint
+        run: yarn workspaces foreach -W --since=${{ inputs.mainBranch }} run lint
+
+      - name: Test
+        run: yarn workspaces foreach -W --since=${{ inputs.mainBranch }} run test
+
+      - name: Build
+        run: yarn workspaces foreach -W --since=${{ inputs.mainBranch }} run build
