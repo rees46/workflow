@@ -1,0 +1,65 @@
+name: Reusable php linter
+
+on:
+  workflow_call:
+    inputs:
+      excluded_packages:
+        description: 'Which packages to exclude from building and testing (names separated by comma)'
+        default: ''
+        required: false
+        type: string
+
+
+jobs:
+  run:
+    name: Checker
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: master
+          fetch-depth: 0
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.1"
+          coverage: xdebug
+          tools: phpcs
+      - name: Run linters
+        uses: wearerequired/lint-action@v2
+        with:
+          php_codesniffer: true
+          php_codesniffer_args: "-n"
+      - name: Install dependencies
+        run: composer install
+      - name: Run tests
+        uses: php-actions/phpunit@v3
+        with:
+          version: 9.6
+          bootstrap: vendor/autoload.php
+          configuration: phpunit.xml
+          args: --coverage-text
+      - name: Execute tests
+        run: |
+          PACKAGES=$(ls packages/)
+          echo "Trying to run packages"
+          IFS="," read -ra EXCLUDED_PACKAGES <<< "$INPUT_EXCLUDED_PACKAGES"
+          for package in $PACKAGES
+          do
+            excluded=false
+            for excluded_package in "${EXCLUDED_PACKAGES[@]}"
+            do
+              if [ "$package" == "$excluded_package" ]; then
+                excluded=true
+                break
+              fi
+            done
+            if [ "$excluded" == false ]; then
+              echo "Running test for package: $package"
+              XDEBUG_MODE=coverage vendor/bin/phpunit --bootstrap=packages/$package/vendor/autoload.php --configuration=packages/$package/phpunit.xml
+            else
+              echo "Skipping package: $package (excluded)"
+            fi
+          done
