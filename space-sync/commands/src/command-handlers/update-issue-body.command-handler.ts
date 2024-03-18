@@ -1,8 +1,8 @@
 import { ApiRepository }          from '@space/api'
-import { SPACE_USERS }            from '@space/constants'
-import { SPACE_STATUSES }         from '@space/constants'
 import { UpdateIssueBodyProps }   from '../commands'
 import { UpdateIssueBodyCommand } from '../commands'
+import { findStatus }             from '../finders'
+import { findUser }               from '../finders'
 
 export class UpdateIssueBodyCommandHandler extends UpdateIssueBodyCommand {
   constructor(props: UpdateIssueBodyProps, client: ApiRepository) {
@@ -12,34 +12,16 @@ export class UpdateIssueBodyCommandHandler extends UpdateIssueBodyCommand {
   async execute() {
     const { issue, project, body, title, assignee, status } = this.props
 
-    let spaceStatusID
+    let spaceStatusID = null
 
     if (status) {
-      spaceStatusID = SPACE_STATUSES.find((item) => {
-        const githubStatus = status.toLowerCase()
-        const spaceStatus = item.name.toLowerCase()
-
-        return spaceStatus.includes(githubStatus) || githubStatus.includes(spaceStatus)
-      })?.id
+      spaceStatusID = findStatus(status)
     }
 
-    let spaceAssigneeID
+    let spaceAssigneeID = null
 
     if (assignee) {
-      spaceAssigneeID = SPACE_USERS.find((item) => {
-        const githubName = assignee.toLowerCase()
-        const spaceUsername = item.username.toLowerCase()
-        const spaceLastname = item.name.lastName.toLowerCase()
-
-        return githubName.includes(spaceUsername) ||
-          spaceUsername.includes(githubName) ||
-          spaceLastname.includes(githubName) ||
-          githubName.includes(spaceLastname)
-      })?.id
-
-      if (!spaceAssigneeID) {
-        console.log(`🔎🔎🔎  User with GitHub name ${assignee} not found in Space nor in username nor in last name`)
-      }
+      spaceAssigneeID = findUser(assignee)
     }
 
     const changes = {
@@ -48,8 +30,6 @@ export class UpdateIssueBodyCommandHandler extends UpdateIssueBodyCommand {
       assignee: spaceAssigneeID,
       status: spaceStatusID,
     }
-
-    console.log(changes)
 
     return this.client.updateIssueBody(issue, project, changes)
   }

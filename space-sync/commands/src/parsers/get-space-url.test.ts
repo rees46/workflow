@@ -1,9 +1,6 @@
 import { describe }        from 'vitest'
 import { it }              from 'vitest'
 import { expect }          from 'vitest'
-import { getIssueBody }    from './get-issue-body'
-import { getIssueID }      from './get-space-id'
-import { getSpaceProject } from './get-space-project'
 import { getSpaceUrl }     from './get-space-url'
 
 const issueBody = '### Описание бага\n' +
@@ -33,8 +30,6 @@ const issueBody = '### Описание бага\n' +
 describe('Getting issue URL', () => {
   it('Gets correct URL', () => {
     const url = getSpaceUrl(issueBody, 'Саппорт тикет')
-
-    console.log('URL: ' +url)
 
     expect(url).toEqual('https://rees46.jetbrains.space/p/pro/issues/112')
   })

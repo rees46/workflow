@@ -53986,7 +53986,7 @@ class SpaceApiClient extends api_repository_1.ApiRepository {
                                 },
                             },
                         ],
-                        footer: `Sent by GitHub from ${author}`,
+                        footer: `Sent by GitHub on behalf of ${author}`,
                     },
                 ],
             },
@@ -53999,6 +53999,12 @@ class SpaceApiClient extends api_repository_1.ApiRepository {
             description: changes.body,
             title: changes.title,
             status: changes.status,
+        };
+        return await this.client.fetch(`/api/http/projects/key:${project.toUpperCase()}/planning/issues/key:${project.toUpperCase()}-T-${issue}`, 'PATCH', data);
+    }
+    async updateAssignee(issue, project, assignee = null) {
+        const data = {
+            assignee
         };
         return await this.client.fetch(`/api/http/projects/key:${project.toUpperCase()}/planning/issues/key:${project.toUpperCase()}-T-${issue}`, 'PATCH', data);
     }
@@ -54023,6 +54029,10 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.commandHandlerFactory = void 0;
 const command_handlers_1 = __nccwpck_require__(7060);
 const command_handlers_2 = __nccwpck_require__(7060);
+const command_handlers_3 = __nccwpck_require__(7060);
+const command_handlers_4 = __nccwpck_require__(7060);
+const command_handlers_5 = __nccwpck_require__(7060);
+const command_handlers_6 = __nccwpck_require__(7060);
 const parsers_1 = __nccwpck_require__(7783);
 const parsers_2 = __nccwpck_require__(7783);
 const parsers_3 = __nccwpck_require__(7783);
@@ -54037,6 +54047,7 @@ const commandHandlerFactory = (context, client, blockWithURL) => {
     const spaceURL = (0, parsers_1.getSpaceUrl)(issueBody, blockWithURL);
     const issue = (0, parsers_4.getIssueID)(spaceURL);
     const project = (0, parsers_3.getSpaceProject)(spaceURL);
+    let author = '';
     switch (eventName) {
         case 'issue_comment':
             switch (action) {
@@ -54046,7 +54057,7 @@ const commandHandlerFactory = (context, client, blockWithURL) => {
                     }
                     const author = context.payload.comment.user.login;
                     const text = context.payload.comment.body;
-                    return new command_handlers_1.SendCommentCommandHandler({ author, text, issue, project }, client);
+                    return new command_handlers_4.SendCommentCommandHandler({ author, text, issue, project }, client);
                 case 'deleted':
                 case 'edited':
                 default:
@@ -54070,7 +54081,7 @@ const commandHandlerFactory = (context, client, blockWithURL) => {
                             changesData[key] = issuePayload[key];
                         }
                     }
-                    return new command_handlers_2.UpdateIssueBodyCommandHandler({
+                    return new command_handlers_5.UpdateIssueBodyCommandHandler({
                         issue,
                         project,
                         assignee: changesData['assignee'],
@@ -54079,14 +54090,22 @@ const commandHandlerFactory = (context, client, blockWithURL) => {
                         title: changesData['title'],
                     }, client);
                 case 'assigned':
+                    const assignee = context.payload.issue?.assignee?.login ?? '';
+                    return new command_handlers_3.AssignIssueCommandHandler({ issue, project, assignee }, client);
                 case 'unassigned':
-                case 'milestoned':
-                case 'demilestoned':
+                    return new command_handlers_6.UnassignIssueCommandHandler({ issue, project }, client);
                 case 'created':
-                case 'labeled':
+                    author = context.payload.issue?.assignee?.login ?? '';
+                    const url = context.payload.issue?.html_url ?? '';
+                    return new command_handlers_2.NotifyOnNewGithubIssueCommandHandler({ issue, project, url, author }, client);
                 case 'closed':
+                    author = context.payload.issue?.assignee?.login ?? '';
+                    return new command_handlers_1.CloseIssueCommandHandler({ author, project, issue }, client);
                 case 'reopened':
                 case 'opened':
+                case 'milestoned':
+                case 'demilestoned':
+                case 'labeled':
                 default:
                     throw Error('Unimplemented action');
             }
@@ -54095,6 +54114,59 @@ const commandHandlerFactory = (context, client, blockWithURL) => {
     }
 };
 exports.commandHandlerFactory = commandHandlerFactory;
+
+
+/***/ }),
+
+/***/ 6069:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.AssignIssueCommandHandler = void 0;
+const commands_1 = __nccwpck_require__(5922);
+const finders_1 = __nccwpck_require__(957);
+class AssignIssueCommandHandler extends commands_1.AssignIssueCommand {
+    constructor(props, client) {
+        super(props, client);
+    }
+    async execute() {
+        const { issue, project, assignee } = this.props;
+        const spaceUserID = (0, finders_1.findUser)(assignee);
+        if (!spaceUserID) {
+            throw Error(`User with Github username ${assignee} not found in SPACE_USERS`);
+        }
+        return this.client.updateAssignee(issue, project, spaceUserID);
+    }
+}
+exports.AssignIssueCommandHandler = AssignIssueCommandHandler;
+
+
+/***/ }),
+
+/***/ 2548:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.CloseIssueCommandHandler = void 0;
+const commands_1 = __nccwpck_require__(5922);
+class CloseIssueCommandHandler extends commands_1.CloseIssueCommand {
+    constructor(props, client) {
+        super(props, client);
+    }
+    async execute() {
+        const { issue, project, author } = this.props;
+        const changes = {
+            status: 'closed'
+        };
+        // TODO: add new method to close issue with comment on author
+        return this.client.updateIssueBody(issue, project, changes);
+    }
+}
+exports.CloseIssueCommandHandler = CloseIssueCommandHandler;
 
 
 /***/ }),
@@ -54121,6 +54193,33 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 __exportStar(__nccwpck_require__(9080), exports);
 __exportStar(__nccwpck_require__(4925), exports);
+__exportStar(__nccwpck_require__(6069), exports);
+__exportStar(__nccwpck_require__(4407), exports);
+__exportStar(__nccwpck_require__(8393), exports);
+__exportStar(__nccwpck_require__(2548), exports);
+
+
+/***/ }),
+
+/***/ 8393:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.NotifyOnNewGithubIssueCommandHandler = void 0;
+const commands_1 = __nccwpck_require__(5922);
+class NotifyOnNewGithubIssueCommandHandler extends commands_1.NotifyOnNewGithubIssueCommand {
+    constructor(props, client) {
+        super(props, client);
+    }
+    async execute() {
+        const { issue, project, author, url } = this.props;
+        const notificationText = `This issue has been mentioned in a newly created GitHub issue: ${url}`;
+        return this.client.sendComment(issue, project, notificationText, author);
+    }
+}
+exports.NotifyOnNewGithubIssueCommandHandler = NotifyOnNewGithubIssueCommandHandler;
 
 
 /***/ }),
@@ -54147,6 +54246,28 @@ exports.SendCommentCommandHandler = SendCommentCommandHandler;
 
 /***/ }),
 
+/***/ 4407:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.UnassignIssueCommandHandler = void 0;
+const commands_1 = __nccwpck_require__(5922);
+class UnassignIssueCommandHandler extends commands_1.UnassignIssueCommand {
+    constructor(props, client) {
+        super(props, client);
+    }
+    async execute() {
+        const { issue, project } = this.props;
+        return this.client.updateAssignee(issue, project);
+    }
+}
+exports.UnassignIssueCommandHandler = UnassignIssueCommandHandler;
+
+
+/***/ }),
+
 /***/ 4925:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
@@ -54154,37 +54275,22 @@ exports.SendCommentCommandHandler = SendCommentCommandHandler;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.UpdateIssueBodyCommandHandler = void 0;
-const constants_1 = __nccwpck_require__(9398);
-const constants_2 = __nccwpck_require__(9398);
 const commands_1 = __nccwpck_require__(5922);
+const finders_1 = __nccwpck_require__(957);
+const finders_2 = __nccwpck_require__(957);
 class UpdateIssueBodyCommandHandler extends commands_1.UpdateIssueBodyCommand {
     constructor(props, client) {
         super(props, client);
     }
     async execute() {
         const { issue, project, body, title, assignee, status } = this.props;
-        let spaceStatusID;
+        let spaceStatusID = null;
         if (status) {
-            spaceStatusID = constants_2.SPACE_STATUSES.find((item) => {
-                const githubStatus = status.toLowerCase();
-                const spaceStatus = item.name.toLowerCase();
-                return spaceStatus.includes(githubStatus) || githubStatus.includes(spaceStatus);
-            })?.id;
+            spaceStatusID = (0, finders_1.findStatus)(status);
         }
-        let spaceAssigneeID;
+        let spaceAssigneeID = null;
         if (assignee) {
-            spaceAssigneeID = constants_1.SPACE_USERS.find((item) => {
-                const githubName = assignee.toLowerCase();
-                const spaceUsername = item.username.toLowerCase();
-                const spaceLastname = item.name.lastName.toLowerCase();
-                return githubName.includes(spaceUsername) ||
-                    spaceUsername.includes(githubName) ||
-                    spaceLastname.includes(githubName) ||
-                    githubName.includes(spaceLastname);
-            })?.id;
-            if (!spaceAssigneeID) {
-                console.log(`🔎🔎🔎  User with GitHub name ${assignee} not found in Space nor in username nor in last name`);
-            }
+            spaceAssigneeID = (0, finders_2.findUser)(assignee);
         }
         const changes = {
             body,
@@ -54192,11 +54298,50 @@ class UpdateIssueBodyCommandHandler extends commands_1.UpdateIssueBodyCommand {
             assignee: spaceAssigneeID,
             status: spaceStatusID,
         };
-        console.log(changes);
         return this.client.updateIssueBody(issue, project, changes);
     }
 }
 exports.UpdateIssueBodyCommandHandler = UpdateIssueBodyCommandHandler;
+
+
+/***/ }),
+
+/***/ 2379:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.AssignIssueCommand = void 0;
+class AssignIssueCommand {
+    props;
+    client;
+    constructor(props, client) {
+        this.props = props;
+        this.client = client;
+    }
+}
+exports.AssignIssueCommand = AssignIssueCommand;
+
+
+/***/ }),
+
+/***/ 5956:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.CloseIssueCommand = void 0;
+class CloseIssueCommand {
+    props;
+    client;
+    constructor(props, client) {
+        this.props = props;
+        this.client = client;
+    }
+}
+exports.CloseIssueCommand = CloseIssueCommand;
 
 
 /***/ }),
@@ -54223,6 +54368,30 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 __exportStar(__nccwpck_require__(8777), exports);
 __exportStar(__nccwpck_require__(4106), exports);
+__exportStar(__nccwpck_require__(7968), exports);
+__exportStar(__nccwpck_require__(2379), exports);
+__exportStar(__nccwpck_require__(5753), exports);
+__exportStar(__nccwpck_require__(5956), exports);
+
+
+/***/ }),
+
+/***/ 5753:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.NotifyOnNewGithubIssueCommand = void 0;
+class NotifyOnNewGithubIssueCommand {
+    props;
+    client;
+    constructor(props, client) {
+        this.props = props;
+        this.client = client;
+    }
+}
+exports.NotifyOnNewGithubIssueCommand = NotifyOnNewGithubIssueCommand;
 
 
 /***/ }),
@@ -54247,6 +54416,26 @@ exports.SendCommentCommand = SendCommentCommand;
 
 /***/ }),
 
+/***/ 7968:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.UnassignIssueCommand = void 0;
+class UnassignIssueCommand {
+    props;
+    client;
+    constructor(props, client) {
+        this.props = props;
+        this.client = client;
+    }
+}
+exports.UnassignIssueCommand = UnassignIssueCommand;
+
+
+/***/ }),
+
 /***/ 4106:
 /***/ ((__unused_webpack_module, exports) => {
 
@@ -54263,6 +54452,82 @@ class UpdateIssueBodyCommand {
     }
 }
 exports.UpdateIssueBodyCommand = UpdateIssueBodyCommand;
+
+
+/***/ }),
+
+/***/ 9324:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.findStatus = void 0;
+const constants_1 = __nccwpck_require__(9398);
+const findStatus = (status) => {
+    const githubStatus = status.toLowerCase();
+    const spaceStatusID = constants_1.SPACE_STATUSES.find((item) => {
+        const spaceStatus = item.name.toLowerCase();
+        return spaceStatus.includes(githubStatus) || githubStatus.includes(spaceStatus);
+    })?.id;
+    return spaceStatusID ?? null;
+};
+exports.findStatus = findStatus;
+
+
+/***/ }),
+
+/***/ 7270:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.findUser = void 0;
+const constants_1 = __nccwpck_require__(9398);
+const findUser = (githubUsername) => {
+    const spaceUserID = constants_1.SPACE_USERS.find((item) => {
+        const githubName = githubUsername.toLowerCase();
+        const spaceUsername = item.username.toLowerCase();
+        const spaceLastname = item.name.lastName.toLowerCase();
+        return githubName.includes(spaceUsername) ||
+            spaceUsername.includes(githubName) ||
+            spaceLastname.includes(githubName) ||
+            githubName.includes(spaceLastname);
+    })?.id;
+    if (!spaceUserID) {
+        console.error(`🔎🔎🔎  User with GitHub name ${githubUsername} not found in Space nor in username nor in last name`);
+        return null;
+    }
+    return spaceUserID;
+};
+exports.findUser = findUser;
+
+
+/***/ }),
+
+/***/ 957:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __exportStar = (this && this.__exportStar) || function(m, exports) {
+    for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+__exportStar(__nccwpck_require__(7270), exports);
+__exportStar(__nccwpck_require__(9324), exports);
 
 
 /***/ }),
