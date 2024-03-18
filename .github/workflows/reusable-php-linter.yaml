@@ -1,0 +1,27 @@
+name: Reusable php linter
+
+on:
+  workflow_call:
+
+jobs:
+  run:
+    name: Publish
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: master
+          fetch-depth: 0
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.1"
+          coverage: none
+          tools: phpcs
+      - name: Run linters
+        uses: wearerequired/lint-action@v2
+        with:
+          php_codesniffer: true
+          php_codesniffer_args: "-n"
