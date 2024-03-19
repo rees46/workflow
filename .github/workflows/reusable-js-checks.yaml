@@ -8,15 +8,10 @@ on:
         default: '18.19'
         required: false
         type: string
-      mainBranch:
-        description: 'Main branch of repo to which there will be comparisons'
-        default: 'master'
-        required: false
-        type: string
 
 jobs:
   run:
-    name: Version
+    name: Check
     runs-on: ubuntu-latest
 
     steps:
@@ -34,10 +29,10 @@ jobs:
           GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
 
       - name: Lint
-        run: yarn workspaces foreach -W --since=${{ inputs.mainBranch }} run lint
+        run: yarn workspaces foreach -W --since run lint
 
       - name: Test
-        run: yarn workspaces foreach -W --since=${{ inputs.mainBranch }} run test
+        run: yarn workspaces foreach -W --since run test
 
       - name: Build
-        run: yarn workspaces foreach -W --since=${{ inputs.mainBranch }} run build
+        run: yarn workspaces foreach -W --since run build
