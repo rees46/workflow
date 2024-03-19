@@ -26,7 +26,7 @@ jobs:
           node-version: ${{ inputs.node-version }}
 
       - name: Install
-        run: yarn install --mode=update-lockfile --inline-builds
+        run: yarn install --inline-builds
         env:
           GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
 
