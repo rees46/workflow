@@ -40,7 +40,6 @@ jobs:
         run: |
           PACKAGES=$(echo "$CHANGED_FILES" | tr ' ' '\n' | grep 'packages/' | awk -F'/' '{print $2}' | uniq)
           echo "Starting to deploy $PACKAGES"
-          export PACKAGES=monitoring-service
           for package in $PACKAGES
           do
             curl -X POST -u ${{ secrets.JENKINS_DEPLOY_USER }}:${{ secrets.JENKINS_DEPLOY_TOKEN }} "https://ci.rees46.ru/job/${package}/build"
