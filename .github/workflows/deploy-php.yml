@@ -1,4 +1,4 @@
-name: Deploy trigger
+name: Deploy PHP services
 
 on:
   workflow_call:
@@ -23,7 +23,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          ref: stage
+          ref: master
           fetch-depth: 0
 
       - name: Changed files
@@ -47,5 +47,13 @@ jobs:
           echo "Starting to deploy $PACKAGES"
           for package in $PACKAGES
           do
-            curl -X POST -u "$JENKINS_DEPLOY_USER:$JENKINS_DEPLOY_TOKEN" "https://ci.rees46.ru/job/${package}/build"
+            if [ "$package" == "core" ]; then
+              services=("monitoring-service" "notification-service")
+              for service in "${services[@]}"
+              do
+                curl -X POST -u "$JENKINS_DEPLOY_USER:$JENKINS_DEPLOY_TOKEN" "https://ci.rees46.ru/job/${service}/build"
+              done
+            else
+              curl -X POST -u "$JENKINS_DEPLOY_USER:$JENKINS_DEPLOY_TOKEN" "https://ci.rees46.ru/job/${package}/build"
+            fi
           done
