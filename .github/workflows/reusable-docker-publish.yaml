@@ -52,10 +52,10 @@ jobs:
           for package in $PACKAGES
           do
             echo "🏗🏗🏗️  Building $package..."
-            if [ -f "./docker/Dockerfile-$package" ]; then
+            if [ -f "./packages/$package/Dockerfile" ]; then
               echo "🔎🔎🔎  Found Dockerfile for $package"
               image_name=ghcr.io/$REPOSITORY_OWNER/$package:latest
-              docker build -f docker/Dockerfile-$package . -t $image_name --quiet
+              docker build . -f packages/$package/Dockerfile -t $image_name --quiet
               echo $GITHUB_TOKEN | docker login ghcr.io -u $REPOSITORY_OWNER --password-stdin
               docker push $image_name --quiet
               echo "✅✅✅ Pushed successfully $image_name"
