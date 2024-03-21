@@ -1,0 +1,46 @@
+name: Deploy trigger
+
+on:
+  workflow_call:
+    inputs:
+      changeLookUpPath:
+        description: 'Which service to look for changes and deploy'
+        default: ''
+        required: false
+        type: string
+
+jobs:
+  run:
+    name: Deploy trigger
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: stage
+          fetch-depth: 0
+
+      - name: Changed files
+        id: changed_files
+        uses: tj-actions/changed-files@v42
+
+      - name: Check if any services need deploy
+        id: changed_packages
+        run: |
+          echo "packages=$(echo "$CHANGED_FILES" | grep 'packages/' | awk -F'/' '{print $2}' | uniq)" >> $"GITHUB_OUTPUT" 
+
+      - name: Trigger Jenkins Job
+        env:
+          CHANGED_FILES: ${{ steps.changed_files.outputs.all_changed_files }}
+          JENKINS_DEPLOY_USER: ${{ secrets.JENKINS_DEPLOY_USER }}
+          JENKINS_DEPLOY_TOKEN: ${{ secrets.JENKINS_DEPLOY_TOKEN }}
+
+        if: ${{ steps.changed_packages.outputs.packages }} != ''
+        run: |
+          PACKAGES=$(echo "$CHANGED_FILES" | tr ' ' '\n' | grep 'packages/' | awk -F'/' '{print $2}' | uniq)
+          echo "Starting to deploy $PACKAGES"
+          for package in $PACKAGES
+          do
+            curl -X POST -u ${{ secrets.JENKINS_DEPLOY_USER }}:${{ secrets.JENKINS_DEPLOY_TOKEN }} "http://ci.rees46.ru/job/${package}/build"
+          done
