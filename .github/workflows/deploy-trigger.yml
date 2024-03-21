@@ -42,5 +42,5 @@ jobs:
           echo "Starting to deploy $PACKAGES"
           for package in $PACKAGES
           do
-            curl -X POST -u ${{ secrets.JENKINS_DEPLOY_USER }}:${{ secrets.JENKINS_DEPLOY_TOKEN }} "https://ci.rees46.ru/job/${package}/build"
+            curl -X POST -u "$JENKINS_DEPLOY_USER:$JENKINS_DEPLOY_TOKEN" "https://ci.rees46.ru/job/${package}/build"
           done
