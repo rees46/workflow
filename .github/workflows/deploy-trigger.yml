@@ -8,6 +8,11 @@ on:
         default: ''
         required: false
         type: string
+    secrets:
+      user:
+        required: true
+      token:
+        required: true
 
 jobs:
   run:
@@ -33,13 +38,11 @@ jobs:
       - name: Trigger Jenkins Job
         env:
           CHANGED_FILES: ${{ steps.changed_files.outputs.all_changed_files }}
-          JENKINS_DEPLOY_USER: ${{ secrets.JENKINS_DEPLOY_USER }}
-          JENKINS_DEPLOY_TOKEN: ${{ secrets.JENKINS_DEPLOY_TOKEN }}
+          JENKINS_DEPLOY_USER: ${{ secrets.user }}
+          JENKINS_DEPLOY_TOKEN: ${{ secrets.token }}
 
         if: ${{ steps.changed_packages.outputs.packages }} != ''
         run: |
-          echo "JENKINS_DEPLOY_USER: $JENKINS_DEPLOY_USER"
-          echo "JENKINS_DEPLOY_TOKEN: $JENKINS_DEPLOY_TOKEN"
           PACKAGES=$(echo "$CHANGED_FILES" | tr ' ' '\n' | grep 'packages/' | awk -F'/' '{print $2}' | uniq)
           echo "Starting to deploy $PACKAGES"
           for package in $PACKAGES
