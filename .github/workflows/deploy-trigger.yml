@@ -38,6 +38,8 @@ jobs:
 
         if: ${{ steps.changed_packages.outputs.packages }} != ''
         run: |
+          echo "JENKINS_DEPLOY_USER: $JENKINS_DEPLOY_USER"
+          echo "JENKINS_DEPLOY_TOKEN: $JENKINS_DEPLOY_TOKEN"
           PACKAGES=$(echo "$CHANGED_FILES" | tr ' ' '\n' | grep 'packages/' | awk -F'/' '{print $2}' | uniq)
           echo "Starting to deploy $PACKAGES"
           for package in $PACKAGES
