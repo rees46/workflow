@@ -48,7 +48,7 @@ jobs:
           for package in $PACKAGES
           do
             if [ "$package" == "core" ]; then
-              services=("monitoring-service" "notification-service" "message-service" "recommender-service" "pictures-service" "api-service")
+              services=("monitoring-service" "notification-service" "message-service" "recommender-service" "pictures-service" "api-service" "import-service")
               for service in "${services[@]}"
               do
                 curl -X POST -u "$JENKINS_DEPLOY_USER:$JENKINS_DEPLOY_TOKEN" "https://ci.rees46.ru/job/${service}/build"
