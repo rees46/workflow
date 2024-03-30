@@ -9,15 +9,27 @@ on:
         required: false
         type: string
     secrets:
-      user:
+      URL:
         required: true
-      token:
+      USER:
+        required: true
+      TOKEN:
         required: true
 
 jobs:
   run:
     name: Deploy trigger
     runs-on: ubuntu-latest
+
+    env:
+      SERVICES: |
+        monitoring-service
+        notification-service
+        message-service
+        recommender-service
+        pictures-service
+        api-service
+        import-service
 
     steps:
       - name: Checkout
@@ -38,8 +50,9 @@ jobs:
       - name: Trigger Jenkins Job
         env:
           CHANGED_FILES: ${{ steps.changed_files.outputs.all_changed_files }}
-          JENKINS_DEPLOY_USER: ${{ secrets.user }}
-          JENKINS_DEPLOY_TOKEN: ${{ secrets.token }}
+          JENKINS_URL: ${{ secrets.URL }}
+          JENKINS_DEPLOY_USER: ${{ secrets.USER }}
+          JENKINS_DEPLOY_TOKEN: ${{ secrets.TOKEN }}
 
         if: ${{ steps.changed_packages.outputs.packages }} != ''
         run: |
@@ -48,12 +61,11 @@ jobs:
           for package in $PACKAGES
           do
             if [ "$package" == "core" ]; then
-              services=("monitoring-service" "notification-service" "message-service" "recommender-service" "pictures-service" "api-service" "import-service")
-              for service in "${services[@]}"
+              for service in $SERVICES
               do
-                curl -X POST -u "$JENKINS_DEPLOY_USER:$JENKINS_DEPLOY_TOKEN" "https://ci.rees46.ru/job/${service}/build"
+                curl -X POST -u "$JENKINS_DEPLOY_USER:$JENKINS_DEPLOY_TOKEN" "${JENKINS_URL}/job/${service}/build"
               done
             else
-              curl -X POST -u "$JENKINS_DEPLOY_USER:$JENKINS_DEPLOY_TOKEN" "https://ci.rees46.ru/job/${package}/build"
+              curl -X POST -u "$JENKINS_DEPLOY_USER:$JENKINS_DEPLOY_TOKEN" "${JENKINS_URL}/job/${package}/build"
             fi
           done
