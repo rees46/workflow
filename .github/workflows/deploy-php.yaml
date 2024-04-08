@@ -30,6 +30,7 @@ jobs:
         pictures-service
         api-service
         import-service
+        clickhouse-queue
 
     steps:
       - name: Checkout
