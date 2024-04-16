@@ -18,7 +18,7 @@ on:
         description: Location and name for signature file
         required: true
       GRADLE_VERSION:
-        default: 8.2.2
+        default: 8.2
         type: number
         required: false
     secrets:
