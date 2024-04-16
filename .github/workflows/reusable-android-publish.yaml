@@ -13,6 +13,14 @@ on:
         type: string
         description: Location and name for signature file
         required: false
+      SIGNING_SECRET_KEY_RING_FILE_LOCATION:
+        type: string
+        description: Location and name for signature file
+        required: true
+      GRADLE_VERSION:
+        default: 8.2.2
+        type: number
+        required: false
     secrets:
       OSSRH_USERNAME:
         required: true
@@ -47,6 +55,8 @@ jobs:
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
+        with:
+          gradle-version: ${{ inputs.GRADLE_VERSION }}
 
       - name: Append secrets to gradle.properties
         env:
@@ -72,8 +82,8 @@ jobs:
         uses: timheuer/base64-to-file@v1.2
         id: service_account_json_file
         with:
-          fileName: 'com.rees46.key.gpg'
-          fileDir: './'
+          fileName: ${{ inputs.SIGNING_SECRET_KEY_RING_FILE }}
+          fileDir: ${{ inputs.SIGNING_SECRET_KEY_RING_FILE_LOCATION }}
           encodedString: ${{ secrets.SIGNING_KEY_FILE_AS_BASE64_STRING }}
 
       - name: Publish
