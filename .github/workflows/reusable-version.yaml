@@ -16,6 +16,21 @@ on:
         description: 'App ID for committing and pushing'
         required: true
         type: string
+      private:
+        description: Should apply only to private?
+        type: boolean
+        required: false
+        default: false
+      checkChanges:
+        description: Should run 'yarn --since'?
+        type: boolean
+        required: false
+        default: true
+      deferred:
+        description: Should run 'yarn version --deferred'?
+        type: boolean
+        required: false
+        default: true
     secrets:
       appSecret:
         required: true
@@ -60,15 +75,32 @@ jobs:
           echo "Base Commit: $base_commit"
 
       - name: Version
-        run: yarn workspaces foreach --since=${{ steps.find_base_commit.outputs.base_commit }} --no-private --verbose version patch --deferred
         env:
-          GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          IS_PRIVATE: ${{ inputs.private }}
+          IS_DEFERRED: ${{ inputs.deferred }}
+          SHOULD_CHECK_CHANGES: ${{ inputs.checkChanges }}
+        run: |
+          if [ $IS_PRIVATE == false ]; then
+            PRIVATE_FLAG="--no-private"
+          fi
+          
+          if [ $IS_DEFERRED == true ]; then
+            DEFERRED_FLAG="--deferred"
+            else
+            DEFERRED_FLAG="--immediate"
+          fi
+          
+          if [ $SHOULD_CHECK_CHANGES == true ]; then
+            CHANGES_FLAG="--since=${{ steps.find_base_commit.outputs.base_commit }}"
+          fi
+          
+          yarn workspaces foreach $CHANGES_FLAG $PRIVATE_FLAG --verbose version patch $DEFERRED_FLAG
 
       - name: GitSign
         uses: chainguard-dev/actions/setup-gitsign@main
 
       - name: Commit changes
-        if: ${{ !env.ACT }}
         id: committer
         uses: EndBug/add-and-commit@v9
         env:
