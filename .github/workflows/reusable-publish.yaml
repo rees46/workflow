@@ -19,7 +19,7 @@ on:
         description: Should only create changelog without publish
     secrets:
       npmAuthToken:
-        required: true
+        required: false
       appSecret:
         required: true
 
