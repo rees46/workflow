@@ -1,8 +1,0 @@
-{
-  "name": "@space/constants",
-  "license": "BSD-3-Clause",
-  "exports": {
-    ".": "./src/index.ts"
-  },
-  "packageManager": "yarn@4.1.1"
-}
