@@ -20,7 +20,7 @@ on:
         description: Should the branch be deleted when PR is merged
       mergeRequiredApprovals:
         required: false
-        default: 1
+        default: 0
         type: number
         description: How many approvals required for merge
       log:
