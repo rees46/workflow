@@ -58,6 +58,9 @@ jobs:
           echo "::set-output name=base_commit::$base_commit"
           echo "Base Commit: $base_commit"
 
+      - name: Bump version
+        run: yarn version apply --all
+
       - name: Generate changelog
         run: yarn workspaces foreach --since=${{ steps.find_base_commit.outputs.base_commit }} --verbose run changelog
         env:
@@ -65,9 +68,7 @@ jobs:
 
       - name: Publish
         if: ${{ !inputs.onlyChangelog }}
-        run: |
-          yarn version apply --all
-          yarn workspaces foreach --since=${{ steps.find_base_commit.outputs.base_commit }} --verbose --topological --no-private npm publish --access public
+        run: yarn workspaces foreach --since=${{ steps.find_base_commit.outputs.base_commit }} --verbose --topological --no-private npm publish --access public
         env:
           YARN_NPM_AUTH_TOKEN: ${{ secrets.npmAuthToken }}
 
