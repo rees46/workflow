@@ -79,9 +79,11 @@ jobs:
           echo "Updated $PROPERTIES_FILE"
 
       - name: Retrieve version
+        env:
+          FILE_PATH: ./personalizatio-sdk/build.gradle
         id: versionName
         run: |
-          echo "versionName=$(./gradlew personalizatio-sdk:printVersionName)" >> $GITHUB_OUTPUT 
+          echo "versionName=$(grep -o "version='[^']*'" $FILE_PATH | cut -d"'" -f2)" >> $GITHUB_OUTPUT 
 
       - name: Zip source
         run: |
