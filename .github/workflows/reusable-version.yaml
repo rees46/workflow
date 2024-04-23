@@ -94,7 +94,7 @@ jobs:
           if [ $SHOULD_CHECK_CHANGES == true ]; then
             CHANGES_FLAG="--since=${{ steps.find_base_commit.outputs.base_commit }}"
             else
-            CHANGES_FLAG="--worktree"
+            CHANGES_FLAG="--all"
           fi
           
           yarn workspaces foreach $CHANGES_FLAG $PRIVATE_FLAG --verbose version patch $DEFERRED_FLAG
