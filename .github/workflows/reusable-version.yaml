@@ -64,19 +64,19 @@ jobs:
       - name: Install
         run: yarn install --mode=update-lockfile --inline-builds
         env:
-          GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Find Base Commit for master
         id: find_base_commit
         run: |
           echo "Finding base commit between HEAD and origin/master"
-          base_commit=$(git log --merges -n 2 --format=format:%H | tail -n 1)
-          echo "::set-output name=base_commit::$base_commit"
-          echo "Base Commit: $base_commit"
+          BASE_COMMIT=$(git log --merges -n 2 --format=format:%H | tail -n 1)
+          echo "baseCommit=$BASE_COMMIT" >> $GITHUB_OUTPUT
+          echo "Base Commit: $BASE_COMMIT"
 
       - name: List changed workspaces
         run: |
-          yarn workspaces list --since=${{ steps.find_base_commit.outputs.base_commit }}
+          yarn workspaces list --since=${{ steps.find_base_commit.outputs.baseCommit }}
 
       - name: Version
         env:
@@ -96,7 +96,7 @@ jobs:
           fi
           
           if [ $SHOULD_CHECK_CHANGES == true ]; then
-            CHANGES_FLAG="--since=${{ steps.find_base_commit.outputs.base_commit }}"
+            CHANGES_FLAG="--since=${{ steps.find_base_commit.outputs.baseCommit }}"
             else
             CHANGES_FLAG="--all"
           fi
