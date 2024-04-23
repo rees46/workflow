@@ -8,8 +8,8 @@ on:
         value: ${{ jobs.run.outputs.committed }}
     inputs:
       node-version:
-        description: 'Node version to run this workflow. Default: 18.19 as it is in action cache'
-        default: '18.19'
+        description: 'Node version to run this workflow. Default: 18 as it is in action cache'
+        default: '18'
         required: false
         type: string
       appId:

@@ -5,7 +5,7 @@ on:
     inputs:
       node-version:
         description: 'Node version to run this workflow. Default: 18.19 as it is in action cache'
-        default: '18.19'
+        default: '18'
         required: false
         type: string
 
