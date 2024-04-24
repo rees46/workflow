@@ -17,6 +17,11 @@ on:
         required: false
         default: false
         description: Should only create changelog without publish
+      additionalBranch:
+        type: string
+        required: false
+        default: ''
+        description: Should it push to additional branches
     secrets:
       npmAuthToken:
         required: false
@@ -87,4 +92,5 @@ jobs:
           default_author: github_actions
           author_email: github-bot@rees46.com
           message: 'chore(common): publish'
+          new_branch: "master ${{ inputs.additionalBranch }}"
           add: '["*.lock", "*.json", "*.yml", "*.md"]'
