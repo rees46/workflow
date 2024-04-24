@@ -97,7 +97,7 @@ jobs:
           fi
           
           if [ $SHOULD_CHECK_CHANGES == true ]; then
-            CHANGES_FLAG="--since=${{ steps.find_base_commit.outputs.baseCommit }}"
+            CHANGES_FLAG="--since=${{ steps.find_base_commit.outputs.baseCommit }}^"
             else
             CHANGES_FLAG="--all"
           fi
