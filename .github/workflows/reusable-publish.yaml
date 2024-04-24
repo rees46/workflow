@@ -84,14 +84,25 @@ jobs:
 
       - name: Commit changes
         if: ${{ !env.ACT }}
+        id: committer
         uses: EndBug/add-and-commit@v9
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           commit: -S
           default_author: github_actions
-          push: origin master ${{ inputs.additionalBranch }}
-          fetch: origin master ${{ inputs.additionalBranch }} --tags --force
           author_email: github-bot@rees46.com
           message: 'chore(common): publish'
           add: '["*.lock", "*.json", "*.yml", "*.md"]'
+
+      - name: Cherry pick to additional branch
+        if: inputs.additionalBranch != ''
+        env:
+          BRANCH: ${{ inputs.additionalBranch }}
+          COMMIT_SHA: ${{ steps.committer.outputs.commit_long_sha }}
+        run: |
+          git config --global user.name github-actions
+          git config --global user.email github-bot@rees46.com
+          git switch $BRANCH
+          git cherry-pick $COMMIT_SHA
+          git push origin
