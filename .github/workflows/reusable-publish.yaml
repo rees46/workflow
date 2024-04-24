@@ -90,7 +90,7 @@ jobs:
         with:
           commit: -S
           default_author: github_actions
+          push: origin master ${{ inputs.additionalBranch }}
           author_email: github-bot@rees46.com
           message: 'chore(common): publish'
-          new_branch: "master ${{ inputs.additionalBranch }}"
           add: '["*.lock", "*.json", "*.yml", "*.md"]'
