@@ -60,11 +60,11 @@ jobs:
         env:
           BASE_COMMIT: ${{ steps.find_base_commit.outputs.baseCommit }}
         run: |
-          CHANGED_PACKAGES=$(yarn workspaces list --since=$BASE_COMMIT)
+          CHANGED_PACKAGES=$(yarn workspaces list --since=$BASE_COMMIT^)
           echo "changedPackages=$CHANGED_PACKAGES" >> $GITHUB_OUTPUT
           echo "Changed workspaces: $CHANGED_PACKAGES"
 
       - name: Release
         env:
           BASE_COMMIT: ${{ steps.find_base_commit.outputs.baseCommit }}
-        run: yarn workspaces foreach --since=$BASE_COMMIT exec 'bash -c "yarn pack && VERSION=$npm_package_version && NAME=$npm_package_name && gh release create \"\$NAME-v\$VERSION\" --draft ./package.tgz --title=\$NAME-\$VERSION --notes-file=./CHANGELOG.md"'
+        run: yarn workspaces foreach --since=$BASE_COMMIT^ exec 'bash -c "yarn pack && VERSION=$npm_package_version && NAME=$npm_package_name && gh release create \"\$NAME-v\$VERSION\" --draft ./package.tgz --title=\$NAME-\$VERSION --notes-file=./CHANGELOG.md"'

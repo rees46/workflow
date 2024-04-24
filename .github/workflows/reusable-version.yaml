@@ -76,7 +76,7 @@ jobs:
 
       - name: List changed workspaces
         run: |
-          yarn workspaces list --since=${{ steps.find_base_commit.outputs.baseCommit }}
+          yarn workspaces list --since=${{ steps.find_base_commit.outputs.baseCommit }}^
 
       - name: Version
         env:

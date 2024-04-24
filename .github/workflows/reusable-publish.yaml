@@ -65,14 +65,14 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           BASE_COMMIT: ${{ steps.find_base_commit.outputs.baseCommit }}
-        run: yarn workspaces foreach --since=$BASE_COMMIT --verbose run changelog
+        run: yarn workspaces foreach --since=$BASE_COMMIT^ --verbose run changelog
 
       - name: Publish
         if: ${{ !inputs.onlyChangelog }}
         env:
           YARN_NPM_AUTH_TOKEN: ${{ secrets.npmAuthToken }}
           BASE_COMMIT: ${{ steps.find_base_commit.outputs.baseCommit }}
-        run: yarn workspaces foreach --since=$BASE_COMMIT --verbose --topological --no-private npm publish --access public
+        run: yarn workspaces foreach --since=$BASE_COMMIT^ --verbose --topological --no-private npm publish --access public
 
       - name: GitSign
         uses: chainguard-dev/actions/setup-gitsign@main
