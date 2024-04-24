@@ -59,10 +59,7 @@ jobs:
       - name: List changed workspaces
         env:
           BASE_COMMIT: ${{ steps.find_base_commit.outputs.baseCommit }}
-        run: |
-          CHANGED_PACKAGES=$(yarn workspaces list --since=$BASE_COMMIT^)
-          echo "changedPackages=$CHANGED_PACKAGES" >> $GITHUB_OUTPUT
-          echo "Changed workspaces: $CHANGED_PACKAGES"
+        run: yarn workspaces list --since=$BASE_COMMIT^
 
       - name: Release
         env:
