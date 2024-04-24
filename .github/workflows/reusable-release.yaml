@@ -65,4 +65,4 @@ jobs:
         env:
           BASE_COMMIT: ${{ steps.find_base_commit.outputs.baseCommit }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: yarn workspaces foreach --since=$BASE_COMMIT^ exec 'bash -c "yarn pack && VERSION=$npm_package_version && NAME=$npm_package_name && gh release create \"\$NAME-v\$VERSION\" --draft ./package.tgz --title=\$NAME-\$VERSION --notes-file=./CHANGELOG.md"'
+        run: yarn workspaces foreach --since=$BASE_COMMIT^ exec 'bash -c "yarn pack && VERSION=$npm_package_version && NAME=$npm_package_name && gh release create \"\$NAME-v\$VERSION\" ./package.tgz --title=\$NAME-\$VERSION --notes-file=./CHANGELOG.md"'
