@@ -8,7 +8,7 @@ on:
         default: '18'
         required: false
         type: string
-      workingDirection:
+      workingDirectory:
         description: Working direction for action
         default: ./
         type: string
