@@ -41,14 +41,14 @@ jobs:
       - name: Lint
         env:
           TARGET: ${{ github.base_ref }}
-        run: yarn workspaces foreach --since=$TARGET run lint
+        run: yarn workspaces foreach --since=$TARGET^ run lint
 
       - name: Test
         env:
           TARGET: ${{ github.base_ref }}
-        run: yarn workspaces foreach --since=$TARGET run test
+        run: yarn workspaces foreach --since=$TARGET^ run test
 
       - name: Build
         env:
           TARGET: ${{ github.base_ref }}
-        run: yarn workspaces foreach --since=$TARGET run build
+        run: yarn workspaces foreach --since=$TARGET^ run build
