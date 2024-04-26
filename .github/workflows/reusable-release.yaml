@@ -17,6 +17,16 @@ on:
         required: false
         default: false
         description: Should only create changelog without publish
+      isMonorepo:
+        type: boolean
+        required: false
+        default: false
+        description: Treat this repo as monorepo. If true - tags for releases will include package names
+      workingDirectory:
+        description: Where the script should execute
+        type: string
+        required: false
+        default: ./
     secrets:
       appSecret:
         required: true
@@ -25,6 +35,9 @@ jobs:
   run:
     name: Release
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ inputs.workingDirectory }}
 
     steps:
       - uses: actions/create-github-app-token@v1
@@ -46,7 +59,7 @@ jobs:
           node-version: ${{ inputs.node-version }}
 
       - name: Install
-        run: yarn install
+        run: yarn install --inline-builds
 
       - name: Find Base Commit for master
         id: find_base_commit
@@ -61,8 +74,16 @@ jobs:
           BASE_COMMIT: ${{ steps.find_base_commit.outputs.baseCommit }}
         run: yarn workspaces list --since=$BASE_COMMIT^
 
-      - name: Release
+      - name: Release monorepo
+        if: inputs.isMonorepo == true
         env:
           BASE_COMMIT: ${{ steps.find_base_commit.outputs.baseCommit }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: yarn workspaces foreach --since=$BASE_COMMIT^ exec 'bash -c "yarn pack && VERSION=$npm_package_version && NAME=$npm_package_name && gh release create \"\$NAME-v\$VERSION\" ./package.tgz --title=\$NAME-\$VERSION --notes-file=./CHANGELOG.md"'
+
+      - name: Release single package
+        if: inputs.isMonorepo == false
+        env:
+          BASE_COMMIT: ${{ steps.find_base_commit.outputs.baseCommit }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: yarn workspaces foreach --since=$BASE_COMMIT^ exec 'bash -c "yarn pack && VERSION=$npm_package_version && gh release create \"v\$VERSION\" ./package.tgz --title=\$VERSION --notes-file=./CHANGELOG.md"'

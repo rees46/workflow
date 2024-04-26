@@ -31,6 +31,11 @@ on:
         type: boolean
         required: false
         default: true
+      workingDirectory:
+        description: Where the script should execute
+        type: string
+        required: false
+        default: ./
     secrets:
       appSecret:
         required: true
@@ -39,6 +44,9 @@ jobs:
   run:
     name: Version
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ inputs.workingDirectory }}
     outputs:
       committed: ${{ steps.committer.outputs.committed }}
 
@@ -107,6 +115,20 @@ jobs:
       - name: GitSign
         uses: chainguard-dev/actions/setup-gitsign@main
 
+      - name: Create commit message
+        id: commit_message
+        env:
+          BASE_COMMIT: ${{ steps.find_base_commit.outputs.baseCommit }}
+        run: |
+          INITIAL_MESSAGE="chore(common): versions\n"
+          temp_file=$(mktemp)
+          yarn workspaces foreach --since=$BASE_COMMIT exec "echo \"\$npm_package_name: \$npm_package_version \" >> $temp_file"
+          MESSAGE=$(cat $temp_file)
+          INITIAL+=$MESSAGE
+          echo "commitMessage=$INITIAL" >> $GITHUB_OUTPUT
+          echo $INITIAL
+          rm $temp_file
+
       - name: Commit changes
         id: committer
         uses: EndBug/add-and-commit@v9
@@ -116,5 +138,5 @@ jobs:
           commit: -S
           default_author: github_actions
           author_email: github-bot@rees46.com
-          message: 'chore(common): version'
+          message: ${{ steps.commit_message.outputs.commitMessage }}
           add: '*.yml'
