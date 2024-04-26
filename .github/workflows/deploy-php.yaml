@@ -74,6 +74,6 @@ jobs:
               done
             else
               curl -X POST -u "$JENKINS_DEPLOY_USER:$JENKINS_DEPLOY_TOKEN" \
-                    "${JENKINS_URL}/job/${service}/buildWithParameters?BRANCH_NAME=${GIT_BRANCH}"
+                    "${JENKINS_URL}/job/${package}/buildWithParameters?BRANCH_NAME=${GIT_BRANCH}"
             fi
           done
