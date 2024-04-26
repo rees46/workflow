@@ -9,6 +9,11 @@ inputs:
     description: Base commit to check changes from
     required: true
 
+outputs:
+  committed:
+    value: ${{ steps.committer.outputs.committed }}
+    description: Has the commit been sent? 'true' as string if yes
+
 runs:
   using: composite
 

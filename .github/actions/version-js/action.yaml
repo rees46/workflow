@@ -14,11 +14,6 @@ inputs:
     description: GitHub PAT
     required: true
 
-outputs:
-  committed:
-    description: Have the changes in version been committed?
-    value: ${{ jobs.run.outputs.committed }}
-
 runs:
   using: composite
 
