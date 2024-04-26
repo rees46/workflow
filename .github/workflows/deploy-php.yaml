@@ -70,12 +70,10 @@ jobs:
               for service in $SERVICES
               do
                 curl -X POST -u "$JENKINS_DEPLOY_USER:$JENKINS_DEPLOY_TOKEN" \
-                    --data-urlencode "BRANCH_NAME=$GIT_BRANCH" \
-                    "${JENKINS_URL}/job/${service}/buildWithParameters"
+                    "${JENKINS_URL}/job/${service}/buildWithParameters?BRANCH_NAME=${GIT_BRANCH}"
               done
             else
               curl -X POST -u "$JENKINS_DEPLOY_USER:$JENKINS_DEPLOY_TOKEN" \
-                    --data-urlencode "BRANCH_NAME=$GIT_BRANCH" \
-                    "${JENKINS_URL}/job/${service}/buildWithParameters"
+                    "${JENKINS_URL}/job/${service}/buildWithParameters?BRANCH_NAME=${GIT_BRANCH}"
             fi
           done
