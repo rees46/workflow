@@ -20,7 +20,6 @@ runs:
   steps:
     - name: GitSign
       uses: chainguard-dev/actions/setup-gitsign@main
-      shell: bash
 
     - name: Create commit message
       id: commit_message
@@ -52,4 +51,3 @@ runs:
         author_email: github-bot@rees46.com
         message: ${{ steps.commit_message.outputs.commitMessage }}
         add: '["*.lock", "*.json", "*.yml", "*.md"]'
-      shell: bash
