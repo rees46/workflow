@@ -100,6 +100,9 @@ jobs:
           yarn workspaces foreach --since=$BASE_COMMIT exec "echo \"\$npm_package_name: \$npm_package_version \" >> $temp_file"
           MESSAGE=$(cat $temp_file)
           INITIAL_MESSAGE+=$MESSAGE
+          INITIAL_MESSAGE="${INITIAL_MESSAGE//'%'/'%25'}"
+          INITIAL_MESSAGE="${INITIAL_MESSAGE//$'\n'/'%0A'}"
+          INITIAL_MESSAGE="${INITIAL_MESSAGE//$'\r'/'%0D'}"
           echo "commitMessage=$INITIAL_MESSAGE" >> $GITHUB_OUTPUT
           echo $INITIAL_MESSAGE
           rm $temp_file
