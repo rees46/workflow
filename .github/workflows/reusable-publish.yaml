@@ -61,7 +61,7 @@ jobs:
           node-version: ${{ inputs.node-version }}
 
       - name: Install
-        run: yarn install
+        run: yarn install --inline-builds
 
       - name: Find Base Commit for master
         id: find_base_commit
