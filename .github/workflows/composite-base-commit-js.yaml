@@ -2,14 +2,6 @@ name: Version composite action
 description: patch versions of changed packages
 
 inputs:
-  private:
-    description: Should apply only to private?
-    required: false
-    default: 'false'
-  checkChanges:
-    description: Should run 'yarn --since'?
-    required: false
-    default: 'true'
   token:
     description: GitHub PAT
     required: true
