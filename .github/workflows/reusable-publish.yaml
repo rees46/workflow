@@ -100,11 +100,8 @@ jobs:
           yarn workspaces foreach --since=$BASE_COMMIT exec "echo \"\$npm_package_name: \$npm_package_version \" >> $temp_file"
           MESSAGE=$(cat $temp_file)
           INITIAL+=$MESSAGE
-          echo "commitMessage<<EOF" >> $GITHUB_ENV
-          echo "$INITIAL" >> $GITHUB_ENV
-          echo "EOF" >> GITHUB_ENV
+          echo "commitMessage=$INITIAL" >> $GITHUB_OUTPUT
           echo $INITIAL
-          echo $MESSAGE
           rm $temp_file
 
       - name: Commit changes
@@ -117,7 +114,7 @@ jobs:
           commit: -S
           default_author: github_actions
           author_email: github-bot@rees46.com
-          message: ${{ env.commitMessage }}
+          message: ${{ steps.commit_message.outputs.commitMessage }}
           add: '["*.lock", "*.json", "*.yml", "*.md"]'
 
       - name: Cherry pick to additional branch
