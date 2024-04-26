@@ -97,7 +97,7 @@ jobs:
         run: |
           INITIAL_MESSAGE="chore(common): publish "
           temp_file=$(mktemp)
-          yarn workspaces foreach --since=$BASE_COMMIT exec "echo \"\$npm_package_name: \$npm_package_version \" >> $temp_file"
+          yarn workspaces foreach --since=$BASE_COMMIT exec "echo \"\$npm_package_name:\$npm_package_version \" >> $temp_file"
           MESSAGE=$(cat $temp_file)
           INITIAL_MESSAGE+=$MESSAGE
           INITIAL_MESSAGE="${INITIAL_MESSAGE//'%'/' '}"
