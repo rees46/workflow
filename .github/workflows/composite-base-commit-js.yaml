@@ -1,0 +1,38 @@
+name: Version composite action
+description: patch versions of changed packages
+
+inputs:
+  private:
+    description: Should apply only to private?
+    required: false
+    default: 'false'
+  checkChanges:
+    description: Should run 'yarn --since'?
+    required: false
+    default: 'true'
+  token:
+    description: GitHub PAT
+    required: true
+
+outputs:
+  baseCommit:
+    description: Find last merge commits
+    value: ${{ steps.find_base_commit.outputs.baseCommit }}
+
+runs:
+  using: composite
+
+  steps:
+    - name: Find Base Commit for master
+      id: find_base_commit
+      run: |
+        BASE_COMMIT=$(git log --merges -n 2 --format=format:%H | tail -n 1)
+        echo "baseCommit=$BASE_COMMIT" >> $GITHUB_OUTPUT
+        echo "Base Commit: $BASE_COMMIT"
+      shell: bash
+
+    - name: List changed workspaces
+      env:
+        BASE_COMMIT: ${{ steps.find_base_commit.outputs.baseCommit }}
+      run: yarn workspaces list --since=$BASE_COMMIT^
+      shell: bash

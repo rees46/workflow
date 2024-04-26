@@ -1,0 +1,37 @@
+name: Publish composite action
+description: create changelog and publish if applicable
+
+inputs:
+  onlyChangelog:
+    required: false
+    default: 'false'
+    description: Should only create changelog without publish
+  npmAuthToken:
+    required: false
+    description: NPM token for publishing
+  token:
+    required: true
+    description: GitHub PAT
+  baseCommit:
+    required: true
+    description: Base commit from which to parse workspace changes
+
+
+runs:
+  using: composite
+
+  steps:
+    - name: Generate changelog
+      env:
+        GITHUB_TOKEN: ${{ inputs.token }}
+        BASE_COMMIT: ${{ inputs.baseCommit }}
+      run: yarn workspaces foreach --since=$BASE_COMMIT^ --verbose run changelog
+      shell: bash
+
+    - name: Publish
+      if: inputs.onlyChangelog == 'false'
+      env:
+        YARN_NPM_AUTH_TOKEN: ${{ inputs.npmAuthToken }}
+        BASE_COMMIT: ${{ inputs.baseCommit }}
+      run: yarn workspaces foreach --since=$BASE_COMMIT^ --verbose --topological --no-private npm publish --access public
+      shell: bash
