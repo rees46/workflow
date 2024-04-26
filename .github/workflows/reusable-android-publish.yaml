@@ -1,0 +1,90 @@
+name: Reusable Android SDK publish to Sona
+
+on:
+  workflow_call:
+    inputs:
+      PROPERTIES_FILE:
+        default: gradle.properties
+        type: string
+        description: Relative file path for putting in secrets
+        required: false
+      SIGNING_SECRET_KEY_RING_FILE:
+        default: com.rees46.key.gpg
+        type: string
+        description: Location and name for signature file
+        required: false
+      SIGNING_SECRET_KEY_RING_FILE_LOCATION:
+        type: string
+        description: Location and name for signature file
+        required: true
+      GRADLE_VERSION:
+        default: 8.2
+        type: number
+        required: false
+    secrets:
+      OSSRH_USERNAME:
+        required: true
+      OSSRH_PASSWORD:
+        required: true
+      SIGNING_KEY_ID:
+        required: true
+      SIGNING_PASSWORD:
+        required: true
+      SONATYPE_REES46:
+        required: true
+      SONATYPE_PERSONACLICK:
+        required: true
+      SIGNING_KEY_FILE_AS_BASE64_STRING:
+        required: true
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: master
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: 17
+          distribution: 'zulu'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          gradle-version: ${{ inputs.GRADLE_VERSION }}
+
+      - name: Append secrets to gradle.properties
+        env:
+          PROPERTIES_FILE: ${{ inputs.PROPERTIES_FILE }}
+          OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
+          OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
+          SIGNING_KEY_ID: ${{ secrets.SIGNING_KEY_ID }}
+          SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
+          SIGNING_SECRET_KEY_RING_FILE: ${{ inputs.SIGNING_SECRET_KEY_RING_FILE }}
+          SONATYPE_REES46: ${{ secrets.SONATYPE_REES46 }}
+          SONATYPE_PERSONACLICK: ${{ secrets.SONATYPE_PERSONACLICK }}
+        run: |
+          echo "ossrhUsername=$OSSRH_USERNAME" >> $PROPERTIES_FILE
+          echo "ossrhPassword=$OSSRH_PASSWORD" >> $PROPERTIES_FILE
+          echo "signing_keyId=$SIGNING_KEY_ID" >> $PROPERTIES_FILE
+          echo "signing_password=$SIGNING_PASSWORD" >> $PROPERTIES_FILE
+          echo "signing_secretKeyRingFile=$SIGNING_SECRET_KEY_RING_FILE" >> $PROPERTIES_FILE
+          echo "sonatype_rees46=$SONATYPE_REES46" >> $PROPERTIES_FILE
+          echo "sonatype_personaclick=$SONATYPE_PERSONACLICK" >> $PROPERTIES_FILE
+          echo "Updated $PROPERTIES_FILE"
+
+      - name: Decode signing key file
+        uses: timheuer/base64-to-file@v1.2
+        id: service_account_json_file
+        with:
+          fileName: ${{ inputs.SIGNING_SECRET_KEY_RING_FILE }}
+          fileDir: ${{ inputs.SIGNING_SECRET_KEY_RING_FILE_LOCATION }}
+          encodedString: ${{ secrets.SIGNING_KEY_FILE_AS_BASE64_STRING }}
+
+      - name: Publish
+        run: ./gradlew publish

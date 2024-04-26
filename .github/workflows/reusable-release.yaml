@@ -1,0 +1,89 @@
+name: Reusable release
+
+on:
+  workflow_call:
+    inputs:
+      node-version:
+        description: 'Node version to run this workflow. Default: 18 as it is in action cache'
+        default: '18'
+        required: false
+        type: string
+      appId:
+        description: 'App ID for committing and pushing'
+        required: true
+        type: string
+      onlyChangelog:
+        type: boolean
+        required: false
+        default: false
+        description: Should only create changelog without publish
+      isMonorepo:
+        type: boolean
+        required: false
+        default: false
+        description: Treat this repo as monorepo. If true - tags for releases will include package names
+      workingDirectory:
+        description: Where the script should execute
+        type: string
+        required: false
+        default: ./
+    secrets:
+      appSecret:
+        required: true
+
+jobs:
+  run:
+    name: Release
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ inputs.workingDirectory }}
+
+    steps:
+      - uses: actions/create-github-app-token@v1
+        id: app-token
+        with:
+          app-id: ${{ inputs.appId }}
+          private-key: ${{ secrets.appSecret }}
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: master
+          fetch-depth: 0
+          token: ${{ steps.app-token.outputs.token }}
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ inputs.node-version }}
+
+      - name: Install
+        run: yarn install --inline-builds
+
+      - name: Find Base Commit for master
+        id: find_base_commit
+        run: |
+          echo "Finding base commit between HEAD and origin/master"
+          BASE_COMMIT=$(git log --merges -n 2 --format=format:%H | tail -n 1)
+          echo "baseCommit=$BASE_COMMIT" >> $GITHUB_OUTPUT
+          echo "Base Commit: $BASE_COMMIT"
+
+      - name: List changed workspaces
+        env:
+          BASE_COMMIT: ${{ steps.find_base_commit.outputs.baseCommit }}
+        run: yarn workspaces list --since=$BASE_COMMIT^
+
+      - name: Release monorepo
+        if: inputs.isMonorepo == true
+        env:
+          BASE_COMMIT: ${{ steps.find_base_commit.outputs.baseCommit }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: yarn workspaces foreach --since=$BASE_COMMIT^ exec 'bash -c "yarn pack && VERSION=$npm_package_version && NAME=$npm_package_name && gh release create \"\$NAME-v\$VERSION\" ./package.tgz --title=\$NAME-\$VERSION --notes-file=./CHANGELOG.md"'
+
+      - name: Release single package
+        if: inputs.isMonorepo == false
+        env:
+          BASE_COMMIT: ${{ steps.find_base_commit.outputs.baseCommit }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: yarn workspaces foreach --since=$BASE_COMMIT^ exec 'bash -c "yarn pack && VERSION=$npm_package_version && gh release create \"v\$VERSION\" ./package.tgz --title=\$VERSION --notes-file=./CHANGELOG.md"'

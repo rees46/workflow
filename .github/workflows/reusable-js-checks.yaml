@@ -1,18 +1,25 @@
-name: Reusable JS checks
+name: Reusable JS/TS PR checks
 
 on:
   workflow_call:
     inputs:
       node-version:
-        description: 'Node version to run this workflow. Default: 18.19 as it is in action cache'
-        default: '18.19'
+        description: 'Node version to run this workflow. Default: 18 as it is in action cache'
+        default: '18'
         required: false
         type: string
+      workingDirectory:
+        description: Working direction for action
+        default: ./
+        type: string
+        required: false
 
 jobs:
   run:
-    name: Check
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ inputs.workingDirectory }}
 
     steps:
       - name: Checkout
@@ -25,16 +32,23 @@ jobs:
         with:
           node-version: ${{ inputs.node-version }}
 
+      - name: Switch branch
+        run: git switch ${{ github.head_ref }}
+
       - name: Install
         run: yarn install --inline-builds
-        env:
-          GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
 
       - name: Lint
-        run: yarn workspaces foreach -W --since run lint
+        env:
+          TARGET: ${{ github.base_ref }}
+        run: yarn workspaces foreach --since=origin/$TARGET run lint
 
       - name: Test
-        run: yarn workspaces foreach -W --since run test
+        env:
+          TARGET: ${{ github.base_ref }}
+        run: yarn workspaces foreach --since=origin/$TARGET run test
 
       - name: Build
-        run: yarn workspaces foreach -W --since run build
+        env:
+          TARGET: ${{ github.base_ref }}
+        run: yarn workspaces foreach --since=origin/$TARGET run build

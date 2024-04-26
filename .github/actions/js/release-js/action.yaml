@@ -1,0 +1,34 @@
+name: Composite release JS action
+description: Release action - create and publish release with source code
+
+inputs:
+  isMonorepo:
+    required: false
+    default: 'false'
+    description: Treat this repo as monorepo. If true - tags for releases will include package names
+  baseCommit:
+    required: true
+    description: Base commit from which to parse changed workspaces
+  token:
+    required: true
+    description: GitHub PAT
+
+runs:
+  using: composite
+
+  steps:
+    - name: Release monorepo
+      if: inputs.isMonorepo == 'true'
+      env:
+        BASE_COMMIT: ${{ inputs.baseCommit }}
+        GH_TOKEN: ${{ inputs.token }}
+      run: yarn workspaces foreach --since=$BASE_COMMIT^ exec 'bash -c "yarn pack && VERSION=$npm_package_version && NAME=$npm_package_name && gh release create \"\$NAME-v\$VERSION\" ./package.tgz --title=\$NAME-\$VERSION --notes-file=./CHANGELOG.md"'
+      shell: bash
+
+    - name: Release single package
+      if: inputs.isMonorepo == 'false'
+      env:
+        BASE_COMMIT: ${{ inputs.baseCommit }}
+        GH_TOKEN: ${{ inputs.token }}
+      run: yarn workspaces foreach --since=$BASE_COMMIT^ exec 'bash -c "yarn pack && VERSION=$npm_package_version && gh release create \"v\$VERSION\" ./package.tgz --title=\$VERSION --notes-file=./CHANGELOG.md"'
+      shell: bash

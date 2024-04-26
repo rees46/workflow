@@ -32,7 +32,7 @@ on:
         required: false
         default: true
       workingDirectory:
-        description: Where the script should execute
+        description: Working directory for action
         type: string
         required: false
         default: ./
@@ -70,7 +70,7 @@ jobs:
           node-version: ${{ inputs.node-version }}
 
       - name: Install
-        run: yarn install --inline-builds
+        run: yarn install --mode=update-lockfile --inline-builds
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -115,24 +115,6 @@ jobs:
       - name: GitSign
         uses: chainguard-dev/actions/setup-gitsign@main
 
-      - name: Create commit message
-        id: commit_message
-        env:
-          BASE_COMMIT: ${{ steps.find_base_commit.outputs.baseCommit }}
-        run: |
-          INITIAL_MESSAGE=$'chore(common): versions\n\n'
-          temp_file=$(mktemp)
-          yarn workspaces foreach --since=$BASE_COMMIT exec "echo \"\$npm_package_name:\$npm_package_version \" >> $temp_file"
-          MESSAGE=$(cat $temp_file)
-          echo $(cat $temp_file)
-          INITIAL_MESSAGE+=$MESSAGE
-          INITIAL_MESSAGE="${INITIAL_MESSAGE//'%'/' '}"
-          INITIAL_MESSAGE="${INITIAL_MESSAGE//$'\n'/' '}"
-          INITIAL_MESSAGE="${INITIAL_MESSAGE//$'\r'/' '}"
-          echo "commitMessage=$INITIAL_MESSAGE" >> $GITHUB_OUTPUT
-          echo $INITIAL_MESSAGE
-          rm $temp_file
-
       - name: Commit changes
         id: committer
         uses: EndBug/add-and-commit@v9
@@ -142,5 +124,5 @@ jobs:
           commit: -S
           default_author: github_actions
           author_email: github-bot@rees46.com
-          message: ${{ steps.commit_message.outputs.commitMessage }}
+          message: 'chore(common): version'
           add: '*.yml'

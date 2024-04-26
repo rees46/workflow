@@ -1,9 +1,0 @@
-{
-  "name": "@space/api",
-  "version": "1.0.0",
-  "exports": {
-    ".": "./src/index.ts"
-  },
-  "license": "BSD-3-Clause",
-  "packageManager": "yarn@4.1.1"
-}
