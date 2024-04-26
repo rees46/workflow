@@ -22,7 +22,6 @@ runs:
       with:
         app-id: ${{ inputs.appId }}
         private-key: ${{ inputs.appSecret }}
-      shell: bash
 
     - name: Checkout
       uses: actions/checkout@v4
@@ -30,13 +29,11 @@ runs:
         fetch-depth: 0
         token: ${{ steps.app-token.outputs.token }}
         ref: master
-      shell: bash
 
     - name: Setup Node
       uses: actions/setup-node@v4
       with:
         node-version: ${{ inputs.nodeVersion }}
-      shell: bash
 
     - name: Install
       run: yarn install --inline-builds
