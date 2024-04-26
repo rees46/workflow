@@ -8,6 +8,10 @@ inputs:
   baseCommit:
     description: Base commit to check changes from
     required: true
+  additionalBranch:
+    description: Additional branch to push to
+    required: false
+    default: ''
 
 outputs:
   committed:
@@ -47,3 +51,16 @@ runs:
         author_email: github-bot@rees46.com
         message: ${{ steps.commit_message.outputs.commitMessage }}
         add: '["*.lock", "*.json", "*.yml", "*.md"]'
+
+    - name: Cherry pick to additional branch
+      if: inputs.additionalBranch != ''
+      env:
+        BRANCH: ${{ inputs.additionalBranch }}
+        COMMIT_SHA: ${{ steps.committer.outputs.commit_long_sha }}
+      run: |
+        git config --global user.name github-actions
+        git config --global user.email github-bot@rees46.com
+        git switch $BRANCH
+        git cherry-pick $COMMIT_SHA
+        git push origin
+      shell: bash
