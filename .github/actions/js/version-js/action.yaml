@@ -16,6 +16,10 @@ inputs:
   baseCommit:
     description: Base commit for which to compare
     required: true
+  exclude:
+    description: Which workspaces to exclude
+    required: false
+    default: 'nothing'
 
 runs:
   using: composite
@@ -33,6 +37,7 @@ runs:
         IS_PRIVATE: ${{ inputs.private }}
         SHOULD_CHECK_CHANGES: ${{ inputs.checkChanges }}
         BASE_COMMIT: ${{ inputs.baseCommit }}
+        EXCLUDE: ${{ inputs.exclude }}
       run: |
         if [ $IS_PRIVATE == 'false' ]; then
           PRIVATE_FLAG="--no-private"
@@ -44,5 +49,5 @@ runs:
           CHANGES_FLAG="--all"
         fi
         
-        yarn workspaces foreach $CHANGES_FLAG $PRIVATE_FLAG --verbose version patch --immediate
+        yarn workspaces foreach $CHANGES_FLAG $PRIVATE_FLAG --exclude=$EXCLUDE --verbose version patch --immediate
       shell: bash

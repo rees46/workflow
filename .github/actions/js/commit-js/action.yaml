@@ -12,6 +12,10 @@ inputs:
     description: Additional branch to push to
     required: false
     default: ''
+  exclude:
+    description: Which workspaces to exclude
+    required: false
+    default: 'nothing'
 
 outputs:
   committed:
@@ -26,10 +30,11 @@ runs:
       id: commit_message
       env:
         BASE_COMMIT: ${{ inputs.baseCommit }}
+        EXCLUDE: ${{ inputs.exclude }}
       run: |
         INITIAL_MESSAGE=$'chore(common): versions\n\n'
         temp_file=$(mktemp)
-        yarn workspaces foreach --since=$BASE_COMMIT exec "echo \"\$npm_package_name:\$npm_package_version \" >> $temp_file"
+        yarn workspaces foreach --since=$BASE_COMMIT --exclude=$EXCLUDE exec "echo \"\$npm_package_name:\$npm_package_version \" >> $temp_file"
         MESSAGE=$(cat $temp_file)
         echo $(cat $temp_file)
         INITIAL_MESSAGE+=$MESSAGE
