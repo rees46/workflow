@@ -38,5 +38,6 @@ runs:
       env:
         YARN_NPM_AUTH_TOKEN: ${{ inputs.npmAuthToken }}
         BASE_COMMIT: ${{ inputs.baseCommit }}
+        EXCLUDE: ${{ inputs.exclude }}
       run: yarn workspaces foreach --since=$BASE_COMMIT^ --exclude=$EXCLUDE --verbose --topological --no-private npm publish --access public
       shell: bash
