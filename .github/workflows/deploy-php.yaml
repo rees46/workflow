@@ -8,6 +8,10 @@ on:
         default: ''
         required: false
         type: string
+      branch:
+        description: 'Git branch name'
+        required: true
+        type: string
     secrets:
       URL:
         required: true
@@ -54,6 +58,7 @@ jobs:
           JENKINS_URL: ${{ secrets.URL }}
           JENKINS_DEPLOY_USER: ${{ secrets.USER }}
           JENKINS_DEPLOY_TOKEN: ${{ secrets.TOKEN }}
+          GIT_BRANCH: ${{ inputs.branch }}
 
         if: ${{ steps.changed_packages.outputs.packages }} != ''
         run: |
@@ -64,9 +69,11 @@ jobs:
             if [ "$package" == "core" ]; then
               for service in $SERVICES
               do
-                curl -X POST -u "$JENKINS_DEPLOY_USER:$JENKINS_DEPLOY_TOKEN" "${JENKINS_URL}/job/${service}/build"
+                curl -X POST -u "$JENKINS_DEPLOY_USER:$JENKINS_DEPLOY_TOKEN" \
+                    "${JENKINS_URL}/job/${service}/buildWithParameters?BRANCH_NAME=${GIT_BRANCH}"
               done
             else
-              curl -X POST -u "$JENKINS_DEPLOY_USER:$JENKINS_DEPLOY_TOKEN" "${JENKINS_URL}/job/${package}/build"
+              curl -X POST -u "$JENKINS_DEPLOY_USER:$JENKINS_DEPLOY_TOKEN" \
+                    "${JENKINS_URL}/job/${package}/buildWithParameters?BRANCH_NAME=${GIT_BRANCH}"
             fi
           done
