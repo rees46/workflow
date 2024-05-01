@@ -25,9 +25,8 @@ on:
         description: How many approvals required for merge
       log:
         required: false
-        default: TRACE
-        type: number
-        description: How many approvals required for merge
+        default: "TRACE"
+        type: string
 
 jobs:
   automerge:
