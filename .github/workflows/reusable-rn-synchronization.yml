@@ -90,8 +90,8 @@ jobs:
         if: env.path_changes != '0'
         working-directory: repo2
         run: |
-          git config --global user.name github-actions
-          git config --global user.email github-bot@personaClick.com
+          git config --global user.name publiversioner[bot] 
+          git config --global user.email 161856912+publiversioner[bot]@users.noreply.github.com
           git add .
           echo "Changes to be committed:"
           git diff --staged
@@ -118,4 +118,3 @@ jobs:
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
           BRANCH_NAME: ${{ env.BRANCH_NAME }}
-
