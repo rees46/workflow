@@ -26,6 +26,8 @@ jobs:
         with:
           ref: master
           fetch-depth: 0
+        env:
+          GITHUB_TOKEN: ${{ secrets.token }}
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -47,6 +49,8 @@ jobs:
           repository: PersonaClick/rn-sdk
           token: ${{ steps.app-token.outputs.token }}
           path: repo2
+        env:
+          GITHUB_TOKEN: ${{ secrets.token }}
 
       - name: Sync files to remote repository if changes
         if: env.path_changes != '0'
@@ -85,6 +89,8 @@ jobs:
           echo "Changes to be committed:"
           git diff --staged
           git commit -m "Update code base"
+        env:
+          GITHUB_TOKEN: ${{ secrets.token }}
 
       - name: Set branch name
         if: env.path_changes != '0'
