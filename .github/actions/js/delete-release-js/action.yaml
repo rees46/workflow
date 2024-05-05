@@ -1,0 +1,40 @@
+name: Composite delete release JS action
+description: Delete release action - delete release because its revert
+
+inputs:
+  isMonorepo:
+    required: false
+    default: 'false'
+    description: Treat this repo as monorepo. If true - tags for releases will include package names
+  baseCommit:
+    required: true
+    description: Base commit from which to parse changed workspaces
+  token:
+    required: true
+    description: GitHub PAT
+  exclude:
+    required: false
+    default: 'nothing'
+    description: Which workspaces to exclude
+
+runs:
+  using: composite
+
+  steps:
+    - name: Release monorepo
+      if: inputs.isMonorepo == 'true'
+      env:
+        BASE_COMMIT: ${{ inputs.baseCommit }}
+        GH_TOKEN: ${{ inputs.token }}
+        EXCLUDE: ${{ inputs.exclude }}
+      run: yarn workspaces foreach --since=$BASE_COMMIT^ --exclude=$EXCLUDE exec 'bash -c "VERSION=$npm_package_version && NAME=$npm_package_name && gh release delete \"\$NAME-v\$VERSION\" -y --cleanup-tag"'
+      shell: bash
+
+    - name: Release single package
+      if: inputs.isMonorepo == 'false'
+      env:
+        BASE_COMMIT: ${{ inputs.baseCommit }}
+        GH_TOKEN: ${{ inputs.token }}
+        EXCLUDE: ${{ inputs.exclude }}
+      run: yarn workspaces foreach --since=$BASE_COMMIT^ --exclude=$EXCLUDE exec 'bash -c "VERSION=$npm_package_version && gh release delete \"v\$VERSION\" -y --cleanup-tag"'
+      shell: bash
