@@ -42,6 +42,10 @@ jobs:
         run: |
           echo "path_changes=$(echo '${{ steps.changed_files.outputs.all_changed_files }}' | grep -c '${{ inputs.changeLookUpPath }}')" >> $GITHUB_ENV
 
+      - name: Get last non-merge commit author login
+        run: |
+          echo "LAST_COMMIT_AUTHOR=$(git log -1 --no-merges --format='%cN')" >> $GITHUB_ENV
+
       - name: Check out remote repository if changes
         if: env.path_changes != '0'
         uses: actions/checkout@v4
@@ -109,18 +113,14 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.token }}
 
-      - name: Set PR author as environment variable
-        if: env.path_changes != '0'
-        run: |
-          echo "PR_AUTHOR=${{ github.event.pull_request.user.login }}" >> $GITHUB_ENV    
-
       - name: Create Pull Request
         if: env.path_changes != '0'
         working-directory: repo2
         run: |
           PR_TITLE="Automated release"
           PR_BODY="This is an automated pull request to update from branch $BRANCH_NAME"
-          gh pr create --title "$PR_TITLE" --body "$PR_BODY" --base master --head $BRANCH_NAME --assignee ${{ env.PR_AUTHOR }}
+          gh pr create --title "$PR_TITLE" --body "$PR_BODY" --base master --head $BRANCH_NAME --assignee $LAST_COMMIT_AUTHOR
         env:
           GITHUB_TOKEN: ${{ secrets.token }}
           BRANCH_NAME: ${{ env.BRANCH_NAME }}
+          LAST_COMMIT_AUTHOR: ${{ env.LAST_COMMIT_AUTHOR }}
