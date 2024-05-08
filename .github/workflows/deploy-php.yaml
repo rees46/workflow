@@ -35,6 +35,8 @@ jobs:
         api-service
         import-service
         clickhouse-queue
+        yml-service
+        autovaz-import-service
 
     steps:
       - name: Checkout
