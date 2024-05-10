@@ -70,7 +70,7 @@ jobs:
           TAG: ${{ inputs.tag }}
         run: |
           yarn workspaces foreach --since=$BASE_COMMIT^ exec \
-          'bash -c "echo $(ls); if [ -f Dockerfile ]; then \
+          'bash -c "echo Running in directory: \$pwd; ls -l; if [ -f Dockerfile ]; then \
           package_name=\$(echo $npm_package_name | sed '\''s|^.*\/||'\''); \
           image_name=ghcr.io/\$REPOSITORY_OWNER/\$package_name:\$(git rev-parse --short HEAD)-\$(date +%s); \
           image_name_latest=ghcr.io/\$REPOSITORY_OWNER/\$package_name:\$TAG; \
