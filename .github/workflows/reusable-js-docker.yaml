@@ -64,10 +64,10 @@ jobs:
           REPOSITORY_OWNER: ${{ github.repository_owner }}
         run: |
           yarn workspaces foreach --since=$BASE_COMMIT^ exec \
-          'package_name=$(echo $npm_package_name | sed '\''s|^.*\/||'\''); \
+          'bash -c "package_name=$(echo $npm_package_name | sed '\''s|^.*\/||'\''); \
           image_name=ghcr.io/$REPOSITORY_OWNER/$package_name:$(git rev-parse --short HEAD)-$(date +%s); \
           echo $image_name; \
           image_name_latest=ghcr.io/$REPOSITORY_OWNER/$package_name:latest; \
           docker build . -t $image_name_latest -t $image_name --quiet; \
           docker push $image_name; \
-          docker push $image_name_latest;'
+          docker push $image_name_latest;"'
