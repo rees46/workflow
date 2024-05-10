@@ -10,7 +10,7 @@ on:
         type: string
       nodeVersion:
         description: Node version to run this workflow. Default 20 as it is in action cache
-        default: '22'
+        default: '20'
         required: false
         type: string
       workingDirectory:
@@ -64,8 +64,8 @@ jobs:
           REPOSITORY_OWNER: ${{ github.repository_owner }}
         run: |
           yarn workspaces foreach --since=$BASE_COMMIT^ exec \
-          'bash -c "image_name=ghcr.io/\$REPOSITORY_OWNER/\$npm_package_name:\$(git rev-parse --short HEAD)-\$(date +%s) && /\
-          image_name_latest=ghcr.io/\$REPOSITORY_OWNER/\$PACKAGE:latest && /\
-          docker build . -t \$image_name_latest -t \$image_name --quiet && /\
-          docker push \$image_name && /\
-          docker push \$image_name_latest"'
+          'bash -c "image_name=ghcr.io/$REPOSITORY_OWNER/$npm_package_name:$(git rev-parse --short HEAD)-$(date +%s) && \
+          image_name_latest=ghcr.io/$REPOSITORY_OWNER/$PACKAGE:latest && \
+          docker build . -t $image_name_latest -t $image_name --quiet && \
+          docker push $image_name && \
+          docker push $image_name_latest"'
