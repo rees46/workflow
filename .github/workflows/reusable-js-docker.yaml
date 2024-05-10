@@ -18,6 +18,11 @@ on:
         type: string
         required: false
         default: ./
+      tag:
+        description: Docker tag
+        type: string
+        required: false
+        default: latest
 
 jobs:
   run:
@@ -62,12 +67,13 @@ jobs:
           BASE_COMMIT: ${{ steps.find_base_commit.outputs.baseCommit }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPOSITORY_OWNER: ${{ github.repository_owner }}
+          TAG: ${{ inputs.tag }}
         run: |
           yarn workspaces foreach --since=$BASE_COMMIT^ exec \
-          'bash -c "package_name=\$(echo $npm_package_name | sed '\''s|^.*\/||'\''); \
+          'bash -c "if [ -f "./Dockerfile" ]; then \
+          package_name=\$(echo $npm_package_name | sed '\''s|^.*\/||'\''); \
           image_name=ghcr.io/\$REPOSITORY_OWNER/\$package_name:\$(git rev-parse --short HEAD)-\$(date +%s); \
-          echo \$image_name; \
-          image_name_latest=ghcr.io/\$REPOSITORY_OWNER/\$package_name:latest; \
+          image_name_latest=ghcr.io/\$REPOSITORY_OWNER/\$package_name:\$TAG; \
           docker build . -t \$image_name_latest -t \$image_name --quiet; \
           docker push \$image_name; \
           docker push \$image_name_latest;"'
