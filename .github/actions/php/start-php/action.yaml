@@ -1,0 +1,46 @@
+name: Composite start PHP action
+description: Prepare PHP action - checkout, generate App token, composer install
+
+inputs:
+  phpVersion:
+    description: PHP version to run this workflow. Default 8.1 as it is in action cache
+    default: '8.1'
+    required: false
+  appId:
+    description: App ID for committing and pushing
+    required: true
+  appSecret:
+    description: App secret for committing changes
+    required: true
+  exclude:
+    required: false
+    description: Which packages to exclude
+    default: 'nothing'
+
+runs:
+  using: composite
+
+  steps:
+    - uses: actions/create-github-app-token@v1
+      id: app-token
+      with:
+        app-id: ${{ inputs.appId }}
+        private-key: ${{ inputs.appSecret }}
+
+    - name: Install
+      env:
+        EXCLUDE: ${{ inputs.exclude }}
+      run: |
+        for dir in packages/*; do
+          if [ -d "$dir" ]; then
+            dirname=$(basename "$dir")
+            if [[ ! " ${EXCLUDE[@]} " =~ " $dirname " ]]; then
+                pushd "$dir" >/dev/null || exit
+                composer install
+                popd >/dev/null
+            else
+              echo "Skipping $dir"
+            fi
+          fi
+        done
+      shell: bash
