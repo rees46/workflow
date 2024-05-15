@@ -62,12 +62,18 @@ jobs:
           BASE_COMMIT: ${{ steps.find_base_commit.outputs.baseCommit }}
         run: yarn workspaces list --since=$BASE_COMMIT^
 
+      - name: Get branch name
+        env:
+          TAG: ${{ inputs.tag }}
+        id: branch_name
+        run: echo "branch=$(echo $TAG | sed 's|.*/||')" >> $GITHUB_OUTPUT
+
       - name: Build Docker and publish
         env:
           BASE_COMMIT: ${{ steps.find_base_commit.outputs.baseCommit }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPOSITORY_OWNER: ${{ github.repository_owner }}
-          TAG: ${{ inputs.tag }}
+          TAG: ${{ steps.branch_name.outputs.branch }}
         run: |
           yarn workspaces foreach --since=$BASE_COMMIT^ exec \
           'bash -c "if [ -f Dockerfile ]; then \
