@@ -35,7 +35,7 @@ jobs:
         api-service
         import-service
         clickhouse-queue
-        yml-service
+        yml-import-service
         autovaz-import-service
 
     steps:
