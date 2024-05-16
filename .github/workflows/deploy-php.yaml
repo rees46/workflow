@@ -37,6 +37,7 @@ jobs:
         clickhouse-queue
         yml-import-service
         autovaz-import-service
+        message-status-service
 
     steps:
       - name: Checkout
