@@ -48,6 +48,7 @@ jobs:
             --exclude 'REES46.podspec' \
 
       - name: Rename sources folder
+        working-directory: repo2
         run: |
           mv REES46 PersonaClick
 
