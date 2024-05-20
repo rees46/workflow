@@ -38,6 +38,7 @@ jobs:
         yml-import-service
         autovaz-import-service
         message-status-service
+        delay-service
 
     steps:
       - name: Checkout
