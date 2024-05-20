@@ -21,9 +21,6 @@ jobs:
 
       - uses: swift-actions/setup-swift@v2
 
-      - name: Build
-        run: swift build -v
-
       - name: Bump version
         env:
           FILE_PATH: ${{ inputs.podSpecFilePath }}
