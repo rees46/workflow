@@ -32,7 +32,7 @@ jobs:
       - name: Check out remote repository
         uses: actions/checkout@v4
         with:
-          repository: rees46/ios-sdk
+          repository: personaclick/ios-sdk
           token: ${{ secrets.token }}
           path: target
 
