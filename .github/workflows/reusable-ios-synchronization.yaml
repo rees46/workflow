@@ -29,6 +29,11 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Rename sources folder
+        working-directory: source
+        run: |
+          mv REES46 PersonaClick
+
       - name: Check out remote repository
         uses: actions/checkout@v4
         with:
@@ -47,11 +52,6 @@ jobs:
             --exclude 'README.md' \
             --exclude 'DemoApp' \
             --exclude 'REES46.podspec' \
-
-      - name: Rename sources folder
-        working-directory: target
-        run: |
-          mv REES46 PersonaClick
 
       - name: Apply changes to Swift files
         working-directory: target
