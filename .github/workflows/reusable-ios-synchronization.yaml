@@ -14,7 +14,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          ref: master
           fetch-depth: 0
         env:
           GITHUB_TOKEN: ${{ secrets.token }}
@@ -31,14 +30,14 @@ jobs:
       - name: Check out remote repository
         uses: actions/checkout@v4
         with:
-          repository: PersonaClick/ios-sdk
+          repository: rees46/ios-sdk
           token: ${{ secrets.token }}
-          path: repo2
+          path: transfer
 
       - name: Sync files to remote repository
         run: |
           rsync -av --progress \
-            ./ repo2/ \
+            . transfer/ \
             --exclude '.git' \
             --exclude '.github' \
             --exclude '.gitignore' \
@@ -48,12 +47,12 @@ jobs:
             --exclude 'REES46.podspec' \
 
       - name: Rename sources folder
-        working-directory: repo2
+        working-directory: transfer
         run: |
           mv REES46 PersonaClick
 
       - name: Apply changes to Swift files
-        working-directory: repo2
+        working-directory: transfer
         run: |
           find . -type f \( -name '*.swift' \) -exec sed -i \
             -e 's|https://api.rees46.com/|https://api.personaclick.com/|g' \
@@ -62,7 +61,7 @@ jobs:
             -e 's/Rees46/PersonaClick/g' {} +
 
       - name: Create commit
-        working-directory: repo2
+        working-directory: transfer
         run: |
           git config --global user.name Jade Smith
           git config --global user.email github-bot@rees46.com
@@ -78,7 +77,7 @@ jobs:
         run: echo "BRANCH_NAME=feat/new-release-$(date +%Y%m%d%H%M%S)" >> $GITHUB_OUTPUT
 
       - name: Checkout new branch and push
-        working-directory: repo2
+        working-directory: transfer
         run: |
           git checkout -b $BRANCH_NAME
           git push --set-upstream origin $BRANCH_NAME
@@ -87,7 +86,7 @@ jobs:
           BRANCH_NAME: ${{ steps.branch_name.outputs.BRANCH_NAME }}
 
       - name: Create Pull Request
-        working-directory: repo2
+        working-directory: transfer
         run: |
           PR_TITLE="Automated release"
           PR_BODY="This is an automated pull request to update from branch $BRANCH_NAME"
