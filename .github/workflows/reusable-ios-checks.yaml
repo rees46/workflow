@@ -16,7 +16,7 @@ jobs:
       - uses: swift-actions/setup-swift@v2
 
       - name: Install
-        run: pod install
+        run: swift pacakge resolve
 
       - name: Build
         run: swift build -v
