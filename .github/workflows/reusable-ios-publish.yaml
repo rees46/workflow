@@ -8,9 +8,16 @@ on:
         type: string
         required: false
         description: File path to podspec file
+      appId:
+        required: true
+        type: string
+        description: App token for committing changes
     secrets:
       cocoapodsToken:
         description: Cocoapods token
+        required: true
+      appSecret:
+        description: App secret for committing changes
         required: true
 
 jobs:
@@ -21,7 +28,7 @@ jobs:
         id: app-token
         with:
           app-id: ${{ inputs.appId }}
-          private-key: ${{ inputs.appSecret }}
+          private-key: ${{ secrets.appSecret }}
 
       - uses: actions/checkout@v4
         with:
@@ -43,7 +50,7 @@ jobs:
 
       - name: Create release
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
           VERSION: ${{ steps.version.outputs.version }}
         run: gh release create "$VERSION" --title=$VERSION --generate-notes
 
