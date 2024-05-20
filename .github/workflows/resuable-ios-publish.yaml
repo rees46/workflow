@@ -1,0 +1,61 @@
+name: iOS publish Swift pacakge and Cocoapods
+
+on:
+  workflow_call:
+    inputs:
+      podSpecFilePath:
+        default: 'REES46.podspec'
+        type: string
+        required: false
+        description: File path to podspec file
+    secrets:
+      cocoapodsToken:
+        description: Cocoapods token
+        required: true
+
+jobs:
+  run:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: swift-actions/setup-swift@v2
+
+      - name: Build
+        run: swift build -v
+
+      - name: Bump version
+        env:
+          FILE_PATH: ${{ inputs.podSpecFilePath }}
+        id: version
+        run: |
+          current_version=$(awk -F"'" '/s.version *=/ {print $2}' "$file_path")
+          IFS='.' read -r major minor patch <<< "$current_version"
+          new_patch=$((patch + 1))
+          new_version="$major.$minor.$new_patch"
+          sed -i '' "s/$current_version/$new_version/" "$file_path"
+          echo "version=$new_version" >> $GITHUB_OUTPUT
+
+      - name: Create release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: gh release create "$VERSION" --title=$VERSION --generate-notes
+
+      - name: Commit changes
+        id: committer
+        uses: EndBug/add-and-commit@v9
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          GITHUB_TOKEN: ${{ inputs.token }}
+        with:
+          default_author: github_actions
+          author_email: github-bot@rees46.com
+          message: "chore(common): version bump to $VERSION"
+          add: '["*.podspec"]'
+
+      - name: Publish to cocoapods.org
+        if: steps.committer.outputs.committed == 'true'
+        env:
+          COCOAPODS_TRUNK_TOKEN: ${{ secrets.cocoapodsToken }}
+        run: pod trunk push --allow-warnings
