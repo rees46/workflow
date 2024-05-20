@@ -38,7 +38,7 @@ jobs:
       - name: Sync files to remote repository
         run: |
           rsync -av --progress \
-            / repo2/ \
+            ./ repo2/ \
             --exclude '.git' \
             --exclude '.github' \
             --exclude '.gitignore' \
