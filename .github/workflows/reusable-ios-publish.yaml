@@ -26,11 +26,11 @@ jobs:
           FILE_PATH: ${{ inputs.podSpecFilePath }}
         id: version
         run: |
-          current_version=$(awk -F"'" '/s.version *=/ {print $2}' "$file_path")
+          current_version=$(awk -F"'" '/s.version *=/ {print $2}' "$FILE_PATH")
           IFS='.' read -r major minor patch <<< "$current_version"
           new_patch=$((patch + 1))
           new_version="$major.$minor.$new_patch"
-          sed -i '' "s/$current_version/$new_version/" "$file_path"
+          sed -i '' "s/$current_version/$new_version/" "$FILE_PATH"
           echo "version=$new_version" >> $GITHUB_OUTPUT
 
       - name: Create release
