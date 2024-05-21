@@ -19,6 +19,16 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.token }}
 
+      - name: Get current version from source
+        working-directory: source
+        env:
+          FILE_PATH: 'REES46.podspec'
+        id: version_source
+        run: |
+          current_version=$(awk -F"'" '/s.version *=/ {print $2}' "$FILE_PATH")
+          echo "version=$current_version" >> $GITHUB_OUTPUT
+
+
       - name: Get last merged PR author login
         working-directory: source
         id: pr_author
@@ -50,6 +60,7 @@ jobs:
             --exclude '.gitignore' \
             --exclude 'LICENSE' \
             --exclude 'README.md' \
+            --exclude 'Readme.md' \
             --exclude 'DemoApp' \
             --exclude 'REES46.podspec' \
 
@@ -58,9 +69,20 @@ jobs:
         run: |
           find . -type f \( -name '*.swift' \) -exec sed -i \
             -e 's|https://api.rees46.com/|https://api.personaclick.com/|g' \
+            -e 's/api.rees46.com/api.personaclick.com/g' \
+            -e 's/rees46.com/personaclick.com/g' \
             -e 's/rees46/personaClick/g' \
             -e 's/REES46/PersonaClick/g' \
             -e 's/Rees46/PersonaClick/g' {} +
+
+      - name: Apply changes to Podspec
+        env:
+          VERSION: ${{ steps.version_source.outputs.version }}
+        working-directory: target
+        run: |
+          find . -type f \( -name '*.podspec' \) -exec sed -i \
+            -e "s/s.version *= *'.*'/s.version = '${VERSION}'/g" \
+            -e 's/REES46/PersonaClick/g' {} +
 
       - name: Create commit
         working-directory: target
