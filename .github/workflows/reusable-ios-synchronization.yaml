@@ -84,6 +84,13 @@ jobs:
             -e "s/s.version *= *'.*'/s.version = '${VERSION}'/g" \
             -e 's/REES46/PersonaClick/g' {} +
 
+      - name: Apply changes to XIB files
+        working-directory: target
+        run: |
+          find . -type f \( -name '*.xib' \) -exec sed -i \
+            -e 's/REES46/PersonaClick/g' \
+            -e 's/Rees46/PersonaClick/g' {} +
+
       - name: Create commit
         working-directory: target
         run: |
