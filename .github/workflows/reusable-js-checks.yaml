@@ -39,16 +39,19 @@ jobs:
         run: yarn install --inline-builds
 
       - name: Lint
+        if: always()
         env:
           TARGET: ${{ github.base_ref }}
         run: yarn workspaces foreach --since=origin/$TARGET run lint
 
       - name: Test
+        if: always()
         env:
           TARGET: ${{ github.base_ref }}
         run: yarn workspaces foreach --since=origin/$TARGET run test
 
       - name: Build
+        if: always()
         env:
           TARGET: ${{ github.base_ref }}
         run: yarn workspaces foreach --since=origin/$TARGET run build
