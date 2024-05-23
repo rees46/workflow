@@ -1,0 +1,43 @@
+name: Deploy Ruby services
+
+on:
+  workflow_call:
+    inputs:
+      branch:
+        description: 'Git branch name'
+        required: true
+        type: string
+      job_name:
+        description: 'Jenkins job name'
+        required: true
+        type: string
+      commit_hash:
+        description: 'Github commit hash'
+        required: true
+        type: string
+    secrets:
+      URL:
+        required: true
+      USER:
+        required: true
+      TOKEN:
+        required: true
+
+jobs:
+  run:
+    name: Deploy trigger
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Trigger Jenkins Job
+        env:
+          JENKINS_URL: ${{ secrets.URL }}
+          JENKINS_DEPLOY_USER: ${{ secrets.USER }}
+          JENKINS_DEPLOY_TOKEN: ${{ secrets.TOKEN }}
+          GIT_BRANCH: ${{ inputs.branch }}
+          JOB_NAME: ${{ inputs.job_name }}
+          COMMIT_HASH: ${{ inputs.commit_hash }}
+          
+        run: |
+          curl -X POST -u "$JENKINS_DEPLOY_USER:$JENKINS_DEPLOY_TOKEN" \
+              "${JENKINS_URL}/job/${JOB_NAME}/buildWithParameters?COMMIT_HASH=${COMMIT_HASH}"
