@@ -60,8 +60,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
         with:
-          default_author: publiversioner[bot]
-          author_email: 161856912+publiversioner[bot]@users.noreply.github.com
+          default_author: github_actions
+          author_email: github-bot@rees46.com
           message: "chore(common): version bump to ${{ steps.version.outputs.version }}"
           add: '["*.podspec"]'
 
