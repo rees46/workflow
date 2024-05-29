@@ -21,8 +21,14 @@ jobs:
       - name: Run tests
         run: xcodebuild test -workspace ./DemoApp/REES46.xcworkspace -scheme REES46 -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 12,OS=latest'
 
-      - name: Lint
+      - name: Lint spec
         if: always()
         env:
           COCOAPODS_TRUNK_TOKEN: ${{ secrets.cocoapodsToken }}
         run: pod spec lint --allow-warnings
+
+      - name: Lint lib
+        if: always()
+        env:
+          COCOAPODS_TRUNK_TOKEN: ${{ secrets.cocoapodsToken }}
+        run: pod lib lint --allow-warnings
