@@ -19,7 +19,8 @@ jobs:
         run:  xcodebuild build -workspace ./DemoApp/REES46.xcworkspace -scheme REES46 -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 12,OS=latest'
 
       - name: Run tests
-        run: xcodebuild test -workspace ./DemoApp/REES46.xcworkspace -scheme REES46 -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 12,OS=latest'
+        if: always()
+        run: swift test -v --parallel
 
       - name: Lint spec
         if: always()
