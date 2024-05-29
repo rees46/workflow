@@ -16,11 +16,11 @@ jobs:
       - uses: swift-actions/setup-swift@v2
 
       - name: Build
-        run:  xcodebuild build -workspace ./DemoApp/REES46.xcworkspace -scheme REES46 -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 12,OS=latest'
+        run:  xcodebuild build -workspace ./DemoApp/REES46.xcworkspace -scheme REES46Demo -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 12,OS=latest'
 
       - name: Run tests
         if: always()
-        run: swift test -v --parallel
+        run: xcodebuild test -workspace ./DemoApp/REES46.xcworkspace -scheme REES46Demo -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 12,OS=latest'
 
       - name: Lint spec
         if: always()
