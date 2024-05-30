@@ -85,10 +85,13 @@ jobs:
           sudo apt-get update
           sudo apt-get install rvm 
           sudo usermod -a -G rvm $USER 
-          echo 'source "/etc/profile.d/rvm.sh"' >> ~/.bashrc 
+          echo 'source "/etc/profile.d/rvm.sh"' >> $GITHUB_ENV
+          echo 'source "$HOME/.rvm/scripts/rvm"' >> $GITHUB_ENV
 
       - name: Install ruby through RVM
-        run: rvm install 2.7.5
+        run: |
+          source /etc/profile.d/rvm.sh 
+          rvm install 2.7.5
 
       - name: Test
         run: |
