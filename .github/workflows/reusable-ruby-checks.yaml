@@ -95,14 +95,18 @@ jobs:
 
       - name: Test
         run: |
+          source /etc/profile.d/rvm.sh 
           bin/testing
           bin/rspec
 
       - name: Bundle
-        run: bin/bundle
+        run: |
+          source /etc/profile.d/rvm.sh 
+          bin/bundle
 
       - name: Run linters
         run: |
+          source /etc/profile.d/rvm.sh 
           bin/rubocop --parallel
           bin/stylelint
           bin/prettier
