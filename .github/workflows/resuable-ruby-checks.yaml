@@ -1,0 +1,90 @@
+name: Reusable Ruby PR checks
+
+on:
+  workflow_call:
+    inputs:
+      workingDirectory:
+        description: Working direction for action
+        default: ./
+        type: string
+        required: false
+      rubyVersion:
+        description: Ruby version to use
+        default: '2.7.5'
+        type: string
+        required: false
+      nodeVersion:
+        description: Node version to use
+        default: '20'
+        type: string
+        required: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ inputs.workingDirectory }}
+
+    services:
+      rabbit:
+        image: rabbitmq:3-management
+        env:
+          RABBITMQ_DEFAULT_USER: guest
+          RABBITMQ_DEFAULT_PASS: guest
+        ports:
+          - 5672:5672
+
+      postgres:
+        image: postgres:alpine
+        env:
+          POSTGRES_PASSWORD: rees46
+          POSTGRES_USER: rees46
+        ports:
+          - 5432:5432
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ inputs.nodeVersion }}
+
+      - name: Setup Ruby and install gems
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ inputs.rubyVersion }}
+          bundler-cache: true
+
+      - name: Start postgres
+        run: |
+          sudo systemctl start postgresql.service
+          sudo -u postgres psql -c "CREATE USER rees46 WITH SUPERUSER PASSWORD 'rees46';"
+          sudo -u postgres psql -c "CREATE DATABASE rees46 WITH OWNER rees46;"
+          sudo -u postgres psql -c "CREATE DATABASE rees46_test WITH OWNER rees46;"
+          sudo -u postgres psql -c "CREATE DATABASE rees46_production WITH OWNER rees46;"
+          sudo -u postgres psql -c "CREATE DATABASE rees46_clickhouse_rails_test WITH OWNER rees46;"
+          sudo -u postgres psql -c "CREATE DATABASE rees46_rails_test WITH OWNER rees46;"
+          sudo -u postgres psql -c "CREATE DATABASE rees46_clickhouse WITH OWNER rees46;"
+          sudo -u postgres psql -c "CREATE DATABASE rees46_clickhouse_test WITH OWNER rees46;"
+          psql -h localhost -U rees46 -d rees46 -c "SELECT version();"
+
+      - name: Yarn install
+        run: yarn install --verbose
+
+      - name: Test
+        run: |
+          bin/testing
+          bin/rspec
+
+      - name: Bundle
+        run: bin/bundle
+
+      - name: Run linters
+        run: |
+          bin/rubocop --parallel
+          bin/stylelint
+          bin/prettier
+          bin/eslint
