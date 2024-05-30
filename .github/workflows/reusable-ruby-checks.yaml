@@ -75,7 +75,6 @@ jobs:
           ruby-version: ${{ inputs.rubyVersion }}
           bundler-cache: true
 
-
       - name: Yarn install
         run: yarn install --inline-builds
 
