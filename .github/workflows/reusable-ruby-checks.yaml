@@ -59,7 +59,7 @@ jobs:
           bundler-cache: true
 
       - name: PSQL client
-        run: apt-get install --yes --no-install-recommends postgresql-client
+        run: sudo apt-get install --yes --no-install-recommends postgresql-client
 
       - name: Start postgres
         run: |
