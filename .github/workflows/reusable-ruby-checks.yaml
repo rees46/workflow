@@ -92,12 +92,13 @@ jobs:
         run: |
           source /etc/profile.d/rvm.sh 
           rvm install 2.7.5
+          gem install bundler -v 2.4.17
 
       - name: Test
         run: |
           source /etc/profile.d/rvm.sh 
-          bin/testing
-          bin/rspec
+          /bin/bash --login -c "bin/testing"
+          /bin/bach --login -c "bin/rspec"
 
       - name: Bundle
         run: |
