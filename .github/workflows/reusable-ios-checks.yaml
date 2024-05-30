@@ -16,19 +16,17 @@ jobs:
       - uses: swift-actions/setup-swift@v2
 
       - name: Build
-        env:
-          CODE_SIGN_IDENTITY: ''
-          CODE_SIGNING_REQUIRED: 'NO'
-          CODE_SIGN_ENTITLEMENTS: ''
-        run:  xcodebuild build -workspace ./DemoApp/REES46.xcworkspace -scheme REES46Demo -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 15,OS=latest'
+        run: |
+          xcodebuild build -workspace ./DemoApp/REES46.xcworkspace -scheme REES46Demo \
+          -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 15,OS=latest' \
+          CODE_SIGN_IDENTITY='' CODE_SIGNING_REQUIRED='NO' CODE_SIGN_ENTITLEMENTS=''
 
       - name: Run tests
-        env:
-          CODE_SIGN_IDENTITY: ''
-          CODE_SIGNING_REQUIRED: 'NO'
-          CODE_SIGN_ENTITLEMENTS: ''
         if: always()
-        run: xcodebuild test -workspace ./DemoApp/REES46.xcworkspace -scheme REES46Demo -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 15,OS=latest'
+        run: |
+          xcodebuild test -workspace ./DemoApp/REES46.xcworkspace -scheme REES46Demo \
+          -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 15,OS=latest' \
+          CODE_SIGN_IDENTITY='' CODE_SIGNING_REQUIRED='NO' CODE_SIGN_ENTITLEMENTS=''
 
       - name: Lint spec
         if: always()
