@@ -27,6 +27,11 @@ jobs:
         working-directory: ${{ inputs.workingDirectory }}
 
     services:
+      redis:
+        image: redis:alpine
+        ports:
+          - 6379:6379
+
       rabbit:
         image: rabbitmq:management-alpine
         env:
@@ -38,8 +43,8 @@ jobs:
       postgres:
         image: postgres:alpine
         env:
-          POSTGRES_PASSWORD: rees46
-          POSTGRES_USER: rees46
+          POSTGRES_PASSWORD: test
+          POSTGRES_USER: postgres
         ports:
           - 5432:5432
 
@@ -49,17 +54,17 @@ jobs:
 
       - name: Start postgres
         env:
-          PGPASSWORD: rees46
-          PGUSER: rees46
+          PGPASSWORD: test
+          PGUSER: postgres
           PGHOST: localhost
         run: |
-          psql -c "CREATE DATABASE rees46_test WITH OWNER rees46;"
-          psql -c "CREATE DATABASE rees46_production WITH OWNER rees46;"
-          psql -c "CREATE DATABASE rees46_clickhouse_rails_test WITH OWNER rees46;"
-          psql -c "CREATE DATABASE rees46_rails_test WITH OWNER rees46;"
-          psql -c "CREATE DATABASE rees46_clickhouse WITH OWNER rees46;"
-          psql -c "CREATE DATABASE rees46_clickhouse_test WITH OWNER rees46;"
-          psql -d rees46 -c "SELECT version();"
+          psql -c "CREATE DATABASE rees46_test WITH OWNER postgres;"
+          psql -c "CREATE DATABASE rees46_production WITH OWNER postgres;"
+          psql -c "CREATE DATABASE rees46_clickhouse_rails_test WITH OWNER postgres;"
+          psql -c "CREATE DATABASE rees46_rails_test WITH OWNER postgres;"
+          psql -c "CREATE DATABASE rees46_clickhouse WITH OWNER postgres;"
+          psql -c "CREATE DATABASE rees46_clickhouse_test WITH OWNER postgres;"
+          psql -d postgres -c "SELECT version();"
 
       - name: Checkout
         uses: actions/checkout@v4
@@ -78,36 +83,49 @@ jobs:
       - name: Yarn install
         run: yarn install --inline-builds
 
-      - name: Set up rvm
+      - name: Prepare configs
         run: |
-          sudo apt-get install software-properties-common
-          sudo apt-add-repository -y ppa:rael-gc/rvm
-          sudo apt-get update
-          sudo apt-get install rvm 
-          sudo usermod -a -G rvm $USER 
-          echo 'source "/etc/profile.d/rvm.sh"' >> ~/.bashrc
-          source ~/.bashrc
-
-      - name: Install ruby through RVM
-        run: |
-          source /etc/profile.d/rvm.sh 
-          rvm install 2.7.5
+          mv ./config/database.yml.example ./config/database.yml
+          mv ./config/secrets.yml.example ./config/secrets.yml
 
       - name: Test
+        if: always()
+        env:
+          DISABLE_DATABASE_ENVIRONMENT_CHECK: 1
+          RAILS_ENV: test
+          PG_USER: postgres
+          PG_PASSWORD: test
         run: |
-          source /etc/profile.d/rvm.sh 
-          /bin/bash --login -c "bin/testing"
-          /bin/bach --login -c "bin/rspec"
+          bundle exec rake db:reset 
+          bundle exec rake clickhouse:schema:load 
+          bin/rspec
 
       - name: Bundle
+        env:
+          RAILS_ENV: test
+        if: always()
         run: |
-          source /etc/profile.d/rvm.sh 
-          bin/bundle
+          if test -f "bin/bundle"; then
+            bin/bundle
+          else
+            exit 0
+          fi
 
       - name: Run linters
+        if: always()
         run: |
-          source /etc/profile.d/rvm.sh 
-          bin/rubocop --parallel
-          bin/stylelint
-          bin/prettier
-          bin/eslint
+          if test -f "bin/rubocop"; then
+            bin/rubocop --parallel
+          fi
+          if test -f "bin/stylelint"; then
+            bin/stylelint
+          fi
+          if test -f "bin/prettier"; then
+            bin/stylelint
+          fi
+          if test -f "bin/prettier"; then
+            bin/prettier
+          fi
+          if test -f "bin/eslint"; then
+            bin/eslint
+          fi
