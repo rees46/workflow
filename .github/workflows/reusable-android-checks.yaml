@@ -1,8 +1,32 @@
-name: Reusable Android SDK PR checks
+name: Reusable Android SDK publish to Sona
 
 on:
   workflow_call:
     inputs:
+      PROPERTIES_FILE:
+        default: gradle.properties
+        type: string
+        description: Relative file path for putting in secrets
+        required: false
+      SIGNING_SECRET_KEY_RING_FILE:
+        default: com.rees46.key.gpg
+        type: string
+        description: Location and name for signature file
+        required: false
+      SIGNING_SECRET_KEY_RING_FILE_LOCATION:
+        type: string
+        description: Location and name for signature file
+        required: true
+      GOOGLE_SERVICES_FILE_LOCATION:
+        default: sample
+        type: string
+        description: Location for google services file
+        required: false
+      GOOGLE_SERVICES_FILE_NAME:
+        default: google-services.json
+        type: string
+        description: Name for google services file
+        required: false
       GRADLE_VERSION:
         default: 8.2
         type: number
@@ -22,16 +46,18 @@ on:
         required: true
       SIGNING_KEY_FILE_AS_BASE64_STRING:
         required: true
+      GOOGLE_SERVICES_FILE_AS_BASE64_STRING:
+        required: true
 
 jobs:
   run:
     runs-on: ubuntu-latest
-    outputs:
-      committed: ${{ steps.committer.outputs.committed }}
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          ref: master
 
       - name: Setup Java
         uses: actions/setup-java@v4
@@ -71,3 +97,27 @@ jobs:
           fileName: ${{ inputs.SIGNING_SECRET_KEY_RING_FILE }}
           fileDir: ${{ inputs.SIGNING_SECRET_KEY_RING_FILE_LOCATION }}
           encodedString: ${{ secrets.SIGNING_KEY_FILE_AS_BASE64_STRING }}
+
+      - name: Decode google services key file
+        uses: timheuer/base64-to-file@v1.2
+        id: google_services_json_file
+        with:
+          fileName: ${{ inputs.GOOGLE_SERVICES_FILE_NAME }}
+          fileDir: ${{ inputs.GOOGLE_SERVICES_FILE_LOCATION }}
+          encodedString: ${{ secrets.GOOGLE_SERVICES_FILE_AS_BASE64_STRING }}
+
+      - name: Test
+        if: always()
+        run: ./gradlew test
+
+      - name: Lint
+        if: always()
+        run: ./gradlew lint
+
+      - name: Check
+        if: always()
+        run: ./gradlew check
+
+      - name: Build
+        if: always()
+        run: ./gradlew build
