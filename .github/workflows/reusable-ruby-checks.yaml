@@ -48,16 +48,20 @@ jobs:
         run: sudo apt-get install --yes --no-install-recommends postgresql-client
 
       - name: Start postgres
+        env:
+          PGPASSWORD: rees46
+          PGUSER: rees46
+          PGHOST: localhost
         run: |
-          psql -h localhost -U rees46 -c "CREATE USER rees46 WITH SUPERUSER PASSWORD 'rees46';"
-          psql -h localhost -U rees46 -c "CREATE DATABASE rees46 WITH OWNER rees46;"
-          psql -h localhost -U rees46 -c "CREATE DATABASE rees46_test WITH OWNER rees46;"
-          psql -h localhost -U rees46 -c "CREATE DATABASE rees46_production WITH OWNER rees46;"
-          psql -h localhost -U rees46 -c "CREATE DATABASE rees46_clickhouse_rails_test WITH OWNER rees46;"
-          psql -h localhost -U rees46 -c "CREATE DATABASE rees46_rails_test WITH OWNER rees46;"
-          psql -h localhost -U rees46 -c "CREATE DATABASE rees46_clickhouse WITH OWNER rees46;"
-          psql -h localhost -U rees46 -c "CREATE DATABASE rees46_clickhouse_test WITH OWNER rees46;"
-          psql -h localhost -U rees46 -d rees46 -c "SELECT version();"
+          psql -c "CREATE USER rees46 WITH SUPERUSER PASSWORD 'rees46';"
+          psql -c "CREATE DATABASE rees46 WITH OWNER rees46;"
+          psql -c "CREATE DATABASE rees46_test WITH OWNER rees46;"
+          psql -c "CREATE DATABASE rees46_production WITH OWNER rees46;"
+          psql -c "CREATE DATABASE rees46_clickhouse_rails_test WITH OWNER rees46;"
+          psql -c "CREATE DATABASE rees46_rails_test WITH OWNER rees46;"
+          psql -c "CREATE DATABASE rees46_clickhouse WITH OWNER rees46;"
+          psql -c "CREATE DATABASE rees46_clickhouse_test WITH OWNER rees46;"
+          psql -d rees46 -c "SELECT version();"
 
       - name: Checkout
         uses: actions/checkout@v4
