@@ -83,7 +83,9 @@ jobs:
           FILE_PATH: ./personalizatio-sdk/build.gradle
         id: versionName
         run: |
-          echo "versionName=$(grep -o "version='[^']*'" $FILE_PATH | head -1 | cut -d"'" -f2)" >> $GITHUB_OUTPUT 
+          version=$(grep -o "version='[^']*'" $FILE_PATH | head -1 | cut -d"'" -f2)
+          echo "versionName=$version" >> $GITHUB_ENV
+          echo "versionName=$version" >> $GITHUB_OUTPUT
 
       - name: Zip source
         run: |
