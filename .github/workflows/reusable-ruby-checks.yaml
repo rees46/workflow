@@ -53,7 +53,6 @@ jobs:
           PGUSER: rees46
           PGHOST: localhost
         run: |
-          psql -c "CREATE USER rees46 WITH SUPERUSER PASSWORD 'rees46';"
           psql -c "CREATE DATABASE rees46 WITH OWNER rees46;"
           psql -c "CREATE DATABASE rees46_test WITH OWNER rees46;"
           psql -c "CREATE DATABASE rees46_production WITH OWNER rees46;"
