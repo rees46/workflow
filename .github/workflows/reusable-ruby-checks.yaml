@@ -64,15 +64,15 @@ jobs:
       - name: Start postgres
         run: |
           sudo systemctl start postgresql.service
-          sudo psql -U postgres -c "CREATE USER rees46 WITH SUPERUSER PASSWORD 'rees46';"
-          sudo psql -U postgres -c "CREATE DATABASE rees46 WITH OWNER rees46;"
-          sudo psql -U postgres -c "CREATE DATABASE rees46_test WITH OWNER rees46;"
-          sudo psql -U postgres -c "CREATE DATABASE rees46_production WITH OWNER rees46;"
-          sudo psql -U postgres -c "CREATE DATABASE rees46_clickhouse_rails_test WITH OWNER rees46;"
-          sudo psql -U postgres -c "CREATE DATABASE rees46_rails_test WITH OWNER rees46;"
-          sudo psql -U postgres -c "CREATE DATABASE rees46_clickhouse WITH OWNER rees46;"
-          sudo psql -U postgres -c "CREATE DATABASE rees46_clickhouse_test WITH OWNER rees46;"
-          sudo psql -h localhost -U rees46 -d rees46 -c "SELECT version();"
+          psql -U postgres -c "CREATE USER rees46 WITH SUPERUSER PASSWORD 'rees46';"
+          psql -U postgres -c "CREATE DATABASE rees46 WITH OWNER rees46;"
+          psql -U postgres -c "CREATE DATABASE rees46_test WITH OWNER rees46;"
+          psql -U postgres -c "CREATE DATABASE rees46_production WITH OWNER rees46;"
+          psql -U postgres -c "CREATE DATABASE rees46_clickhouse_rails_test WITH OWNER rees46;"
+          psql -U postgres -c "CREATE DATABASE rees46_rails_test WITH OWNER rees46;"
+          psql -U postgres -c "CREATE DATABASE rees46_clickhouse WITH OWNER rees46;"
+          psql -U postgres -c "CREATE DATABASE rees46_clickhouse_test WITH OWNER rees46;"
+          psql -h localhost -U rees46 -d rees46 -c "SELECT version();"
 
       - name: Yarn install
         run: yarn install --verbose
