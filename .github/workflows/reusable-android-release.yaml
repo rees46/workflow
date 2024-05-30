@@ -96,5 +96,5 @@ jobs:
           TAG: ${{ steps.versionName.outputs.versionName }}
         run: |
           gh release create "v$TAG" ./source.tgz \
-          --title=$TAG" \
+          --title=$TAG \
           --generate-notes
