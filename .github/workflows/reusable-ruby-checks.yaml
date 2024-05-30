@@ -77,7 +77,7 @@ jobs:
 
 
       - name: Yarn install
-        run: yarn install --verbose
+        run: yarn install --inline-builds
 
       - name: Test
         run: |
