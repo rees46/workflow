@@ -90,6 +90,11 @@ jobs:
           mv ./config/database.yml.example ./config/database.yml
           mv ./config/secrets.yml.example ./config/secrets.yml
 
+      - name: Change configs
+        run: |
+          output_file="./config/database.yml"
+          sed -i '' -e '/^test_clickhouse:/!b' -e 'n' -e 's/.*/  <<: *default_clickhouse/' "$output_file"
+
       - name: Run migrations
         env:
           PG_PASSWORD: rees46
