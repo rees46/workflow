@@ -90,6 +90,9 @@ jobs:
           mv ./config/secrets.yml.example ./config/secrets.yml
 
       - name: Run migrations
+        env:
+          PG_PASSWORD: rees46
+          PG_USER: rees46
         run: |
           bundle exec rake db:create:all 
           bundle exec rake db:schema:load 
