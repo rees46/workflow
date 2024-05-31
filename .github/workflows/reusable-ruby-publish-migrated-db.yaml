@@ -1,0 +1,103 @@
+name: Reusable Ruby publish migrated DB
+
+on:
+  workflow_call:
+    inputs:
+      workingDirectory:
+        description: Working direction for action
+        default: ./
+        type: string
+        required: false
+      rubyVersion:
+        description: Ruby version to use
+        default: '2.7.5'
+        type: string
+        required: false
+      nodeVersion:
+        description: Node version to use
+        default: '20'
+        type: string
+        required: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ inputs.workingDirectory }}
+
+    services:
+      postgres:
+        image: postgres:alpine
+        env:
+          POSTGRES_PASSWORD: rees46
+          POSTGRES_USER: rees46
+        ports:
+          - 5432:5432
+
+    steps:
+      - name: Start clickhouse server
+        run: |
+          docker run -d \
+          --name clickhouse_server \
+          -p 8123:8123 \
+          -p 9000:9000 \
+          -p 9009:9009 \
+          -p 9004:9004 \
+          -p 9005:9005 \
+          --ulimit nofile=262144:262144 \
+          -v $(pwd)/config/clickhouse-config.xml:/etc/clickhouse-server/config.xml \
+          yandex/clickhouse-server:22-alpine
+
+      - name: PSQL client
+        run: sudo apt-get install --yes --no-install-recommends postgresql-client
+
+      - name: Start postgres
+        env:
+          PGPASSWORD: rees46
+          PGUSER: rees46
+          PGHOST: localhost
+        run: |
+          psql -c "CREATE DATABASE rees46_test WITH OWNER rees46;"
+          psql -c "CREATE DATABASE rees46_production WITH OWNER rees46;"
+          psql -c "CREATE DATABASE rees46_clickhouse_rails_test WITH OWNER rees46;"
+          psql -c "CREATE DATABASE rees46_rails_test WITH OWNER rees46;"
+          psql -c "CREATE DATABASE rees46_clickhouse WITH OWNER rees46;"
+          psql -c "CREATE DATABASE rees46_clickhouse_test WITH OWNER rees46;"
+          psql -d rees46 -c "SELECT version();"
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ inputs.nodeVersion }}
+
+      - name: Setup Ruby and install gems
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ inputs.rubyVersion }}
+          bundler-cache: true
+
+      - name: Yarn install
+        run: yarn install --inline-builds
+
+      - name: Prepare configs
+        run: |
+          mv ./config/database.yml.example ./config/database.yml
+          mv ./config/secrets.yml.example ./config/secrets.yml
+
+      - name: Run migrations
+        run: |
+          bundle exec rake db:create:all 
+          bundle exec rake db:schema:load 
+          RAILS_ENV=test bundle exec rake db:create:all 
+          bundle exec rake clickhouse:create 
+          bundle exec rake clickhouse:schema:load 
+          RAILS_ENV=test bundle exec rake clickhouse:schema:load -- --simple
+
+      - name: Publish docker image
+        run: |
+          docker commit postgres ghcr.io/rees46/postgres-migrated:latest
+          docker push ghcr.io/rees46/postgres-migrated:latest
