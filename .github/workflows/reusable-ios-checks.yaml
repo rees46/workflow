@@ -28,11 +28,6 @@ jobs:
 
       - uses: swift-actions/setup-swift@v2
 
-      - name: List Google service file
-        run: |
-          echo $(ls DemoApp/REES46Demo)
-          echo $(ls DemoApp/REES46Demo/Supporting\ Files)
-
       - name: Pod install
         working-directory: ./DemoApp
         run: |
@@ -54,6 +49,11 @@ jobs:
           fileName: ${{ inputs.googleServicesFileName }}
           fileDir: ${{ inputs.googleServicesFileLocation }}
           encodedString: ${{ secrets.googleServicesString }}
+
+      - name: Use tree to show all files
+        run: |
+          sudo apt-get install -y tree
+          tree
 
       - name: Run tests
         if: ${{ !cancelled() }}
