@@ -45,7 +45,7 @@ jobs:
           PGUSER: rees46
           PGHOST: localhost
         run: |
-          psql -c "CREATE USER rails WITH SUPERUSER PASSWORD rails;"
+          psql -c "CREATE USER rails WITH SUPERUSER PASSWORD 'rails';"
           psql -c "CREATE DATABASE rees46_test WITH OWNER rees46;"
           psql -c "CREATE DATABASE rees46_production WITH OWNER ree46;"
           psql -c "CREATE DATABASE rees46_clickhouse_rails_test WITH OWNER rees46;"
