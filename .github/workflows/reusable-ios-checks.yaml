@@ -28,14 +28,6 @@ jobs:
 
       - uses: swift-actions/setup-swift@v2
 
-      - name: Decode signing key file
-        uses: timheuer/base64-to-file@v1.2
-        id: service_account_json_file
-        with:
-          fileName: ${{ inputs.googleServicesFileName }}
-          fileDir: ${{ inputs.googleServicesFileLocation }}
-          encodedString: ${{ secrets.googleServicesString }}
-
       - name: List Google service file
         run: |
           echo $(ls DemoApp/REES46Demo)
@@ -55,21 +47,29 @@ jobs:
           -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 15,OS=latest' \
           CODE_SIGN_IDENTITY='' CODE_SIGNING_REQUIRED='NO' CODE_SIGN_ENTITLEMENTS=''
 
+      - name: Decode signing key file
+        uses: timheuer/base64-to-file@v1.2
+        id: service_account_json_file
+        with:
+          fileName: ${{ inputs.googleServicesFileName }}
+          fileDir: ${{ inputs.googleServicesFileLocation }}
+          encodedString: ${{ secrets.googleServicesString }}
+
       - name: Run tests
-        if: always()
+        if: ${{ !cancelled() }}
         run: |
           xcodebuild clean test -workspace ./DemoApp/REES46.xcworkspace -scheme REES46Demo \
           -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 15,OS=latest' \
           CODE_SIGN_IDENTITY='' CODE_SIGNING_REQUIRED='NO' CODE_SIGN_ENTITLEMENTS=''
 
       - name: Lint spec
-        if: always()
+        if: ${{ !cancelled() }}
         env:
           COCOAPODS_TRUNK_TOKEN: ${{ secrets.cocoapodsToken }}
         run: pod spec lint --allow-warnings
 
       - name: Lint lib
-        if: always()
+        if: ${{ !cancelled() }}
         env:
           COCOAPODS_TRUNK_TOKEN: ${{ secrets.cocoapodsToken }}
         run: pod lib lint --allow-warnings
