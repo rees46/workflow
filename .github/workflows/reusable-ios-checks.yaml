@@ -36,6 +36,11 @@ jobs:
           fileDir: ${{ inputs.googleServicesFileLocation }}
           encodedString: ${{ secrets.googleServicesString }}
 
+      - name: List Google service file
+        run: |
+          echo $(ls DemoApp/REES46Demo)
+          echo $(ls DemoApp/REES46Demo/Supporting Files)
+
       - name: Pod install
         working-directory: ./DemoApp
         run: |
