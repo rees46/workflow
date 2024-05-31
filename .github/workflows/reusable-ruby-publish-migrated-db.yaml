@@ -67,8 +67,8 @@ jobs:
           -p 9004:9004 \
           -p 9005:9005 \
           --ulimit nofile=262144:262144 \
-          -v ./config/clickhouse-config.xml:/etc/clickhouse-server/config.xml \
-          yandex/clickhouse-server:22-alpine
+          yandex/clickhouse-server:22-alpine;
+          docker cp ./config/clickhouse-config.xml clickhouse_server:/etc/clickhouse-server/config.xml
 
       - name: Setup node
         uses: actions/setup-node@v4
