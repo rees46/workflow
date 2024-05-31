@@ -92,8 +92,8 @@ jobs:
 
       - name: Change configs
         run: |
-          output_file="./config/database.yml"
-          sed -i '' -e '/^test_clickhouse:/!b' -e 'n' -e 's/.*/  <<: *default_clickhouse/' "$output_file"
+          file="./config/database.yml"
+          sed -i -e '/^test_clickhouse:/!b' -e 'n' -e 's/.*/  <<: *default_clickhouse/' "$file"
 
       - name: Run migrations
         env:
