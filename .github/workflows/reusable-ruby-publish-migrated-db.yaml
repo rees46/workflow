@@ -36,19 +36,6 @@ jobs:
           - 5432:5432
 
     steps:
-      - name: Start clickhouse server
-        run: |
-          docker run -d \
-          --name clickhouse_server \
-          -p 8123:8123 \
-          -p 9000:9000 \
-          -p 9009:9009 \
-          -p 9004:9004 \
-          -p 9005:9005 \
-          --ulimit nofile=262144:262144 \
-          -v ./config/clickhouse-config.xml:/etc/clickhouse-server/config.xml \
-          yandex/clickhouse-server:22-alpine
-
       - name: PSQL client
         run: sudo apt-get install --yes --no-install-recommends postgresql-client
 
@@ -68,6 +55,19 @@ jobs:
 
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Start clickhouse server
+        run: |
+          docker run -d \
+          --name clickhouse_server \
+          -p 8123:8123 \
+          -p 9000:9000 \
+          -p 9009:9009 \
+          -p 9004:9004 \
+          -p 9005:9005 \
+          --ulimit nofile=262144:262144 \
+          -v ./config/clickhouse-config.xml:/etc/clickhouse-server/config.xml \
+          yandex/clickhouse-server:22-alpine
 
       - name: Setup node
         uses: actions/setup-node@v4
