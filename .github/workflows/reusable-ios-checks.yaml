@@ -52,8 +52,25 @@ jobs:
 
       - name: Use tree to show all files
         run: |
-          sudo apt-get install -y tree
-          tree
+          print_tree() {
+            find "$1" | awk '
+            BEGIN {
+              FS="/"
+              OFS="/"
+            }
+            {
+              depth = split($0, path, "/") - 1
+              for (i = 1; i <= depth; i++) {
+                printf "|   "
+              }
+              printf "|-- %s\n", path[depth + 1]
+            }'
+          }
+
+          start_dir="${1:-.}"
+
+          echo "$start_dir"
+          print_tree "$start_dir"
 
       - name: Run tests
         if: ${{ !cancelled() }}
