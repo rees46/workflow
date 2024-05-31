@@ -75,9 +75,6 @@ jobs:
           echo "$start_dir"
           print_tree "$start_dir"
 
-      - name: Print content of GoogleService.plist
-        run: echo "$(cat ./DemoApp/REES46Demo/Supporting\ Files/GoogleService-Info.plist)"
-
       - name: Run tests
         if: ${{ !cancelled() }}
         run: |
