@@ -30,8 +30,8 @@ jobs:
       postgres:
         image: postgres:alpine
         env:
-          POSTGRES_PASSWORD: rails
-          POSTGRES_USER: rails
+          POSTGRES_PASSWORD: rees46
+          POSTGRES_USER: rees46
         ports:
           - 5432:5432
 
@@ -41,17 +41,17 @@ jobs:
 
       - name: Start postgres
         env:
-          PGPASSWORD: rails
-          PGUSER: rails
+          PGPASSWORD: rees46
+          PGUSER: rees46
           PGHOST: localhost
         run: |
-          psql -c "CREATE DATABASE rees46 WITH OWNER rails;"
-          psql -c "CREATE DATABASE rees46_test WITH OWNER rails;"
-          psql -c "CREATE DATABASE rees46_production WITH OWNER rails;"
-          psql -c "CREATE DATABASE rees46_clickhouse_rails_test WITH OWNER rails;"
-          psql -c "CREATE DATABASE rees46_rails_test WITH OWNER rails;"
-          psql -c "CREATE DATABASE rees46_clickhouse WITH OWNER rails;"
-          psql -c "CREATE DATABASE rees46_clickhouse_test WITH OWNER rails;"
+          psql -c "CREATE USER rails WITH SUPERUSER PASSWORD rails;"
+          psql -c "CREATE DATABASE rees46_test WITH OWNER rees46;"
+          psql -c "CREATE DATABASE rees46_production WITH OWNER ree46;"
+          psql -c "CREATE DATABASE rees46_clickhouse_rails_test WITH OWNER rees46;"
+          psql -c "CREATE DATABASE rees46_rails_test WITH OWNER rees46;"
+          psql -c "CREATE DATABASE rees46_clickhouse WITH OWNER rees46;"
+          psql -c "CREATE DATABASE rees46_clickhouse_test WITH OWNER rees46;"
           psql -d rees46 -c "SELECT version();"
 
       - name: Checkout
