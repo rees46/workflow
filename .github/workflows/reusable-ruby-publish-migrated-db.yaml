@@ -45,6 +45,7 @@ jobs:
           PGUSER: rails
           PGHOST: localhost
         run: |
+          psql -c "CREATE DATABASE rees46 WITH OWNER rails;"
           psql -c "CREATE DATABASE rees46_test WITH OWNER rails;"
           psql -c "CREATE DATABASE rees46_production WITH OWNER rails;"
           psql -c "CREATE DATABASE rees46_clickhouse_rails_test WITH OWNER rails;"
