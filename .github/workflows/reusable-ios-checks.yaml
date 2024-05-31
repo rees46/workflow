@@ -2,7 +2,20 @@ name: iOS checks
 
 on:
   workflow_call:
+    inputs:
+      googleServicesFileLocation:
+        required: false
+        type: string
+        default: ./DemoApp/REES46Demo/Supporting Files
+      googleServicesFileName:
+        required: false
+        type: string
+        default: GoogleService-Info.plist
+
     secrets:
+      googleServicesString:
+        description: Google services file as base64 string
+        required: true
       cocoapodsToken:
         description: Cocoapods token
         required: true
@@ -14,6 +27,14 @@ jobs:
       - uses: actions/checkout@v4
 
       - uses: swift-actions/setup-swift@v2
+
+      - name: Decode signing key file
+        uses: timheuer/base64-to-file@v1.2
+        id: service_account_json_file
+        with:
+          fileName: ${{ inputs.googleServicesFileName }}
+          fileDir: ${{ inputs.googleServicesFileLocation }}
+          encodedString: ${{ secrets.googleServicesString }}
 
       - name: Pod install
         working-directory: ./DemoApp
