@@ -47,13 +47,13 @@ jobs:
         run: |
           psql -c "CREATE USER rails WITH SUPERUSER PASSWORD 'rails';"
           psql -c "CREATE USER rees46 WITH SUPERUSER PASSWORD 'rees46';"
-          psql -c "CREATE DATABASE rees46_test WITH OWNER rees46;"
-          psql -c "CREATE DATABASE rees46_clickhouse_rails_test WITH OWNER rees46;"
-          psql -c "CREATE DATABASE rees46_rails_test WITH OWNER rees46;"
-          psql -c "CREATE DATABASE rees46_clickhouse_test WITH OWNER rees46;"
-          psql -d rees46 -c "SELECT version();"
-          psql -c "CREATE DATABASE rees46_production WITH OWNER rees46;"
-          psql -c "CREATE DATABASE rees46_clickhouse WITH OWNER rees46;"
+#          psql -c "CREATE DATABASE rees46_test WITH OWNER rees46;"
+#          psql -c "CREATE DATABASE rees46_clickhouse_rails_test WITH OWNER rees46;"
+#          psql -c "CREATE DATABASE rees46_rails_test WITH OWNER rees46;"
+#          psql -c "CREATE DATABASE rees46_clickhouse_test WITH OWNER rees46;"
+#          psql -d rees46 -c "SELECT version();"
+#          psql -c "CREATE DATABASE rees46_production WITH OWNER rees46;"
+#          psql -c "CREATE DATABASE rees46_clickhouse WITH OWNER rees46;"
 
       - name: Checkout
         uses: actions/checkout@v4
@@ -94,12 +94,13 @@ jobs:
         env:
           PG_PASSWORD: rees46
           PG_USER: rees46
+          RAILS_ENV: test
         run: |
-          RAILS_ENV=test bundle exec rake db:create
+          bundle exec rake db:create
           bundle exec rake db:schema:load 
           bundle exec rake clickhouse:create 
           bundle exec rake clickhouse:schema:load 
-          RAILS_ENV=test bundle exec rake clickhouse:schema:load -- --simple
+          bundle exec rake clickhouse:schema:load -- --simple
 
       - name: Publish postgres docker image
         run: |
