@@ -46,7 +46,7 @@ jobs:
           -p 9004:9004 \
           -p 9005:9005 \
           --ulimit nofile=262144:262144 \
-          -v config/clickhouse-config.xml:/etc/clickhouse-server/config.xml \
+          -v ./config/clickhouse-config.xml:/etc/clickhouse-server/config.xml \
           yandex/clickhouse-server:22-alpine
 
       - name: PSQL client
