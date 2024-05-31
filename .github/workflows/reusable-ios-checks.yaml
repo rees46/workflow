@@ -50,6 +50,9 @@ jobs:
           fileDir: ${{ inputs.googleServicesFileLocation }}
           encodedString: ${{ secrets.googleServicesString }}
 
+      - name: Copy Google Service
+        run: cp ./DemoApp/REES46Demo/Supporting\ Files/GoogleService-Info.plist ./DemoApp/REES46Demo/GoogleService-Info.plist
+
       - name: Use tree to show all files
         run: |
           print_tree() {
