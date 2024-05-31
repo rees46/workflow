@@ -62,6 +62,8 @@ jobs:
         run: |
           docker run -d \
           --name clickhouse_server \
+          -e CLICKHOUSE_USER: rees46 \
+          -e CLICKHOUSE_PASSWORD: rees46 \
           -p 8123:8123 \
           -p 9000:9000 \
           -p 9009:9009 \
