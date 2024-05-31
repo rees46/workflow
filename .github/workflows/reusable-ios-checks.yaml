@@ -6,7 +6,7 @@ on:
       googleServicesFileLocation:
         required: false
         type: string
-        default: './DemoApp/REES46Demo/Supporting\ Files/'
+        default: './DemoApp/REES46Demo/Supporting Files/'
       googleServicesFileName:
         required: false
         type: string
