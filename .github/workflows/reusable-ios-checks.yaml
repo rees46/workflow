@@ -6,7 +6,7 @@ on:
       googleServicesFileLocation:
         required: false
         type: string
-        default: './DemoApp/REES46Demo/Supporting Files/'
+        default: './DemoApp/REES46Demo/Supporting\ Files/'
       googleServicesFileName:
         required: false
         type: string
@@ -39,7 +39,7 @@ jobs:
       - name: List Google service file
         run: |
           echo $(ls DemoApp/REES46Demo)
-          echo $(ls DemoApp/REES46Demo/Supporting Files)
+          echo $(ls DemoApp/REES46Demo/Supporting\ Files)
 
       - name: Pod install
         working-directory: ./DemoApp
