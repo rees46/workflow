@@ -97,7 +97,12 @@ jobs:
           bundle exec rake clickhouse:schema:load 
           RAILS_ENV=test bundle exec rake clickhouse:schema:load -- --simple
 
-      - name: Publish docker image
+      - name: Publish postgres docker image
         run: |
           docker commit postgres ghcr.io/rees46/postgres-migrated:latest
           docker push ghcr.io/rees46/postgres-migrated:latest
+
+      - name: Publish clickhouse server docker image
+        run: |
+          docker commit clickhouse_server ghcr.io/rees46/clickhouse-server-migrated:latest
+          docker push ghcr.io/rees46/clickhouse-server-migrated:latest
