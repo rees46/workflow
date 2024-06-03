@@ -51,7 +51,7 @@ jobs:
           encodedString: ${{ secrets.googleServicesString }}
 
       - name: Copy Google Service
-        run: cp ./DemoApp/REES46Demo/Supporting\ Files/GoogleService-Info.plist ./DemoApp/REES46Demo/GoogleService-Info.plist
+        run: cp ./DemoApp/REES46Demo/Supporting\ Files/GoogleService-Info.plist ./DemoApp/GoogleService-Info.plist
 
       - name: Use tree to show all files
         run: |
