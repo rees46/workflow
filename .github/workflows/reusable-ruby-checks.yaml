@@ -96,7 +96,7 @@ jobs:
           PG_USER: postgres
           PG_PASSWORD: test
         run: |
-          bundle exec rake db:reset 
+          bundle exec rake db:schema:load 
           bundle exec rake clickhouse:schema:load 
           bin/rspec
 
