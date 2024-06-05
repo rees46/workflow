@@ -79,5 +79,6 @@ jobs:
           for package in $PACKAGES
           do
             echo "🏗️🏗️🏗️ Testing $package..."
+            mv packages/$package/config/test_secrets.ini.example packages/$package/config/test_secrets.ini
             XDEBUG_MODE=coverage vendor/bin/phpunit --bootstrap=packages/$package/test/autoload.php --configuration=packages/$package/phpunit.xml
           done
