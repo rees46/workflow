@@ -54,7 +54,11 @@ jobs:
           CHANGED_FILES: ${{ steps.changed_files.outputs.all_changed_files }}
         id: changed_packages
         run: |
-          echo "packages=$(echo "$CHANGED_FILES" | grep 'packages/' | awk -F'/' '{print $2}' | uniq)" >> $"GITHUB_OUTPUT" 
+          echo "packages=$(echo "$CHANGED_FILES" | grep 'packages/' | awk -F'/' '{print $2}' | uniq)" >> $GITHUB_OUTPUT
+          echo "Changed packages"
+          echo "$packages"
+          echo "Changed files"
+          echo "$CHANGED_FILES"
 
       - name: Set up PHP
         if: ${{ steps.changed_packages.outputs.packages != '' }}
@@ -70,10 +74,8 @@ jobs:
       - name: Run tests
         if: ${{ steps.changed_packages.outputs.packages != '' }}
         env:
-          CHANGED_FILES: ${{ steps.changed_files.outputs.all_changed_files }}
+          PACKAGES: ${{ steps.changed_packages.outputs.packages }}
         run: |
-          PACKAGES=$(echo "$CHANGED_FILES" | tr ' ' '\n' | grep 'packages/' | awk -F'/' '{print $2}' | uniq)
-          echo "Trying to build $PACKAGES"
           for package in $PACKAGES
           do
             echo "🏗️🏗️🏗️ Testing $package..."
