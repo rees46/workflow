@@ -45,14 +45,35 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Changed files
+        id: changed_files
+        uses: tj-actions/changed-files@v42
+
+      - name: Check if any packages need build
+        id: changed_packages
+        run: |
+          echo "packages=$(echo "$CHANGED_FILES" | grep 'packages/' | awk -F'/' '{print $2}' | uniq)" >> $"GITHUB_OUTPUT" 
+
       - name: Set up PHP
+        if: ${{ steps.changed_packages.outputs.packages != '' }}
         uses: shivammathur/setup-php@v2
         with:
           tools: composer
           extensions: event
 
       - name: Install dependencies
+        if: ${{ steps.changed_packages.outputs.packages != '' }}
         run: composer install --prefer-dist --no-progress --no-suggest
 
       - name: Run tests
-        run: XDEBUG_MODE=coverage vendor/bin/phpunit --bootstrap=packages/$package/vendor/autoload.php --configuration=packages/$package/phpunit.xml
+        if: ${{ steps.changed_packages.outputs.packages != '' }}
+        env:
+          CHANGED_FILES: ${{ steps.changed_files.outputs.all_changed_files }}
+        run: |
+          PACKAGES=$(echo "$CHANGED_FILES" | tr ' ' '\n' | grep 'packages/' | awk -F'/' '{print $2}' | uniq)
+          echo "Trying to build $PACKAGES"
+          for package in $PACKAGES
+          do
+            echo "🏗️🏗️🏗️ Testing $package..."
+            XDEBUG_MODE=coverage vendor/bin/phpunit --bootstrap=packages/$package/vendor/autoload.php --configuration=packages/$package/phpunit.xml
+          done
