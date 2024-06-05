@@ -61,8 +61,6 @@ jobs:
           echo "packages=$(echo "$CHANGED_FILES" | tr ' ' '\n' | grep 'packages/' | awk -F'/' '{print $2}' | uniq)" >> $GITHUB_OUTPUT
           echo "Changed packages"
           echo "$packages"
-          echo "Changed files"
-          echo "$CHANGED_FILES"
 
       - name: Set up PHP
         if: ${{ steps.changed_packages.outputs.packages != '' }}
@@ -77,9 +75,8 @@ jobs:
 
       - name: Run tests
         if: ${{ steps.changed_packages.outputs.packages != '' }}
-        env:
-          PACKAGES: ${{ steps.changed_packages.outputs.packages }}
         run: |
+          PACKAGES=$(echo "$CHANGED_FILES" | tr ' ' '\n' | grep 'packages/' | awk -F'/' '{print $2}' | uniq)
           for package in $PACKAGES
           do
             echo "🏗️🏗️🏗️ Testing $package..."
