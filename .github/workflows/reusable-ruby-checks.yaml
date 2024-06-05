@@ -88,35 +88,27 @@ jobs:
           mv ./config/database.yml.example ./config/database.yml
           mv ./config/secrets.yml.example ./config/secrets.yml
 
-      - name: Set DB environment
-        if: always()
+      - name: Prepare DB
         env:
           DISABLE_DATABASE_ENVIRONMENT_CHECK: 1
           RAILS_ENV: test
           PG_USER: postgres
           PG_PASSWORD: test
-        run: bin/rails db:environment:set
-
-      - name: DB reset
-        if: always()
-        env:
-          DISABLE_DATABASE_ENVIRONMENT_CHECK: 1
-          RAILS_ENV: test
-          PG_USER: postgres
-          PG_PASSWORD: test
-        run: bundle exec rake db:reset
+        run: |
+          bin/rails db:environment:set
+          bundle exec rake db:reset
 
       - name: Load clickhouse schema
-        if: always()
+        if: ${{ !cancelled() }}
         env:
           DISABLE_DATABASE_ENVIRONMENT_CHECK: 1
           RAILS_ENV: test
           PG_USER: postgres
           PG_PASSWORD: test
-        run: bundle exec rake clickhouse:schema:load -- --simple
+        run: bundle exec rake clickhouse:schema:load || bundle exec rake clickhouse:schema:load -- --simple
 
       - name: Test
-        if: always()
+        if: ${{ !cancelled() }}
         env:
           DISABLE_DATABASE_ENVIRONMENT_CHECK: 1
           RAILS_ENV: test
@@ -127,7 +119,7 @@ jobs:
       - name: Bundle
         env:
           RAILS_ENV: test
-        if: always()
+        if: ${{ !cancelled() }}
         run: |
           if test -f "bin/bundle"; then
             bin/bundle
@@ -136,7 +128,7 @@ jobs:
           fi
 
       - name: Run linters
-        if: always()
+        if: ${{ !cancelled() }}
         run: |
           if test -f "bin/rubocop"; then
             bin/rubocop --parallel
