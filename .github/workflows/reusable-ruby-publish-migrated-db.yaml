@@ -27,6 +27,12 @@ jobs:
         working-directory: ${{ inputs.workingDirectory }}
 
     steps:
+      - name: Start postgres Docker
+        run: |
+          docker run -d --name postgres \
+          -e POSTGRES_PASSWORD=postgres -e POSTGRES_USER=postgres \
+          -p 5432:5432 postgres:alpine;
+
       - name: PSQL client
         run: sudo apt-get install --yes --no-install-recommends postgresql-client
 
@@ -36,12 +42,6 @@ jobs:
           PGUSER: postgres
           PGHOST: localhost
         run: |
-          docker run -d \
-          --name postgres \
-          -e POSTGRES_PASSWORD=postgres \
-          -e POSTGRES_USER=postgres \
-          -p 5432:5432 \
-          postgres:alpine;
           psql -c "CREATE USER rails WITH SUPERUSER PASSWORD 'rails';"
           psql -c "CREATE USER rees46 WITH SUPERUSER PASSWORD 'rees46';"
 #          psql -c "CREATE DATABASE rees46_test WITH OWNER rees46;"
