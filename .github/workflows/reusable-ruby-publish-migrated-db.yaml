@@ -95,13 +95,14 @@ jobs:
       - name: Change configs
         run: |
           file="./config/database.yml"
-          sed -i -e '/^test_clickhouse:/!b' -e 'n' -e 's/.*/  <<: *default_clickhouse/' "$file"
+          sed -i 's/<<: *default_clickhouse_pg/<<: *default_clickhouse/g' "$file"
+          sed -i '/development_clickhouse:/!b;n;s/<<: *default_clickhouse_pg/# <<: *default_clickhouse_pg/' "$file"
+          echo $(cat $file)
 
       - name: Run clickhouse migrations
         env:
           PG_PASSWORD: rees46
           PG_USER: rees46
-          RAILS_ENV: test
         run: |
           bundle exec rake clickhouse:schema:load
 
