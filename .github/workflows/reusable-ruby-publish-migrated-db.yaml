@@ -118,10 +118,8 @@ jobs:
           echo "$(cat $file)"
 
       - name: Run clickhouse migrations
-        env:
-          PG_PASSWORD: rees46
-          PG_USER: rees46
         run: |
+          bundle exec rake clickhouse:create
           bundle exec rake clickhouse:schema:load
 
       - name: Publish clickhouse server docker image
