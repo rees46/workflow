@@ -37,13 +37,9 @@ jobs:
           done
 
       - name: Start postgres
-        env:
-          PGPASSWORD: postgres
-          PGUSER: postgres
-          PGHOST: localhost
         run: |
-          docker exec postgres psql -c "CREATE USER rails WITH SUPERUSER PASSWORD 'rails';"
-          docker exec postgres psql -c "CREATE USER rees46 WITH SUPERUSER PASSWORD 'rees46';"
+          docker exec postgres psql -U postgres -c "CREATE USER rails WITH SUPERUSER PASSWORD 'rails';"
+          docker exec postgres psql -U postgres -c "CREATE USER rees46 WITH SUPERUSER PASSWORD 'rees46';"
           docker exec postgres rm -rf /docker-entrypoint-initdb.d/*
 
       - name: Checkout
