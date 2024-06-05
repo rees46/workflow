@@ -106,15 +106,15 @@ jobs:
           bundle exec rake clickhouse:schema:load
           docker exec clickhouse_server clickhouse-client --query="rename database rees46 to rees46_test"
           docker exec clickhouse_server clickhouse-client --query="show databases"
-          docker exec clickhouse_server clickhouse-client --query="show tables"
+          docker exec clickhouse_server ls /var/lib/clickhouse/metadata/
 
       - name: Publish clickhouse server docker image
         env:
           REPOSITORY_OWNER: ${{ github.repository_owner }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          docker exec clickhouse_server cp -r /var/lib/clickhouse/metadata/rees46 /docker-entrypoint-initdb.d/
-          docker exec clickhouse_server cp -r /var/lib/clickhouse/metadata/rees46.sql /docker-entrypoint-initdb.d/
+          docker exec clickhouse_server cp -r /var/lib/clickhouse/metadata/rees46_test /docker-entrypoint-initdb.d/
+          docker exec clickhouse_server cp -r /var/lib/clickhouse/metadata/rees46_test.sql /docker-entrypoint-initdb.d/
           docker exec clickhouse_server cp -r /var/lib/clickhouse/metadata/information-schema.sql /docker-entrypoint-initdb.d/
           echo $GITHUB_TOKEN | docker login ghcr.io -u $REPOSITORY_OWNER --password-stdin
           docker commit clickhouse_server ghcr.io/rees46/clickhouse-server-migrated:latest
