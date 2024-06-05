@@ -22,8 +22,12 @@ jobs:
 
       elastic-search:
         image: elasticsearch:8.13.4
+        env:
+          node.name: elastic
+          discovery.type: single-node
         ports:
           - 9200:9200
+          - 9300:9300
 
       postgres:
         image: ghcr.io/rees46/postgres-migrated:latest
