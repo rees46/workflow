@@ -50,6 +50,8 @@ jobs:
         uses: tj-actions/changed-files@v42
 
       - name: Check if any packages need build
+        env:
+          CHANGED_FILES: ${{ steps.changed_files.outputs.all_changed_files }}
         id: changed_packages
         run: |
           echo "packages=$(echo "$CHANGED_FILES" | grep 'packages/' | awk -F'/' '{print $2}' | uniq)" >> $"GITHUB_OUTPUT" 
