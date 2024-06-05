@@ -114,6 +114,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           docker exec clickhouse_server cp -r /var/lib/clickhouse/. /data/
+          docker exec clickhouse_server rm -rf /docker-entrypoint-initdb.d
           docker stop clickhouse_server
           echo $GITHUB_TOKEN | docker login ghcr.io -u $REPOSITORY_OWNER --password-stdin
           docker commit clickhouse_server ghcr.io/rees46/clickhouse-server-migrated:latest
