@@ -33,17 +33,15 @@ jobs:
           -e POSTGRES_PASSWORD=postgres -e POSTGRES_USER=postgres -e PGDATA=/data \
           -p 5432:5432 postgres:alpine;
 
-      - name: PSQL client
-        run: sudo apt-get install --yes --no-install-recommends postgresql-client
-
       - name: Start postgres
         env:
           PGPASSWORD: postgres
           PGUSER: postgres
           PGHOST: localhost
         run: |
-          psql -c "CREATE USER rails WITH SUPERUSER PASSWORD 'rails';"
-          psql -c "CREATE USER rees46 WITH SUPERUSER PASSWORD 'rees46';"
+          docker exec -i postgres psql -c "CREATE USER rails WITH SUPERUSER PASSWORD 'rails';"
+          docker exec -i postgres psql -c "CREATE USER rees46 WITH SUPERUSER PASSWORD 'rees46';"
+          docker exec postgres rm -rf /docker-entrypoint-initdb.d/*
 
       - name: Checkout
         uses: actions/checkout@v4
@@ -142,6 +140,7 @@ jobs:
           REPOSITORY_OWNER: ${{ github.repository_owner }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          echo $(docker exec postgres psql -U rails -c "\dt;")
           echo $GITHUB_TOKEN | docker login ghcr.io -u $REPOSITORY_OWNER --password-stdin
           docker commit postgres ghcr.io/rees46/postgres-migrated:latest
           docker push ghcr.io/rees46/postgres-migrated:latest
