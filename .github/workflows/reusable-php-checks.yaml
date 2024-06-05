@@ -30,6 +30,7 @@ jobs:
         env:
           POSTGRES_PASSWORD: rails
           POSTGRES_USER: rails
+          PGDATA: /data
         ports:
           - 5432:5432
         credentials:
