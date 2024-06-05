@@ -88,6 +88,33 @@ jobs:
           mv ./config/database.yml.example ./config/database.yml
           mv ./config/secrets.yml.example ./config/secrets.yml
 
+      - name: Set DB environment
+        if: always()
+        env:
+          DISABLE_DATABASE_ENVIRONMENT_CHECK: 1
+          RAILS_ENV: test
+          PG_USER: postgres
+          PG_PASSWORD: test
+        run: bin/rails db:environment:set
+
+      - name: DB reset
+        if: always()
+        env:
+          DISABLE_DATABASE_ENVIRONMENT_CHECK: 1
+          RAILS_ENV: test
+          PG_USER: postgres
+          PG_PASSWORD: test
+        run: bundle exec rake db:reset
+
+      - name: Load clickhouse schema
+        if: always()
+        env:
+          DISABLE_DATABASE_ENVIRONMENT_CHECK: 1
+          RAILS_ENV: test
+          PG_USER: postgres
+          PG_PASSWORD: test
+        run: bundle exec rake clickhouse:schema:load
+
       - name: Test
         if: always()
         env:
@@ -95,10 +122,7 @@ jobs:
           RAILS_ENV: test
           PG_USER: postgres
           PG_PASSWORD: test
-        run: |
-          bundle exec rake db:schema:load 
-          bundle exec rake clickhouse:schema:load 
-          bin/rspec
+        run: bin/rspec
 
       - name: Bundle
         env:
