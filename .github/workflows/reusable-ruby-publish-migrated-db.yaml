@@ -130,7 +130,11 @@ jobs:
           clickhouse-client --host=localhost --query="rename database rees46 to rees46_test" --query="show databases"
 
       - name: Publish clickhouse server docker image
+        env:
+          REPOSITORY_OWNER: ${{ github.repository_owner }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          echo $GITHUB_TOKEN | docker login ghcr.io -u $REPOSITORY_OWNER --password-stdin
           docker commit clickhouse_server ghcr.io/rees46/clickhouse-server-migrated:latest
           docker push ghcr.io/rees46/clickhouse-server-migrated:latest
 
@@ -144,6 +148,10 @@ jobs:
           bundle exec rake db:schema:load
 
       - name: Publish postgres docker image
+        env:
+          REPOSITORY_OWNER: ${{ github.repository_owner }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          echo $GITHUB_TOKEN | docker login ghcr.io -u $REPOSITORY_OWNER --password-stdin
           docker commit postgres ghcr.io/rees46/postgres-migrated:latest
           docker push ghcr.io/rees46/postgres-migrated:latest
