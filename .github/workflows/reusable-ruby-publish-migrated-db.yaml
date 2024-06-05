@@ -30,7 +30,7 @@ jobs:
       - name: Start postgres Docker
         run: |
           docker run -d --name postgres \
-          -e POSTGRES_PASSWORD=postgres -e POSTGRES_USER=postgres \
+          -e POSTGRES_PASSWORD=postgres -e POSTGRES_USER=postgres -e PGDATA=/data \
           -p 5432:5432 postgres:alpine;
 
       - name: PSQL client
