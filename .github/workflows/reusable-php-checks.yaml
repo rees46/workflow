@@ -27,6 +27,9 @@ jobs:
 
       postgres:
         image: ghcr.io/rees46/postgres-migrated:latest
+        env:
+          POSTGRES_PASSWORD: rails
+          POSTGRES_USER: rails
         ports:
           - 5432:5432
         credentials:
