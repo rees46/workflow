@@ -103,8 +103,7 @@ jobs:
           PG_USER: rees46
           RAILS_ENV: test
         run: |
-          bundle exec rake clickhouse:create 
-          bundle exec rake clickhouse:schema:load -- --simple
+          bundle exec rake clickhouse:schema:load
 
       - name: Publish clickhouse server docker image
         run: |
