@@ -53,7 +53,7 @@ jobs:
         id: changed_files
         uses: tj-actions/changed-files@v42
 
-      - name: Check if any packages need build
+      - name: Check if any packages need testing
         env:
           CHANGED_FILES: ${{ steps.changed_files.outputs.all_changed_files }}
         id: changed_packages
@@ -74,6 +74,8 @@ jobs:
         run: composer install --prefer-dist --no-progress --no-suggest
 
       - name: Run tests
+        env:
+          CHANGED_FILES: ${{ steps.changed_files.outputs.all_changed_files }}
         if: ${{ steps.changed_packages.outputs.packages != '' }}
         run: |
           PACKAGES=$(echo "$CHANGED_FILES" | tr ' ' '\n' | grep 'packages/' | awk -F'/' '{print $2}' | uniq)
