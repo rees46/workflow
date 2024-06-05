@@ -79,5 +79,5 @@ jobs:
           for package in $PACKAGES
           do
             echo "🏗️🏗️🏗️ Testing $package..."
-            XDEBUG_MODE=coverage vendor/bin/phpunit --bootstrap=packages/$package/vendor/autoload.php --configuration=packages/$package/phpunit.xml
+            XDEBUG_MODE=coverage vendor/bin/phpunit --bootstrap=packages/$package/test/autoload.php --configuration=packages/$package/phpunit.xml
           done
