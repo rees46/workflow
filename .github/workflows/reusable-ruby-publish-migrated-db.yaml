@@ -32,6 +32,9 @@ jobs:
           docker run -d --name postgres \
           -e POSTGRES_PASSWORD=postgres -e POSTGRES_USER=postgres -e PGDATA=/data \
           -p 5432:5432 postgres:alpine;
+          until docker exec postgres pg_isready -U postgres; do
+            sleep 1
+          done
 
       - name: Start postgres
         env:
@@ -39,9 +42,9 @@ jobs:
           PGUSER: postgres
           PGHOST: localhost
         run: |
-          docker container exec postgres psql -c "CREATE USER rails WITH SUPERUSER PASSWORD 'rails';"
-          docker container exec postgres psql -c "CREATE USER rees46 WITH SUPERUSER PASSWORD 'rees46';"
-          docker container exec postgres rm -rf /docker-entrypoint-initdb.d/*
+          docker exec postgres psql -c "CREATE USER rails WITH SUPERUSER PASSWORD 'rails';"
+          docker exec postgres psql -c "CREATE USER rees46 WITH SUPERUSER PASSWORD 'rees46';"
+          docker exec postgres rm -rf /docker-entrypoint-initdb.d/*
 
       - name: Checkout
         uses: actions/checkout@v4
