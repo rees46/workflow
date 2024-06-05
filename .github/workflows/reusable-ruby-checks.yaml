@@ -81,6 +81,8 @@ jobs:
           bundler-cache: true
 
       - name: Yarn install
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: yarn install --inline-builds
 
       - name: Prepare configs
