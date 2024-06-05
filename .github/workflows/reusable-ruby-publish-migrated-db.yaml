@@ -29,6 +29,7 @@ jobs:
     steps:
       - name: Start postgres Docker
         run: |
+          sudo systemctl stop postgresql.service
           docker run -d --name postgres \
           -e POSTGRES_PASSWORD=postgres -e POSTGRES_USER=postgres -e PGDATA=/data \
           -p 5432:5432 postgres:alpine;
@@ -139,7 +140,7 @@ jobs:
           REPOSITORY_OWNER: ${{ github.repository_owner }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          echo $(docker exec postgres psql -U rails -c "\dt;")
+          echo $(docker exec postgres psql -U rees46 -W rees46 -c "\dt;")
           echo $GITHUB_TOKEN | docker login ghcr.io -u $REPOSITORY_OWNER --password-stdin
           docker commit postgres ghcr.io/rees46/postgres-migrated:latest
           docker push ghcr.io/rees46/postgres-migrated:latest
