@@ -64,7 +64,6 @@ jobs:
           --name clickhouse_server \
           -e CLICKHOUSE_USER='rees46' \
           -e CLICKHOUSE_PASSWORD='rees46' \
-          -e CLICKHOUSE_DB='rees46_clickhouse_test' \
           -p 8123:8123 \
           -p 9000:9000 \
           -p 9009:9009 \
@@ -98,7 +97,7 @@ jobs:
           file="./config/database.yml"
           sed -i -e '/^test_clickhouse:/!b' -e 'n' -e 's/.*/  <<: *default_clickhouse/' "$file"
 
-      - name: Run migrations
+      - name: Run postgres migrations
         env:
           PG_PASSWORD: rees46
           PG_USER: rees46
@@ -106,13 +105,20 @@ jobs:
         run: |
           bundle exec rake db:create
           bundle exec rake db:schema:load 
-          bundle exec rake clickhouse:create 
-          bundle exec rake clickhouse:schema:load -- --simple
 
       - name: Publish postgres docker image
         run: |
           docker commit postgres ghcr.io/rees46/postgres-migrated:latest
           docker push ghcr.io/rees46/postgres-migrated:latest
+
+      - name: Run clickhouse migrations
+        env:
+          PG_PASSWORD: rees46
+          PG_USER: rees46
+          RAILS_ENV: test
+        run: |
+          bundle exec rake clickhouse:create 
+          bundle exec rake clickhouse:schema:load
 
       - name: Publish clickhouse server docker image
         run: |
