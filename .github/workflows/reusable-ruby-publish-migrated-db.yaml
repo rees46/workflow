@@ -104,7 +104,8 @@ jobs:
         run: |
           bundle exec rake clickhouse:create
           bundle exec rake clickhouse:schema:load
-          docker exec clickhouse_server clickhouse-client --query="rename database rees46 to rees46_test" --query="show databases"
+          docker exec clickhouse_server clickhouse-client --query="rename database rees46 to rees46_test"
+          docker exec clickhouse_server clickhouse-client --query="show databases"
 
       - name: Publish clickhouse server docker image
         env:
