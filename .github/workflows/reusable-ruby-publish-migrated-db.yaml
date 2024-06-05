@@ -26,15 +26,6 @@ jobs:
       run:
         working-directory: ${{ inputs.workingDirectory }}
 
-    services:
-      postgres:
-        image: postgres:alpine
-        env:
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_USER: postgres
-        ports:
-          - 5432:5432
-
     steps:
       - name: PSQL client
         run: sudo apt-get install --yes --no-install-recommends postgresql-client
@@ -45,6 +36,12 @@ jobs:
           PGUSER: postgres
           PGHOST: localhost
         run: |
+          docker run -d \
+          --name postgres \
+          -e POSTGRES_PASSWORD=postgres \
+          -e POSTGRES_USER=postgres \
+          -p 5432:5432 \
+          postgres:alpine;
           psql -c "CREATE USER rails WITH SUPERUSER PASSWORD 'rails';"
           psql -c "CREATE USER rees46 WITH SUPERUSER PASSWORD 'rees46';"
 #          psql -c "CREATE DATABASE rees46_test WITH OWNER rees46;"
@@ -107,7 +104,7 @@ jobs:
           RAILS_ENV: test
         run: |
           bundle exec rake clickhouse:create 
-          bundle exec rake clickhouse:schema:load
+          bundle exec rake clickhouse:schema:load -- --simple
 
       - name: Publish clickhouse server docker image
         run: |
@@ -121,7 +118,7 @@ jobs:
           RAILS_ENV: test
         run: |
           bundle exec rake db:create
-          bundle exec rake db:schema:load 
+          bundle exec rake db:schema:load
 
       - name: Publish postgres docker image
         run: |
