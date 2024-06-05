@@ -60,7 +60,7 @@ jobs:
         run: |
           echo "packages=$(echo "$CHANGED_FILES" | grep 'packages/' | awk -F'/' '{print $2}' | uniq)" >> $GITHUB_OUTPUT
           echo "Changed packages"
-          echo "$packages"
+          echo $packages
 
       - name: Set up PHP
         if: ${{ steps.changed_packages.outputs.packages != '' }}
