@@ -95,9 +95,29 @@ jobs:
       - name: Change configs
         run: |
           file="./config/database.yml"
-          sed -i 's/<<: *default_clickhouse_pg/<<: *default_clickhouse/g' "$file"
-          sed -i '/development_clickhouse:/!b;n;s/<<: *default_clickhouse_pg/# <<: *default_clickhouse_pg/' "$file"
-          echo $(cat $file)
+          awk '
+          {
+            gsub(/<<: \*default_clickhouse_pg/, "<<: *default_clickhouse")
+    
+            if ($0 ~ /default_clickhouse:/) {
+              in_default_clickhouse = 1
+            }
+            if (in_default_clickhouse && $0 ~ /database: rees46/) {
+              $0 = "  database: rees46_test"
+              in_default_clickhouse = 0
+            }
+      
+            if ($0 ~ /development_clickhouse:/) {
+              in_development_clickhouse = 1
+            }
+            if (in_development_clickhouse && $0 ~ /<<: \*default_clickhouse_pg/) {
+              $0 = "  <<: *default_clickhouse"
+              in_development_clickhouse = 0
+            }
+                                                   
+            print
+          }' "$file" > tmp && mv tmp "$file"
+          echo "$(cat $file)"
 
       - name: Run clickhouse migrations
         env:
