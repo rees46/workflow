@@ -113,7 +113,7 @@ jobs:
           RAILS_ENV: test
           PG_USER: postgres
           PG_PASSWORD: test
-        run: bundle exec rake clickhouse:schema:load
+        run: bundle exec rake clickhouse:schema:load -- --simple
 
       - name: Test
         if: always()
