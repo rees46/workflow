@@ -107,7 +107,7 @@ jobs:
       - name: Create keystore
         run: |
           keytool -genkey -dname "cn=Unknown, ou=unknown, o=unknown, l=unknown, st=unknown, c=unknown" \
-          -keystore ./sample/test.key -storepass 123456 -alias test -keyalg RSA -keysize 4096 -validity 10000 -v
+          -keystore ./sample/test.key -storepass 123456 -keypass 123456 -alias test -keyalg RSA -keysize 4096 -validity 10000 -v
 
       - name: Test
         if: always()
