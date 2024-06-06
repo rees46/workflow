@@ -42,11 +42,14 @@ jobs:
           echo "🏗🏗🏗️  Building api-rails..."
           if [ -f "Dockerfile-API" ]; then
             echo "🔎🔎🔎  Found Dockerfile for api-rails"
-            image_name=ghcr.io/$REPOSITORY_OWNER/api-rails:latest
-            docker build -f Dockerfile-API . -t $image_name --quiet
+            image_name_latest=ghcr.io/$REPOSITORY_OWNER/api-rails:latest
+            image_name=ghcr.io/$REPOSITORY_OWNER/api-rails:$(git rev-parse --short HEAD)-$(date +%s)
+            docker build -f Dockerfile-API . -t $image_name -t $image_name_latest --quiet
             echo $GITHUB_TOKEN | docker login ghcr.io -u $REPOSITORY_OWNER --password-stdin
             docker push $image_name --quiet
             echo "✅✅✅ Pushed successfully $image_name"
+            docker push $image_name_latest --quiet
+            echo "✅✅✅ Pushed successfully $image_name_latest"
           else
             echo "❎❎❎  No Dockerfile for $package found, skipping"
           fi
