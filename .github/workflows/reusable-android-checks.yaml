@@ -104,6 +104,11 @@ jobs:
           fileDir: ${{ inputs.GOOGLE_SERVICES_FILE_LOCATION }}
           encodedString: ${{ secrets.GOOGLE_SERVICES_FILE_AS_BASE64_STRING }}
 
+      - name: Create keystore
+        run: |
+          keytool -genkey -dname "cn=Unknown, ou=unknown, o=unknown, l=unknown, st=unknown, c=unknown" \
+          -keystore ./sample/test.key -storepass 123456 -alias test -keyalg RSA -keysize 4096 -validity 10000 -v
+
       - name: Test
         if: always()
         run: ./gradlew test
