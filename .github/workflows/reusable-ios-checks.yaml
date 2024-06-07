@@ -36,12 +36,6 @@ jobs:
           rm -rf Pods.xcodeproj
           pod install
 
-      - name: Build
-        run: |
-          xcodebuild clean build -workspace ./DemoApp/REES46.xcworkspace -scheme REES46Demo \
-          -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 15,OS=latest' \
-          CODE_SIGN_IDENTITY='' CODE_SIGNING_REQUIRED='NO' CODE_SIGN_ENTITLEMENTS=''
-
       - name: Decode signing key file
         uses: timheuer/base64-to-file@v1.2
         id: service_account_json_file
@@ -54,6 +48,7 @@ jobs:
         run: |
           cp ./DemoApp/REES46Demo/Supporting\ Files/GoogleService-Info.plist ./DemoApp/GoogleService-Info.plist
           cp ./DemoApp/REES46Demo/Supporting\ Files/GoogleService-Info.plist ./DemoApp/REES46.xcodeproj/xcshareddata/xcschemes/GoogleService-Info.plist
+          cp ./DemoApp/REES46Demo/Supporting\ Files/GoogleService-Info.plist ./DemoApp/REES46Demo/GoogleService-Info.plist
 
       - name: Use tree to show all files
         run: |
@@ -76,6 +71,12 @@ jobs:
 
           echo "$start_dir"
           print_tree "$start_dir"
+
+      - name: Build
+        run: |
+          xcodebuild clean build -workspace ./DemoApp/REES46.xcworkspace -scheme REES46Demo \
+          -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 15,OS=latest' \
+          CODE_SIGN_IDENTITY='' CODE_SIGNING_REQUIRED='NO' CODE_SIGN_ENTITLEMENTS=''
 
       - name: Run tests
         if: ${{ !cancelled() }}
