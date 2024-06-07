@@ -13,6 +13,10 @@ on:
         default: ''
         required: false
         type: string
+      branch:
+        description: 'Git branch name'
+        required: true
+        type: string
 
 jobs:
   run:
@@ -54,7 +58,11 @@ jobs:
             echo "🏗🏗🏗️  Building $package..."
             if [ -f "./packages/$package/Dockerfile" ]; then
               echo "🔎🔎🔎  Found Dockerfile for $package"
-              image_name=ghcr.io/$REPOSITORY_OWNER/$package:latest
+              if [ "${{ inputs.branch }}" = "stage" ]; then
+                image_name=ghcr.io/$REPOSITORY_OWNER/$package:stage-$(git rev-parse --short HEAD)-$(date +%s)
+              else
+                image_name=ghcr.io/$REPOSITORY_OWNER/$package:latest
+              fi
               docker build . -f packages/$package/Dockerfile -t $image_name --quiet
               echo $GITHUB_TOKEN | docker login ghcr.io -u $REPOSITORY_OWNER --password-stdin
               docker push $image_name --quiet
