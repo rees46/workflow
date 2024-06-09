@@ -28,6 +28,8 @@ jobs:
         ports:
           - 9200:9200
           - 9300:9300
+        volumes:
+          - ./.config/elastic_dictionary:/usr/share/elasticsearch/config/hunspell
 
       postgres:
         image: ghcr.io/rees46/postgres-migrated:latest
