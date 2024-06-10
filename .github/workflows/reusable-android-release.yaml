@@ -94,6 +94,7 @@ jobs:
       - name: Create release
         env:
           TAG: ${{ steps.versionName.outputs.versionName }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh release create "v$TAG" ./source.tgz \
           --title=$TAG \
