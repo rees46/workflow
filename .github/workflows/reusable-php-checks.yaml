@@ -90,7 +90,7 @@ jobs:
 
       - name: Copy dictionaries to Elasticsearch container
         run: |
-          docker cp .config/elastic_dictionary/tr_TR elasticsearch:/usr/share/elasticsearch/config/hunspell/tr_TR
+          docker cp .config/elastic_dictionary/tr_TR elastic-search:/usr/share/elasticsearch/config/hunspell/tr_TR
   
       - name: Configure Elasticsearch for Hunspell
         run: |
