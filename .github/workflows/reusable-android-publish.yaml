@@ -61,8 +61,8 @@ jobs:
       - name: Append secrets to gradle.properties
         env:
           PROPERTIES_FILE: ${{ inputs.PROPERTIES_FILE }}
-          OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
-          OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
+          OSSRH_USERNAME: 'github-bot@rees46.com'
+          OSSRH_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
           SIGNING_KEY_ID: ${{ secrets.SIGNING_KEY_ID }}
           SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
           SIGNING_SECRET_KEY_RING_FILE: ${{ inputs.SIGNING_SECRET_KEY_RING_FILE }}
