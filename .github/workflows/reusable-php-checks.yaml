@@ -31,6 +31,9 @@ jobs:
         options: > 
           --env "discovery.type=single-node"
           --env "xpack.security.enabled=false"
+        volumes:
+          - /.config/elastic_dictionary/tr_TR:/usr/share/elasticsearch/config/hunspell/tr_TR
+
 
       postgres:
         image: ghcr.io/rees46/postgres-migrated:latest
@@ -81,17 +84,6 @@ jobs:
         if: ${{ steps.changed_packages.outputs.packages != '' }}
         run: composer install --prefer-dist --no-progress --no-suggest
 
-      - name: Wait for Elasticsearch to start
-        run: |
-          until curl -s http://localhost:9200; do
-            echo "Waiting for Elasticsearch to be ready..."
-            sleep 5
-          done
-
-      - name: Copy dictionaries to Elasticsearch container
-        run: |
-          docker cp .config/elastic_dictionary/tr_TR $(docker ps --filter "name=elastic-search" -q):/usr/share/elasticsearch/config/hunspell/tr_TR
-  
       - name: Configure Elasticsearch for Hunspell
         run: |
           curl -X PUT "http://localhost:9200/_cluster/settings" -H 'Content-Type: application/json' -d'
