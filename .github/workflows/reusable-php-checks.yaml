@@ -31,9 +31,6 @@ jobs:
         options: > 
           --env "discovery.type=single-node"
           --env "xpack.security.enabled=false"
-        volumes:
-          - ${{ github.workspace }}/.config/elastic_dictionary/tr_TR:/usr/share/elasticsearch/config/hunspell/tr_TR
-
 
       postgres:
         image: ghcr.io/rees46/postgres-migrated:latest
