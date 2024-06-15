@@ -55,25 +55,12 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Wait for Elasticsearch to be ready
-        run: |
-          # Wait for the Elasticsearch service to be up
-          for i in {1..30}; do
-            if docker ps --filter "name=${{ job.services.elasticsearch.id }}" --filter "status=running" | grep -q ${{ job.services.elasticsearch.id }}; then
-              echo "Elasticsearch is up and running!"
-              break
-            fi
-            echo "Waiting for Elasticsearch to start..."
-            sleep 10
-          done
   
       - name: Copy files into Elasticsearch container
         run: |
           container_id=$(docker ps --filter "name=${{ job.services.elasticsearch.id }}" -q)
           echo "Elasticsearch container ID: $container_id"
           docker cp ./.config/elastic_dictionary/tr_TR "$container_id":/usr/share/elasticsearch/config/hunspell/tr_TR
-
 
       - name: Changed files
         id: changed_files
