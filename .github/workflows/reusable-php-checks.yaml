@@ -98,6 +98,12 @@ jobs:
           }
           '
 
+      - name: Run core tests
+        run: |
+          echo "🏗️🏗️🏗️ Testing core..."
+          mv packages/core/config/test_secrets.ini.example packages/core/config/test_secrets.ini
+          XDEBUG_MODE=coverage vendor/bin/phpunit --bootstrap=packages/core/test/autoload.php --configuration=packages/$package/phpunit.xml
+
       - name: Run tests
         env:
           CHANGED_FILES: ${{ steps.changed_files.outputs.all_changed_files }}
