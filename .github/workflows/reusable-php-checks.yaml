@@ -60,6 +60,7 @@ jobs:
         run: |
           container_id=$(docker ps | grep 'elasticsearch:6.8.0' | awk '{ print $1 }')
           echo "Elasticsearch container ID: $container_id"
+          docker exec "$container_id" mkdir -p /usr/share/elasticsearch/config/hunspell
           docker cp ./.config/elastic_dictionary/tr_TR "$container_id":/usr/share/elasticsearch/config/hunspell/tr_TR
 
       - name: Changed files
