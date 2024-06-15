@@ -58,6 +58,7 @@ jobs:
   
       - name: Copy files into Elasticsearch container
         run: |
+          echo $(docker ps)
           container_id=$(docker ps --filter "label=com.docker.compose.service=elasticsearch" -q)
           echo "Elasticsearch container ID: $container_id"
           docker cp ./.config/elastic_dictionary/tr_TR "$container_id":/usr/share/elasticsearch/config/hunspell/tr_TR
