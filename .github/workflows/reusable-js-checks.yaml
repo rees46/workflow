@@ -4,8 +4,8 @@ on:
   workflow_call:
     inputs:
       node-version:
-        description: 'Node version to run this workflow. Default: 18 as it is in action cache'
-        default: '18'
+        description: 'Node version to run this workflow. Default: 19 as it is in action cache'
+        default: '19'
         required: false
         type: string
       workingDirectory:
@@ -31,6 +31,18 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ inputs.node-version }}
+
+      - name: Yarn cache directory
+        id: yarn-cache-dir-path
+        run: echo "dir=$(yarn config get cacheFolder)" >> $GITHUB_OUTPUT
+
+      - uses: actions/cache@v4
+        id: yarn-cache
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
 
       - name: Switch branch
         run: git switch ${{ github.head_ref }}
