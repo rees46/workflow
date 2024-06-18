@@ -20,7 +20,7 @@ jobs:
         ports:
           - 5672:5672
 
-      elastic-search:
+      elasticsearch:
         image: elasticsearch:6.8.0
         env:
           node.name: elastic
@@ -55,6 +55,13 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+  
+      - name: Copy files into Elasticsearch container
+        run: |
+          container_id=$(docker ps | grep 'elasticsearch:6.8.0' | awk '{ print $1 }')
+          echo "Elasticsearch container ID: $container_id"
+          docker exec "$container_id" mkdir -p /usr/share/elasticsearch/config/hunspell
+          docker cp ./.config/elastic_dictionary/tr_TR "$container_id":/usr/share/elasticsearch/config/hunspell/tr_TR
 
       - name: Changed files
         id: changed_files
@@ -81,17 +88,6 @@ jobs:
         if: ${{ steps.changed_packages.outputs.packages != '' }}
         run: composer install --prefer-dist --no-progress --no-suggest
 
-      - name: Wait for Elasticsearch to start
-        run: |
-          until curl -s http://localhost:9200; do
-            echo "Waiting for Elasticsearch to be ready..."
-            sleep 5
-          done
-
-      - name: Copy dictionaries to Elasticsearch container
-        run: |
-          docker cp .config/elastic_dictionary/tr_TR elastic-search:/usr/share/elasticsearch/config/hunspell/tr_TR
-  
       - name: Configure Elasticsearch for Hunspell
         run: |
           curl -X PUT "http://localhost:9200/_cluster/settings" -H 'Content-Type: application/json' -d'
@@ -101,6 +97,12 @@ jobs:
             }
           }
           '
+
+      - name: Run core tests
+        run: |
+          echo "🏗️🏗️🏗️ Testing core..."
+          mv packages/core/config/test_secrets.ini.example packages/core/config/test_secrets.ini
+          XDEBUG_MODE=coverage vendor/bin/phpunit --bootstrap=packages/core/test/autoload.php --configuration=packages/core/phpunit.xml
 
       - name: Run tests
         env:
