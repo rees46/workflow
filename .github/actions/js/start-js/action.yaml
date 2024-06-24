@@ -12,6 +12,10 @@ inputs:
   appSecret:
     description: App secret for committing changes
     required: true
+  workingDirectory:
+    required: false
+    default: ./
+    description: Where the script runs
 
 runs:
   using: composite
@@ -36,5 +40,6 @@ runs:
         node-version: ${{ inputs.nodeVersion }}
 
     - name: Install
+      working-directory: ${{ inputs.workingDirectory }}
       run: yarn install --inline-builds
       shell: bash

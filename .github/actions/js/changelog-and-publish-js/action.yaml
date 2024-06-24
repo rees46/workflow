@@ -19,13 +19,17 @@ inputs:
     required: false
     description: Which workspaces to exclude
     default: 'nothing'
-
+  workingDirectory:
+    required: false
+    default: ./
+    description: Where the script runs
 
 runs:
   using: composite
 
   steps:
     - name: Generate changelog
+      working-directory: ${{ inputs.workingDirectory }}
       env:
         GITHUB_TOKEN: ${{ inputs.token }}
         BASE_COMMIT: ${{ inputs.baseCommit }}
@@ -35,6 +39,7 @@ runs:
 
     - name: Publish
       if: inputs.onlyChangelog == 'false'
+      working-directory: ${{ inputs.workingDirectory }}
       env:
         YARN_NPM_AUTH_TOKEN: ${{ inputs.npmAuthToken }}
         BASE_COMMIT: ${{ inputs.baseCommit }}

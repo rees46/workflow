@@ -5,6 +5,10 @@ inputs:
   token:
     description: GitHub PAT
     required: true
+  workingDirectory:
+    required: false
+    default: ./
+    description: Where the script runs
 
 outputs:
   baseCommit:
@@ -24,6 +28,7 @@ runs:
       shell: bash
 
     - name: List changed workspaces
+      working-directory: ${{ inputs.workingDirectory }}
       env:
         BASE_COMMIT: ${{ steps.find_base_commit.outputs.baseCommit }}
       run: yarn workspaces list --since=$BASE_COMMIT^

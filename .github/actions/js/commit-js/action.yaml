@@ -16,6 +16,10 @@ inputs:
     description: Which workspaces to exclude
     required: false
     default: 'nothing'
+  workingDirectory:
+    required: false
+    default: ./
+    description: Where the script runs
 
 outputs:
   committed:
@@ -27,6 +31,7 @@ runs:
 
   steps:
     - name: Create commit message
+      working-directory: ${{ inputs.workingDirectory }}
       id: commit_message
       env:
         BASE_COMMIT: ${{ inputs.baseCommit }}

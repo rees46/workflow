@@ -20,6 +20,10 @@ inputs:
     description: Which workspaces to exclude
     required: false
     default: 'nothing'
+  workingDirectory:
+    required: false
+    default: ./
+    description: Where the script runs
 
 runs:
   using: composite
@@ -28,10 +32,12 @@ runs:
     - name: List changed workspaces
       env:
         BASE_COMMIT: ${{ inputs.baseCommit }}
+      working-directory: ${{ inputs.workingDirectory }}
       run: yarn workspaces list --since=$BASE_COMMIT^
       shell: bash
 
     - name: Version
+      working-directory: ${{ inputs.workingDirectory }}
       env:
         GITHUB_TOKEN: ${{ inputs.token }}
         IS_PRIVATE: ${{ inputs.private }}

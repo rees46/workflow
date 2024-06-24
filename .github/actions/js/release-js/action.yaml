@@ -16,12 +16,17 @@ inputs:
     required: false
     default: 'nothing'
     description: Which workspaces to exclude
+  workingDirectory:
+    required: false
+    default: ./
+    description: Where the script runs
 
 runs:
   using: composite
 
   steps:
     - name: Release monorepo
+      working-directory: ${{ inputs.workingDirectory }}
       if: inputs.isMonorepo == 'true'
       env:
         BASE_COMMIT: ${{ inputs.baseCommit }}
@@ -31,6 +36,7 @@ runs:
       shell: bash
 
     - name: Release single package
+      working-directory: ${{ inputs.workingDirectory }}
       if: inputs.isMonorepo == 'false'
       env:
         BASE_COMMIT: ${{ inputs.baseCommit }}
