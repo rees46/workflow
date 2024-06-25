@@ -46,6 +46,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: master
+          token: ${{ secrets.OSSRH_PASSWORD }}
 
       - name: Setup Java
         uses: actions/setup-java@v4
@@ -62,7 +63,7 @@ jobs:
         env:
           PROPERTIES_FILE: ${{ inputs.PROPERTIES_FILE }}
           OSSRH_USERNAME: 'github-bot@rees46.com'
-          OSSRH_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+          OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
           SIGNING_KEY_ID: ${{ secrets.SIGNING_KEY_ID }}
           SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
           SIGNING_SECRET_KEY_RING_FILE: ${{ inputs.SIGNING_SECRET_KEY_RING_FILE }}
