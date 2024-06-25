@@ -1,0 +1,46 @@
+name: Start Jenkins
+
+on:
+  workflow_call:
+    inputs:
+      branch:
+        description: 'Git branch name'
+        required: true
+        type: string
+      packages:
+        description: 'List of packages'
+        required: true
+        type: string
+      tag:
+        description: 'Docker image tag'
+        required: true
+        type: string
+    secrets:
+      URL:
+        required: true
+      USER:
+        required: true
+      TOKEN:
+        required: true
+
+jobs:
+  run:
+    name: Deploy trigger
+    runs-on: ubuntu-latest
+    steps:
+      - name: Start Jenkins Jobs
+        env:
+          JENKINS_URL: ${{ secrets.URL }}
+          JENKINS_DEPLOY_USER: ${{ secrets.USER }}
+          JENKINS_DEPLOY_TOKEN: ${{ secrets.TOKEN }}
+          GIT_BRANCH: ${{ inputs.branch }}
+          PACKAGES: ${{ inputs.packages }}
+          IMAGE_TAG: ${{ inputs.tag }}
+        run: |
+          IFS=',' read -ra PKG_ARRAY <<< "$PACKAGES"
+          for package in "${PKG_ARRAY[@]}"
+          do
+            echo "Starting deployment for package: $package"
+            curl -X POST -u "$JENKINS_DEPLOY_USER:$JENKINS_DEPLOY_TOKEN" \
+                    "${JENKINS_URL}/job/${package}/buildWithParameters?BRANCH_NAME=${GIT_BRANCH}&IMAGE_TAG=${IMAGE_TAG}"
+          done
