@@ -47,4 +47,5 @@ jobs:
             else
               curl -X POST -u "$JENKINS_DEPLOY_USER:$JENKINS_DEPLOY_TOKEN" \
                       "${JENKINS_URL}/job/${package}/buildWithParameters?BRANCH_NAME=${GIT_BRANCH}&IMAGE_TAG=${IMAGE_TAG}"
+            fi
           done
