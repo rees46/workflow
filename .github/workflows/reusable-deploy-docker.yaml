@@ -5,7 +5,7 @@ on:
     inputs:
       branch:
         description: 'Git branch name'
-        required: true
+        required: false
         type: string
       packages:
         description: 'List of packages'
@@ -13,7 +13,7 @@ on:
         type: string
       tag:
         description: 'Docker image tag'
-        required: true
+        required: false
         type: string
     secrets:
       URL:
