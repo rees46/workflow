@@ -63,9 +63,9 @@ runs:
       env:
         PROPERTIES_FILE: ${{ inputs.PROPERTIES_FILE }}
         OSSRH_USERNAME: 'github-bot@rees46.com'
-        OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
-        SIGNING_KEY_ID: ${{ secrets.SIGNING_KEY_ID }}
-        SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
+        OSSRH_PASSWORD: ${{ inputs.OSSRH_PASSWORD }}
+        SIGNING_KEY_ID: ${{ inputs.SIGNING_KEY_ID }}
+        SIGNING_PASSWORD: ${{ inputs.SIGNING_PASSWORD }}
         SIGNING_SECRET_KEY_RING_FILE: ${{ inputs.SIGNING_SECRET_KEY_RING_FILE }}
         VARIANT_NAME: ${{ inputs.VARIANT_NAME }}
         URL: ${{ inputs.URL }}
@@ -87,4 +87,4 @@ runs:
       with:
         fileName: ${{ inputs.SIGNING_SECRET_KEY_RING_FILE }}
         fileDir: ${{ inputs.SIGNING_SECRET_KEY_RING_FILE_LOCATION }}
-        encodedString: ${{ secrets.SIGNING_KEY_FILE_AS_BASE64_STRING }}
+        encodedString: ${{ inputs.SIGNING_KEY_FILE_AS_BASE64_STRING }}
