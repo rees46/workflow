@@ -1,0 +1,90 @@
+name: Prepare gradle.properties file
+description: Create gradle.properties file
+
+inputs:
+  GRADLE_VERSION:
+    default: '8.2'
+    description: Gradle version
+    required: false
+  PROPERTIES_FILE:
+    default: gradle.properties
+    description: Relative file path for putting in secrets
+    required: false
+  SIGNING_SECRET_KEY_RING_FILE:
+    default: com.rees46.key.gpg
+    description: Location and name for signature file
+    required: false
+  SIGNING_SECRET_KEY_RING_FILE_LOCATION:
+    description: Location and name for signature file
+    required: true
+    default: ./personalizatio-sdk
+  VARIANT_NAME:
+    description: REES46 or PersonaClick
+    required: true
+  URL:
+    description: GitHub repo URL
+    required: true
+  MAVEN_REPOSITORY_URL:
+    description: Maven repository publish to
+    required: true
+  OSSRH_USERNAME:
+    description: ossrhUsername
+    required: true
+  OSSRH_PASSWORD:
+    description: ossrhPassword
+    required: true
+  SIGNING_KEY_ID:
+    description: Signing key ID
+    required: true
+  SIGNING_PASSWORD:
+    description: Signing key password
+    required: true
+  SIGNING_KEY_FILE_AS_BASE64_STRING:
+    description: Signing key file as base64 string
+    required: true
+
+runs:
+  using: composite
+
+  steps:
+    - name: Setup Java
+      uses: actions/setup-java@v4
+      with:
+        java-version: 17
+        distribution: 'zulu'
+
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@v3
+      with:
+        gradle-version: ${{ inputs.GRADLE_VERSION }}
+
+    - name: Append secrets to gradle.properties
+      shell: bash
+      env:
+        PROPERTIES_FILE: ${{ inputs.PROPERTIES_FILE }}
+        OSSRH_USERNAME: 'github-bot@rees46.com'
+        OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
+        SIGNING_KEY_ID: ${{ secrets.SIGNING_KEY_ID }}
+        SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
+        SIGNING_SECRET_KEY_RING_FILE: ${{ inputs.SIGNING_SECRET_KEY_RING_FILE }}
+        VARIANT_NAME: ${{ inputs.VARIANT_NAME }}
+        URL: ${{ inputs.URL }}
+        PUBLISH_URL: ${{ inputs.MAVEN_REPOSITORY_URL }}
+      run: |
+        echo "ossrhUsername=$OSSRH_USERNAME" >> $PROPERTIES_FILE
+        echo "ossrhPassword=$OSSRH_PASSWORD" >> $PROPERTIES_FILE
+        echo "signing_keyId=$SIGNING_KEY_ID" >> $PROPERTIES_FILE
+        echo "signing_password=$SIGNING_PASSWORD" >> $PROPERTIES_FILE
+        echo "signing_secretKeyRingFile=$SIGNING_SECRET_KEY_RING_FILE" >> $PROPERTIES_FILE
+        echo "variantName=$VARIANT_NAME" >> $PROPERTIES_FILE
+        echo "url=$URL" >> $PROPERTIES_FILE
+        echo "publishUrl=$PUBLISH_URL" >> $PROPERTIES_FILE
+        echo "Updated $PROPERTIES_FILE"
+
+    - name: Decode signing key file
+      uses: timheuer/base64-to-file@v1.2
+      id: service_account_json_file
+      with:
+        fileName: ${{ inputs.SIGNING_SECRET_KEY_RING_FILE }}
+        fileDir: ${{ inputs.SIGNING_SECRET_KEY_RING_FILE_LOCATION }}
+        encodedString: ${{ secrets.SIGNING_KEY_FILE_AS_BASE64_STRING }}
