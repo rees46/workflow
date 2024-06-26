@@ -17,6 +17,7 @@ on:
         type: string
         description: Location and name for signature file
         required: true
+        default: ./personalizatio-sdk
       GOOGLE_SERVICES_FILE_LOCATION:
         default: sample
         type: string

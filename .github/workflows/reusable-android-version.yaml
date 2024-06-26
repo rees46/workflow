@@ -21,6 +21,7 @@ on:
         type: string
         description: Location and name for signature file
         required: true
+        default: ./personalizatio-sdk
       GRADLE_VERSION:
         default: 8.2
         type: number
@@ -29,18 +30,28 @@ on:
         required: true
         type: string
         description: 'App ID for committing and pushing'
-    secrets:
-      OSSRH_USERNAME:
+      VARIANT_NAME:
+        description: REES46 or PersonaClick
+        type: string
         required: true
+      URL:
+        description: GitHub repo URL
+        type: string
+        required: true
+      MAVEN_REPOSITORY_URL:
+        description: Maven repository publish to
+        type: string
+        required: true
+      OSSRH_USERNAME:
+        required: false
+        type: string
+        default: 'github-bot@rees46.com'
+    secrets:
       OSSRH_PASSWORD:
         required: true
       SIGNING_KEY_ID:
         required: true
       SIGNING_PASSWORD:
-        required: true
-      SONATYPE_REES46:
-        required: true
-      SONATYPE_PERSONACLICK:
         required: true
       SIGNING_KEY_FILE_AS_BASE64_STRING:
         required: true
@@ -67,44 +78,21 @@ jobs:
           ref: master
           token: ${{ steps.app-token.outputs.token }}
 
-      - name: Setup Java
-        uses: actions/setup-java@v4
+      - name: Prepare Android Action
+        uses: rees46/workflow/.github/actions/android/prepare@master
         with:
-          java-version: 17
-          distribution: 'zulu'
-
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v3
-        with:
-          gradle-version: ${{ inputs.GRADLE_VERSION }}
-
-      - name: Append secrets to gradle.properties
-        env:
+          GRADLE_VERSION: ${{ inputs.GRADLE_VERSION }}
           PROPERTIES_FILE: ${{ inputs.PROPERTIES_FILE }}
-          OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
+          SIGNING_SECRET_KEY_RING_FILE: ${{ inputs.SIGNING_SECRET_KEY_RING_FILE }}
+          SIGNING_SECRET_KEY_RING_FILE_LOCATION: ${{ inputs.SIGNING_SECRET_KEY_RING_FILE_LOCATION }}
+          VARIANT_NAME: ${{ inputs.VARIANT_NAME }}
+          URL: ${{ inputs.URL }}
+          MAVEN_REPOSITORY_URL: ${{ inputs.MAVEN_REPOSITORY_URL }}
+          OSSRH_USERNAME: ${{ inputs.OSSRH_USERNAME }}
           OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
           SIGNING_KEY_ID: ${{ secrets.SIGNING_KEY_ID }}
           SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
-          SIGNING_SECRET_KEY_RING_FILE: ${{ inputs.SIGNING_SECRET_KEY_RING_FILE }}
-          SONATYPE_REES46: ${{ secrets.SONATYPE_REES46 }}
-          SONATYPE_PERSONACLICK: ${{ secrets.SONATYPE_PERSONACLICK }}
-        run: |
-          echo "ossrhUsername=$OSSRH_USERNAME" >> $PROPERTIES_FILE
-          echo "ossrhPassword=$OSSRH_PASSWORD" >> $PROPERTIES_FILE
-          echo "signing_keyId=$SIGNING_KEY_ID" >> $PROPERTIES_FILE
-          echo "signing_password=$SIGNING_PASSWORD" >> $PROPERTIES_FILE
-          echo "signing_secretKeyRingFile=$SIGNING_SECRET_KEY_RING_FILE" >> $PROPERTIES_FILE
-          echo "sonatype_rees46=$SONATYPE_REES46" >> $PROPERTIES_FILE
-          echo "sonatype_personaclick=$SONATYPE_PERSONACLICK" >> $PROPERTIES_FILE
-          echo "Updated $PROPERTIES_FILE"
-
-      - name: Decode signing key file
-        uses: timheuer/base64-to-file@v1.2
-        id: service_account_json_file
-        with:
-          fileName: ${{ inputs.SIGNING_SECRET_KEY_RING_FILE }}
-          fileDir: ${{ inputs.SIGNING_SECRET_KEY_RING_FILE_LOCATION }}
-          encodedString: ${{ secrets.SIGNING_KEY_FILE_AS_BASE64_STRING }}
+          SIGNING_KEY_FILE_AS_BASE64_STRING: ${{ secrets.SIGNING_KEY_FILE_AS_BASE64_STRING }}
 
       - name: Patch version
         run: ./gradlew personalizatio-sdk:increaseVersionCode
