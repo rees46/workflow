@@ -16,6 +16,10 @@ inputs:
     required: false
     default: ./
     description: Where the script runs
+outputs:
+  token:
+    description: App token
+    value: ${{ steps.app-token.outputs.token }}
 
 runs:
   using: composite
