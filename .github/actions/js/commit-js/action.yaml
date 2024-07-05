@@ -62,15 +62,21 @@ runs:
         commit_message: ${{ steps.commit_message.outputs.commitMessage }}
         file_pattern: '*.json *.md *.yaml *.yml *.lock'
 
+    - name: Sleep
+      if: inputs.additionalBranch != ''
+      shell: bash
+      run: sleep 10s
+
     - name: Cherry pick to additional branch
       if: inputs.additionalBranch != ''
       env:
         BRANCH: ${{ inputs.additionalBranch }}
-        COMMIT_SHA: ${{ steps.committer.outputs.commit_long_sha }}
+        COMMIT_MESSAGE: ${{ steps.commit_message.outputs.commitMessage }}
       run: |
         git config --global user.name github-actions
         git config --global user.email github-bot@rees46.com
+        COMMIT_SHA=$(git log --grep="$COMMIT_MESSAGE" --pretty=format:"%H" -n 1)
         git switch -f $BRANCH
-        git cherry-pick master
+        git cherry-pick $COMMIT_SHA
         git push origin
       shell: bash
