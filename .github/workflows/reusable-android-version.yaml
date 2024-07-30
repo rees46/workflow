@@ -23,7 +23,7 @@ on:
         required: true
         default: ./personalizatio-sdk
       GRADLE_VERSION:
-        default: 8.4
+        default: 8.5
         type: number
         required: false
       appId:
