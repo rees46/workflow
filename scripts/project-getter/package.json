@@ -1,0 +1,12 @@
+{
+  "name": "@scripts/project-getter",
+  "version": "0.0.1",
+  "type": "module",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@global/github-client": "workspace:*"
+  }
+}
