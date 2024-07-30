@@ -1,0 +1,13 @@
+{
+  "name": "@global/github-client",
+  "type": "module",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "version": "0.0.1",
+  "dependencies": {
+    "@octokit/webhooks": "13.3.0",
+    "octokit": "4.0.2"
+  }
+}

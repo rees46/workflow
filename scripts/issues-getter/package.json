@@ -1,0 +1,13 @@
+{
+  "name": "@scripts/issues-getter",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@global/github-client": "workspace:*",
+    "octokit": "4.0.2"
+  }
+}

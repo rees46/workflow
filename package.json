@@ -2,5 +2,14 @@
   "name": "workflow",
   "license": "BSD-3-Clause",
   "private": true,
-  "packageManager": "yarn@4.1.1"
+  "packageManager": "yarn@4.1.1",
+  "workspaces": [
+    "scripts/**",
+    "global/**"
+  ],
+  "devDependencies": {
+    "@atls/code-runtime": "1.0.0",
+    "@types/node": "22.0.0",
+    "typescript": "5.2.2"
+  }
 }
