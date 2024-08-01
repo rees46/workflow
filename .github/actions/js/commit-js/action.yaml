@@ -75,6 +75,7 @@ runs:
       run: |
         git config --global user.name github-actions
         git config --global user.email github-bot@rees46.com
+        git pull
         COMMIT_SHA=$(git log --grep="$COMMIT_MESSAGE" --pretty=format:"%H" -n 1)
         echo "Commit for cherry pick: $COMMIT_SHA"
         git switch -f $BRANCH
