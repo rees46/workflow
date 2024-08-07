@@ -14,9 +14,6 @@ on:
         description: App token for committing changes
 
     secrets:
-      cocoapodsToken:
-        description: Cocoapods token
-        required: true
       appSecret:
         description: App secret for committing changes
         required: true
