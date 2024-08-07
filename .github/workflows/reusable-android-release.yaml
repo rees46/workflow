@@ -3,6 +3,10 @@ name: Reusable Android SDK release
 on:
   workflow_call:
     inputs:
+      appId:
+        required: true
+        type: string
+        description: 'App ID for committing and pushing'
       PROPERTIES_FILE:
         default: gradle.properties
         type: string
@@ -37,6 +41,7 @@ on:
         required: false
         type: string
         default: 'github-bot@rees46.com'
+
     secrets:
       OSSRH_PASSWORD:
         required: true
@@ -46,16 +51,25 @@ on:
         required: true
       SIGNING_KEY_FILE_AS_BASE64_STRING:
         required: true
+      appSecret:
+        required: true
 
 jobs:
   run:
     runs-on: ubuntu-latest
 
     steps:
+      - uses: actions/create-github-app-token@v1
+        id: app-token
+        with:
+          app-id: ${{ inputs.appId }}
+          private-key: ${{ secrets.appSecret }}
+
       - name: Checkout
         uses: actions/checkout@v4
         with:
           ref: master
+          token: ${{ steps.app-token.outputs.token }}
 
       - name: Prepare Android Action
         uses: rees46/workflow/.github/actions/android/prepare@master
@@ -89,7 +103,7 @@ jobs:
       - name: Create release
         env:
           TAG: ${{ steps.versionName.outputs.versionName }}
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
         run: |
           gh release create "v$TAG" ./source.tgz \
           --title=$TAG \
