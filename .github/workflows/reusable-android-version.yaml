@@ -2,10 +2,6 @@ name: Reusable Android SDK version
 
 on:
   workflow_call:
-    outputs:
-      committed:
-        description: Have the changes in version been commited?
-        value: ${{ jobs.run.outputs.committed }}
     inputs:
       PROPERTIES_FILE:
         default: gradle.properties
@@ -114,5 +110,5 @@ jobs:
         with:
           repo: ${{ github.repository }}
           branch: master
-          commit_message: 'chore(common): version $VERSION'
+          commit_message: 'chore(common): version bump to $VERSION'
           file_pattern: 'personalization-sdk'

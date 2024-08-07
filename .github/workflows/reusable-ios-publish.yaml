@@ -56,17 +56,16 @@ jobs:
 
       - name: Commit changes
         id: committer
-        uses: EndBug/add-and-commit@v9
+        uses: planetscale/ghcommit-action@v0.1.44
         env:
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
         with:
-          default_author: github_actions
-          author_email: github-bot@rees46.com
-          message: "chore(common): version bump to ${{ steps.version.outputs.version }}"
-          add: '["*.podspec"]'
+          repo: ${{ github.repository }}
+          branch: master
+          commit_message: 'chore(common): version bump to ${{ steps.version.outputs.version }}'
+          file_pattern: '*.podspec'
 
       - name: Publish to cocoapods.org
-        if: steps.committer.outputs.committed == 'true'
         env:
           COCOAPODS_TRUNK_TOKEN: ${{ secrets.cocoapodsToken }}
         run: pod trunk push --allow-warnings
