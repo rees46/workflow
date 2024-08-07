@@ -106,9 +106,8 @@ jobs:
         uses: planetscale/ghcommit-action@v0.1.44
         env:
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
-          VERSION: ${{ steps.versionName.outputs.versionName }}
         with:
           repo: ${{ github.repository }}
           branch: master
-          commit_message: 'chore(common): version bump to $VERSION'
+          commit_message: 'chore(common): version bump to ${{ steps.versionName.outputs.versionName }}'
           file_pattern: 'personalization-sdk'
