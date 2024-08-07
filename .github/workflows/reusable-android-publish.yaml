@@ -17,7 +17,7 @@ on:
         type: string
         description: Location and name for signature file
         required: false
-        default: ./personalizatio-sdk
+        default: ./personalization-sdk
       GRADLE_VERSION:
         default: 8.5
         type: number

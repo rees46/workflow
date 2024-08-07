@@ -21,7 +21,7 @@ on:
         type: string
         description: Location and name for signature file
         required: true
-        default: ./personalizatio-sdk
+        default: ./personalization-sdk
       GRADLE_VERSION:
         default: 8.5
         type: number
@@ -65,7 +65,6 @@ jobs:
       committed: ${{ steps.committer.outputs.committed }}
 
     steps:
-
       - uses: actions/create-github-app-token@v1
         id: app-token
         with:
@@ -95,17 +94,25 @@ jobs:
           SIGNING_KEY_FILE_AS_BASE64_STRING: ${{ secrets.SIGNING_KEY_FILE_AS_BASE64_STRING }}
 
       - name: Patch version
-        run: ./gradlew personalizatio-sdk:increaseVersionCode
+        run: ./gradlew personalization-sdk:increaseVersionCode
 
-      - name: GitSign
-        uses: chainguard-dev/actions/setup-gitsign@main
+      - name: Retrieve version
+        id: versionName
+        env:
+          FILE_PATH: ./personalization-sdk/build.gradle
+        run: |
+          version=$(grep -o "version='[^']*'" $FILE_PATH | head -1 | cut -d"'" -f2)
+          echo "versionName=$version" >> $GITHUB_ENV
+          echo "versionName=$version" >> $GITHUB_OUTPUT
 
       - name: Commit changes
         id: committer
-        uses: EndBug/add-and-commit@v9
+        uses: planetscale/ghcommit-action@v0.1.44
+        env:
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
+          VERSION: ${{ steps.versionName.outputs.versionName }}
         with:
-          commit: -S
-          default_author: github_actions
-          author_email: github-bot@rees46.com
-          message: 'chore(common): version'
-          add: 'personalizatio-sdk'
+          repo: ${{ github.repository }}
+          branch: master
+          commit_message: 'chore(common): version $VERSION'
+          file_pattern: 'personalization-sdk'

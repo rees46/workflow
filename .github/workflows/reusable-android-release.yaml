@@ -73,11 +73,10 @@ jobs:
           SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
           SIGNING_KEY_FILE_AS_BASE64_STRING: ${{ secrets.SIGNING_KEY_FILE_AS_BASE64_STRING }}
 
-
       - name: Retrieve version
-        env:
-          FILE_PATH: ./personalizatio-sdk/build.gradle
         id: versionName
+        env:
+          FILE_PATH: ./personalization-sdk/build.gradle
         run: |
           version=$(grep -o "version='[^']*'" $FILE_PATH | head -1 | cut -d"'" -f2)
           echo "versionName=$version" >> $GITHUB_ENV
