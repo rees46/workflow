@@ -29,7 +29,6 @@ on:
         description: Name for google services file
         required: false
       GRADLE_VERSION:
-        default: 8.5
         type: number
         required: false
       VARIANT_NAME:

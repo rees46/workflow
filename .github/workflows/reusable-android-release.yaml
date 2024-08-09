@@ -22,7 +22,6 @@ on:
         description: Location and name for signature file
         required: true
       GRADLE_VERSION:
-        default: 8.5
         type: number
         required: false
       VARIANT_NAME:

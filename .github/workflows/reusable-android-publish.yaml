@@ -19,7 +19,6 @@ on:
         required: false
         default: ./personalization-sdk
       GRADLE_VERSION:
-        default: 8.5
         type: number
         required: false
       VARIANT_NAME:
