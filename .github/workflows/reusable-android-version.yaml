@@ -74,7 +74,6 @@ jobs:
       - name: Prepare Android Action
         uses: rees46/workflow/.github/actions/android/prepare@master
         with:
-          GRADLE_VERSION: ${{ inputs.GRADLE_VERSION }}
           PROPERTIES_FILE: ${{ inputs.PROPERTIES_FILE }}
           SIGNING_SECRET_KEY_RING_FILE: ${{ inputs.SIGNING_SECRET_KEY_RING_FILE }}
           SIGNING_SECRET_KEY_RING_FILE_LOCATION: ${{ inputs.SIGNING_SECRET_KEY_RING_FILE_LOCATION }}

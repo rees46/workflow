@@ -3,7 +3,7 @@ description: Create gradle.properties file
 
 inputs:
   GRADLE_VERSION:
-    default: 8.2
+    default: '8.2'
     description: Gradle version
     required: false
   PROPERTIES_FILE:
