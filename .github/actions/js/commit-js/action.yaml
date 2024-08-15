@@ -71,14 +71,13 @@ runs:
       if: inputs.additionalBranch != ''
       env:
         BRANCH: ${{ inputs.additionalBranch }}
-        COMMIT_MESSAGE: ${{ steps.commit_message.outputs.commitMessage }}
+        COMMIT_SHA: ${{ steps.committer.outputs.commit-hash }}
       run: |
         git config --global user.name github-actions
         git config --global user.email github-bot@rees46.com
         git reset --hard
         git checkout master
         git pull
-        COMMIT_SHA=$(git log --grep="$COMMIT_MESSAGE" --pretty=format:"%H" -n 1)
         echo "Commit for cherry pick: $COMMIT_SHA"
         git switch -f $BRANCH
         git cherry-pick $COMMIT_SHA
