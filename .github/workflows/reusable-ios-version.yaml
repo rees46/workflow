@@ -42,7 +42,7 @@ jobs:
           IFS='.' read -r major minor patch <<< "$current_version"
           new_patch=$((patch + 1))
           new_version="$major.$minor.$new_patch"
-          sed -i '' "s/$current_version/$new_version/" "$FILE_PATH"
+          sed -i "s/$current_version/$new_version/" "$FILE_PATH"
           echo "version=$new_version" >> $GITHUB_OUTPUT
 
       - name: Commit changes
