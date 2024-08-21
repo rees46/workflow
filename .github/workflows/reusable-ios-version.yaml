@@ -55,3 +55,6 @@ jobs:
           branch: master
           commit_message: 'chore(common): version bump to ${{ steps.version.outputs.version }}'
           file_pattern: '*.podspec'
+
+      - name: Sleep
+        run: sleep 10s
