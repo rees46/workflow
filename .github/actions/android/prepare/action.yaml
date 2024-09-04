@@ -36,6 +36,10 @@ inputs:
   SONATA_PASSWORD:
     description: sonata password
     required: true
+  SONATYPE_REES46:
+    description: sonatype for rees46
+  SONATYPE_PERSONACLICK:
+    description: sonatype for personaclick
   OSSRH_PASSWORD:
     description: ossrhPassword
     required: true
@@ -72,6 +76,8 @@ runs:
         OSSRH_PASSWORD: ${{ inputs.OSSRH_PASSWORD }}
         SONATA_USERNAME: ${{ inputs.SONATA_USERNAME }}
         SONATA_PASSWORD: ${{ inputs.SONATA_PASSWORD }}
+        SONATYPE_REES46: ${{ inputs.SONATYPE_REES46 }}
+        SONATYPE_PERSONACLICK: ${{ inputs.SONATYPE_PERSONACLICK }}
         SIGNING_KEY_ID: ${{ inputs.SIGNING_KEY_ID }}
         SIGNING_PASSWORD: ${{ inputs.SIGNING_PASSWORD }}
         SIGNING_SECRET_KEY_RING_FILE: ${{ inputs.SIGNING_SECRET_KEY_RING_FILE }}
@@ -83,6 +89,8 @@ runs:
         echo "ossrhPassword=$OSSRH_PASSWORD" >> $PROPERTIES_FILE
         echo "sonataUsername=$SONATA_USERNAME" >> $PROPERTIES_FILE
         echo "sonataPassword=$SONATA_PASSWORD" >> $PROPERTIES_FILE
+        echo "sonatype_rees46=$SONATYPE_REES46" >> $PROPERTIES_FILE
+        echo "sonatype_personaclick=$SONATYPE_PERSONACLICK" >> $PROPERTIES_FILE
         echo "signing_keyId=$SIGNING_KEY_ID" >> $PROPERTIES_FILE
         echo "signing_password=$SIGNING_PASSWORD" >> $PROPERTIES_FILE
         echo "signing_secretKeyRingFile=$SIGNING_SECRET_KEY_RING_FILE" >> $PROPERTIES_FILE
