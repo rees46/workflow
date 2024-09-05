@@ -72,9 +72,11 @@ runs:
       env:
         BRANCH: ${{ inputs.additionalBranch }}
         COMMIT_SHA: ${{ steps.committer.outputs.commit-hash }}
+        GITHUB_TOKEN: ${{ inputs.token }}
+        GH_TOKEN: ${{ inputs.token }}
       run: |
-        git config --global user.name github-actions
-        git config --global user.email github-bot@rees46.com
+        git config --global user.name "r46-publisher[bot]"
+        git config --global user.email 161856912+r46-publisher[bot]@users.noreply.github.com
         git reset --hard
         git checkout master
         git pull
