@@ -48,12 +48,12 @@ runs:
         if [ $IS_PRIVATE == 'false' ]; then
           PRIVATE_FLAG="--no-private"
         fi
-        
+
         if [ $SHOULD_CHECK_CHANGES == 'true' ]; then
           CHANGES_FLAG="--since=$BASE_COMMIT^"
           else
           CHANGES_FLAG="--all"
         fi
-        
-        yarn workspaces foreach $CHANGES_FLAG $PRIVATE_FLAG --exclude=$EXCLUDE --verbose version patch --immediate
+
+        yarn workspaces foreach $CHANGES_FLAG $PRIVATE_FLAG --exclude=$EXCLUDE -vp --jobs=2 version patch --immediate
       shell: bash

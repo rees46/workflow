@@ -54,16 +54,16 @@ jobs:
         if: ${{ !cancelled() }}
         env:
           TARGET: ${{ github.base_ref }}
-        run: yarn workspaces foreach --since=origin/$TARGET run lint
+        run: yarn workspaces foreach -vp --since=origin/$TARGET --jobs=2 run lint
 
       - name: Test
         if: ${{ !cancelled() }}
         env:
           TARGET: ${{ github.base_ref }}
-        run: yarn workspaces foreach --since=origin/$TARGET run test
+        run: yarn workspaces foreach -vp --since=origin/$TARGET --jobs=2 run test
 
       - name: Build
         if: ${{ !cancelled() }}
         env:
           TARGET: ${{ github.base_ref }}
-        run: yarn workspaces foreach --since=origin/$TARGET run build
+        run: yarn workspaces foreach -vp --since=origin/$TARGET --jobs=2 run build
