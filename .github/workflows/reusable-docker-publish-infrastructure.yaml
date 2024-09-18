@@ -1,0 +1,58 @@
+name: Build and Publish Docker Images
+
+on:
+  workflow_call:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Get list of changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v45
+        with:
+          json: 'true'
+
+      - name: Output changed files
+        run: |
+          echo "Changed files: ${{ steps.changed-files.outputs.all_changed_files }}"
+
+      - name: Check for Dockerfile changes
+        id: dockerfile-check
+        run: |
+          CHANGED_FILES="${{ steps.changed-files.outputs.all_changed_files }}"
+          echo "Changed files: $CHANGED_FILES"
+
+          if echo "$CHANGED_FILES" | grep -q 'Dockerfile'; then
+            echo "Dockerfile has changed."
+            echo "DOCKERFILE_CHANGED=true" >> $GITHUB_ENV
+          else
+            echo "No Dockerfile changes detected."
+            echo "DOCKERFILE_CHANGED=false" >> $GITHUB_ENV
+          fi
+
+      - name: Build and push Docker images
+        if: env.DOCKERFILE_CHANGED == 'true'
+        env:
+          REPOSITORY_OWNER: ${{ github.repository_owner }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo $GITHUB_TOKEN | docker login ghcr.io -u $REPOSITORY_OWNER --password-stdin
+          CHANGED_DOCKERFILES=$(echo "${{ steps.changed-files.outputs.all_changed_files }}" | tr -d '[]" ' | tr ',' '\n' | grep 'Dockerfile')
+
+          # Build and push Docker images for each directory containing Dockerfile
+          for DOCKERFILE in $CHANGED_DOCKERFILES; do
+            DIR=$(dirname $DOCKERFILE)
+            IMAGE_NAME="ghcr.io/$REPOSITORY_OWNER/$(basename $DIR):latest"
+            echo "Building image $IMAGE_NAME"
+            
+            # Build the Docker image
+            docker build -t $IMAGE_NAME $DIR
+            
+            # Push the Docker image to GitHub Container Registry
+            docker push $IMAGE_NAME
+          done
