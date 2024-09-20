@@ -231,7 +231,7 @@ jobs:
       - name: Find Inventory File
         id: find_inventory
         run: |
-          inventory_file=$(find $GITHUB_WORKSPACE -name 'inventory' -type f | head -n 1)
+          inventory_file=$(find $GITHUB_WORKSPACE/ansible -name 'inventory' -type f | head -n 1)
 
           if [ -z "$inventory_file" ]; then
             echo "ERROR: No inventory file found."
