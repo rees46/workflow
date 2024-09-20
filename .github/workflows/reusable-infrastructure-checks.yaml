@@ -228,6 +228,14 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y ansible
 
+      - name: Set up ssh
+        env:
+          PRIVATE_KEY: ${{ secrets.SVC_CICD_PRIVATE_KEY }}
+        run: |
+          echo "$PRIVATE_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          echo "StrictHostKeyChecking no" >> ~/.ssh/config
+
       - name: Find Inventory File
         id: find_inventory
         run: |
