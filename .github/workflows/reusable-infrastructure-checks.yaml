@@ -233,12 +233,15 @@ jobs:
 
       - name: Set up ssh
         env:
+          SSH_AUTH_SOCK: /tmp/ssh_agent.sock
           PRIVATE_KEY: ${{ secrets.SVC_CICD_PRIVATE_KEY }}
         run: |
           mkdir -p ~/.ssh
           echo "$PRIVATE_KEY" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           echo "StrictHostKeyChecking no" >> ~/.ssh/config
+          ssh-agent -a $SSH_AUTH_SOCK > /dev/null	
+          ssh-add ~/.ssh/id_rsa
 
       - name: Find Inventory File
         id: find_inventory
@@ -259,7 +262,7 @@ jobs:
         run: |
           exit_code=0
 
-          cat ~/.ssh/id_rsa
+          cat ~/.ssh/config
 
           while read -r dir; do
             for playbook in "$dir"/*.yml; do
