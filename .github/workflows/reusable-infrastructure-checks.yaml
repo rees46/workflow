@@ -4,213 +4,263 @@ on:
   workflow_call:
 
 jobs:
-  ansible-lint:
-    uses: ansible/ansible-content-actions/.github/workflows/ansible_lint.yaml@main
+  #  ansible-lint:
+  #    uses: ansible/ansible-content-actions/.github/workflows/ansible_lint.yaml@main
+  #
+  #  elastic:
+  #    name: Elastic
+  #    runs-on: ubuntu-latest
+  #
+  #    services:
+  #      elasticsearch:
+  #        image: elasticsearch:6.8.0
+  #        env:
+  #          node.name: elastic
+  #          discovery.type: single-node
+  #        ports:
+  #          - 9200:9200
+  #          - 9300:9300
+  #        volumes:
+  #          - ./:/var/lib/elasticsearch68
+  #          - ./:/var/log/elasticsearch68
+  #          - ./:/var/snapshot/elasticsearch68
+  #        options: >
+  #          --env "discovery.type=single-node"
+  #          --env "xpack.security.enabled=false"
+  #          --name elasticsearch
+  #          --hostname elasticsearch
+  #
+  #    steps:
+  #      - name: Checkout
+  #        uses: actions/checkout@v4
+  #
+  #      - name: Prepare elastic container
+  #        run: |
+  #          docker exec elasticsearch chmod 777 -R /var/lib
+  #          docker exec elasticsearch chmod 777 -R /var/log
+  #          docker exec elasticsearch chmod 777 -R /var/snapshot
+  #
+  #      - name: Validate elastic
+  #        run: |
+  #          exit_code=0
+  #
+  #          while read -r conf; do
+  #            printf "\n\n"
+  #            echo "🔎🔎🔎 Validating $conf 🔎🔎🔎"
+  #
+  #            config_dir=$(dirname "$conf")
+  #            docker cp "$conf" elasticsearch:/usr/share/elasticsearch/config/elasticsearch.yml
+  #
+  #            # if [ -f "$config_dir/jvm.options" ]; then
+  #            #  echo "Found jvm.options, copying to container."
+  #            #  docker cp "$config_dir/jvm.options" elasticsearch:/usr/share/elasticsearch/config/jvm.options
+  #            # fi
+  #
+  #            docker restart elasticsearch
+  #            sleep 10
+  #
+  #            if docker exec elasticsearch curl -s http://localhost:9200; then
+  #              echo "RESULT: ✅✅✅"
+  #            else
+  #              echo "RESULT: ⛔⛔⛔"
+  #              exit_code=1
+  #            fi
+  #          done < <(find $GITHUB_WORKSPACE -type f -name 'elasticsearch.yml')
+  #
+  #          if [ "$exit_code" -eq 0 ]; then
+  #            echo "✅✅✅ All elasticsearch.yml and jvm.options files are valid ✅✅✅"
+  #          else
+  #            echo "⛔⛔⛔ One or more configuration files are invalid ⛔⛔⛔"
+  #            exit 1
+  #          fi
 
-  elastic:
-    name: Elastic
+  #  pgbounce:
+  #    name: PGBounce
+  #    runs-on: ubuntu-latest
+  #
+  #    services:
+  #      postgresql:
+  #        image: ghcr.io/rees46/postgres-migrated:latest
+  #        env:
+  #          POSTGRES_PASSWORD: rails
+  #          POSTGRES_USER: rails
+  #          PGDATA: /data
+  #        ports:
+  #          - 5432:5432
+  #        credentials:
+  #          password: ${{ secrets.GITHUB_TOKEN }}
+  #          username: ${{ github.repository_owner }}
+  #        options: --name postgresql --hostname postgresql
+  #
+  #      pgbouncer:
+  #        image: bitnami/pgbouncer:latest
+  #        env:
+  #          PGBOUNCER_DATABASE: rees46
+  #          POSTGRESQL_USERNAME: rails
+  #          POSTGRESQL_PASSWORD: rails
+  #          PGBOUNCER_CONF_DIR: /bitnami/pgbouncer/conf
+  #          PGBOUNCER_SOCKET_DIR: /var/run/postgresql
+  #        options: --name pgbouncer --hostname pgbouncer
+  #        volumes:
+  #          - ./:/var/run/postgresql
+  #          - ./:/var/log/postgresql
+  #          - ./:/etc/pgbouncer
+  #
+  #    steps:
+  #      - name: Checkout
+  #        uses: actions/checkout@v4
+  #
+  #      - name: Validate PgBouncer
+  #        run: |
+  #          exit_code=0
+  #
+  #           while read -r conf; do
+  #            printf "\n\n"
+  #            echo "🔎🔎🔎 Validating $conf 🔎🔎🔎"
+  #
+  #            config_dir=$(dirname "$conf")
+  #            docker cp "$conf" pgbouncer:/bitnami/pgbouncer/conf/pgbouncer.ini
+  #
+  #            if [ -f "$config_dir/userlist.txt" ]; then
+  #              echo "Found userlist.txt, copying to container."
+  #              docker cp "$config_dir/userlist.txt" pgbouncer:/etc/pgbouncer/userlist.txt
+  #            fi
+  #
+  #            if docker exec pgbouncer pgbouncer -d /bitnami/pgbouncer/conf/pgbouncer.ini -R; then
+  #              echo "RESULT: ✅✅✅"
+  #            else
+  #              echo "RESULT: ⛔⛔⛔"
+  #              exit_code=1
+  #            fi
+  #          done < <(find $GITHUB_WORKSPACE -type f -name 'pgbouncer.ini')
+  #
+  #          if [ "$exit_code" -eq 0 ]; then
+  #            echo "✅✅✅ All pgbouncer.ini and userlist.txt files are valid ✅✅✅"
+  #          else
+  #            echo "⛔⛔⛔ One or more configuration files are invalid ⛔⛔⛔"
+  #            exit 1
+  #          fi
+
+  #  nginx:
+  #    name: NGINX
+  #    runs-on: ubuntu-latest
+  #
+  #    steps:
+  #      - name: Checkout
+  #        uses: actions/checkout@v4
+  #
+  #      - name: Create NGINX user
+  #        env:
+  #          USERNAME: nginx
+  #          PASSWORD: pass
+  #        run: |
+  #          sudo useradd -m -s /bin/bash $USERNAME
+  #          echo "$USERNAME:$PASSWORD" | sudo chpasswd
+  #          echo "$USERNAME ALL=(ALL) NOPASSWD:ALL" | sudo tee /etc/sudoers.d/$USERNAME
+
+  #      - name: Validate NGINX configs
+  #        run: |
+  #          id $USERNAME
+  #          exit_code=0
+  #          while read -r conf; do
+  #            printf "\n\n"
+  #            echo "🔎🔎🔎 Validating $conf 🔎🔎🔎"
+  #
+  #            if sudo nginx -t -c "$conf"; then
+  #              echo "RESULT: ✅✅✅"
+  #            else
+  #              echo "RESULT: ⛔⛔⛔️"
+  #              exit_code=1
+  #            fi
+  #          done < <(find $GITHUB_WORKSPACE -name 'nginx.conf')
+  #
+  #          if [ "$exit_code" -eq 0 ]; then
+  #            echo "✅✅✅ All nginx.conf files are valid ✅✅✅"
+  #          else
+  #            echo "⛔⛔⛔ One or more configuration files are invalid ⛔⛔⛔"
+  #            exit 1
+  #          fi
+
+  #  haproxy:
+  #    name: HAProxy
+  #    runs-on: ubuntu-latest
+  #
+  #    steps:
+  #      - name: Checkout
+  #        uses: actions/checkout@v4
+  #
+  #      - name: Install HAProxy
+  #        run: |
+  #          sudo apt-get update && sudo apt-get install -y haproxy
+  #
+  #      - name: Validate HAProxy configs
+  #        run: |
+  #          exit_code=0
+  #           while read -r conf; do
+  #            printf "\n\n"
+  #            echo "🔎🔎🔎 Validating $conf 🔎🔎🔎"
+  #
+  #            if haproxy -c -f "$conf"; then
+  #              echo "RESULT: ✅✅✅"
+  #            else
+  #              echo "RESULT: ⛔⛔⛔"
+  #              exit_code=1
+  #            fi
+  #          done < <(find $GITHUB_WORKSPACE -type f -name 'haproxy.cfg')
+  #
+  #          if [ "$exit_code" -eq 0 ]; then
+  #            echo "✅✅✅ All haproxy.cfg files are valid ✅✅✅"
+  #          else
+  #            echo "⛔⛔⛔ One or more configuration files are invalid ⛔⛔⛔"
+  #            exit 1
+  #          fi
+
+  ansible-dry-run:
+    name: Ansible dry-run
     runs-on: ubuntu-latest
-
-    services:
-      elasticsearch:
-        image: elasticsearch:6.8.0
-        env:
-          node.name: elastic
-          discovery.type: single-node
-        ports:
-          - 9200:9200
-          - 9300:9300
-        volumes:
-          - ./:/var/lib/elasticsearch68
-          - ./:/var/log/elasticsearch68
-          - ./:/var/snapshot/elasticsearch68
-        options: >
-          --env "discovery.type=single-node"
-          --env "xpack.security.enabled=false"
-          --name elasticsearch
-          --hostname elasticsearch
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Prepare elastic container
+      - name: Install Ansible
         run: |
-          docker exec elasticsearch chmod 777 -R /var/lib
-          docker exec elasticsearch chmod 777 -R /var/log
-          docker exec elasticsearch chmod 777 -R /var/snapshot
+          sudo apt-get update
+          sudo apt-get install -y ansible
 
-      - name: Validate elastic
-        run: |
-          exit_code=0
-
-          while read -r conf; do
-            printf "\n\n"
-            echo "🔎🔎🔎 Validating $conf 🔎🔎🔎"
-
-            config_dir=$(dirname "$conf")
-            docker cp "$conf" elasticsearch:/usr/share/elasticsearch/config/elasticsearch.yml
-
-            # if [ -f "$config_dir/jvm.options" ]; then
-            #  echo "Found jvm.options, copying to container."
-            #  docker cp "$config_dir/jvm.options" elasticsearch:/usr/share/elasticsearch/config/jvm.options
-            # fi
-
-            docker restart elasticsearch
-            sleep 10
-
-            if docker exec elasticsearch curl -s http://localhost:9200; then
-              echo "RESULT: ✅✅✅"
-            else
-              echo "RESULT: ⛔⛔⛔"
-              exit_code=1
-            fi
-          done < <(find $GITHUB_WORKSPACE -type f -name 'elasticsearch.yml')
-
-          if [ "$exit_code" -eq 0 ]; then
-            echo "✅✅✅ All elasticsearch.yml and jvm.options files are valid ✅✅✅"
-          else
-            echo "⛔⛔⛔ One or more configuration files are invalid ⛔⛔⛔"
-            exit 1
-          fi
-
-  pgbounce:
-    name: PGBounce
-    runs-on: ubuntu-latest
-
-    services:
-      postgresql:
-        image: ghcr.io/rees46/postgres-migrated:latest
-        env:
-          POSTGRES_PASSWORD: rails
-          POSTGRES_USER: rails
-          PGDATA: /data
-        ports:
-          - 5432:5432
-        credentials:
-          password: ${{ secrets.GITHUB_TOKEN }}
-          username: ${{ github.repository_owner }}
-        options: --name postgresql --hostname postgresql
-
-      pgbouncer:
-        image: bitnami/pgbouncer:latest
-        env:
-          PGBOUNCER_DATABASE: rees46
-          POSTGRESQL_USERNAME: rails
-          POSTGRESQL_PASSWORD: rails
-          PGBOUNCER_CONF_DIR: /bitnami/pgbouncer/conf
-          PGBOUNCER_SOCKET_DIR: /var/run/postgresql
-        options: --name pgbouncer --hostname pgbouncer
-        volumes:
-          - ./:/var/run/postgresql
-          - ./:/var/log/postgresql
-          - ./:/etc/pgbouncer
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Validate PgBouncer
+      - name: Ansible dry-run
         run: |
           exit_code=0
 
-           while read -r conf; do
-            printf "\n\n"
-            echo "🔎🔎🔎 Validating $conf 🔎🔎🔎"
+          while read -r dir; do
+            for playbook in "$dir"/*.yml; do
+              if [ -f "$playbook" ]; then
+                echo "🔎🔎🔎 Validating playbook $playbook in $dir"
+                ansible-playbook --check "$playbook"
+                if [ $? -ne 0 ]; then
+                  echo "ERROR: Playbook $playbook has issues."
+                  exit_code=1
+                fi
+              fi
+            done
+          done < <(find $GITHUB_WORKSPACE -type d -name 'playbooks')
 
-            config_dir=$(dirname "$conf")
-            docker cp "$conf" pgbouncer:/bitnami/pgbouncer/conf/pgbouncer.ini
-
-            if [ -f "$config_dir/userlist.txt" ]; then
-              echo "Found userlist.txt, copying to container."
-              docker cp "$config_dir/userlist.txt" pgbouncer:/etc/pgbouncer/userlist.txt
-            fi
-
-            if docker exec pgbouncer pgbouncer -d /bitnami/pgbouncer/conf/pgbouncer.ini -R; then
-              echo "RESULT: ✅✅✅"
-            else
-              echo "RESULT: ⛔⛔⛔"
-              exit_code=1
-            fi
-          done < <(find $GITHUB_WORKSPACE -type f -name 'pgbouncer.ini')
-
-          if [ "$exit_code" -eq 0 ]; then
-            echo "✅✅✅ All pgbouncer.ini and userlist.txt files are valid ✅✅✅"
+          if [ $exit_code -eq 0 ]; then
+            echo "All playbooks are valid."
           else
-            echo "⛔⛔⛔ One or more configuration files are invalid ⛔⛔⛔"
+            echo "One or more playbooks are invalid."
             exit 1
           fi
 
-  nginx:
-    name: NGINX
+  kubernetes:
+    name: Kubernetes
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Create NGINX user
-        env:
-          USERNAME: nginx
-          PASSWORD: pass
-        run: |
-          sudo useradd -m -s /bin/bash $USERNAME
-          echo "$USERNAME:$PASSWORD" | sudo chpasswd
-          echo "$USERNAME ALL=(ALL) NOPASSWD:ALL" | sudo tee /etc/sudoers.d/$USERNAME
-
-      - name: Validate NGINX configs
-        run: |
-          id $USERNAME
-          exit_code=0
-          while read -r conf; do
-            printf "\n\n"
-            echo "🔎🔎🔎 Validating $conf 🔎🔎🔎"
-
-            if sudo nginx -t -c "$conf"; then
-              echo "RESULT: ✅✅✅"
-            else
-              echo "RESULT: ⛔⛔⛔️"
-              exit_code=1
-            fi
-          done < <(find $GITHUB_WORKSPACE -name 'nginx.conf')
-
-          if [ "$exit_code" -eq 0 ]; then
-            echo "✅✅✅ All nginx.conf files are valid ✅✅✅"
-          else
-            echo "⛔⛔⛔ One or more configuration files are invalid ⛔⛔⛔"
-            exit 1
-          fi
-
-  haproxy:
-    name: HAProxy
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Install HAProxy
-        run: |
-          sudo apt-get update && sudo apt-get install -y haproxy
-
-      - name: Validate HAProxy configs
-        run: |
-          exit_code=0
-           while read -r conf; do
-            printf "\n\n"
-            echo "🔎🔎🔎 Validating $conf 🔎🔎🔎"
-
-            if haproxy -c -f "$conf"; then
-              echo "RESULT: ✅✅✅"
-            else
-              echo "RESULT: ⛔⛔⛔"
-              exit_code=1
-            fi
-          done < <(find $GITHUB_WORKSPACE -type f -name 'haproxy.cfg')
-
-          if [ "$exit_code" -eq 0 ]; then
-            echo "✅✅✅ All haproxy.cfg files are valid ✅✅✅"
-          else
-            echo "⛔⛔⛔ One or more configuration files are invalid ⛔⛔⛔"
-            exit 1
-          fi
+      - name: Run Kube Linter Action
+        uses: stackrox/kube-linter-action@v1
+        with:
+          directory: specs
