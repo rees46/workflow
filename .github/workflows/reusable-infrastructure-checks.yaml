@@ -267,7 +267,20 @@ jobs:
           while read -r dir; do
             for playbook in "$dir"/*.yml; do
               if [ -f "$playbook" ]; then
+                config_dir=$(dirname "$dir")
+                ansible_cfg="$config_dir/ansible.cfg"
+
+                if [ -f "$ansible_cfg" ]; then
+                  echo "Found ansible.cfg for $playbook at: $ansible_cfg"
+                  cp "$ansible_cfg" ~/.ansible.cfg
+                else
+                  echo "ERROR: No ansible.cfg found for $playbook"
+                  exit_code=1
+                  continue
+                fi
+
                 echo "🔎🔎🔎 Validating playbook $playbook in $dir"
+
                 ansible-playbook --check -i "$INVENTORY_PATH" --private-key="~/.ssh/id_rsa" "$playbook"
                 if [ $? -ne 0 ]; then
                   echo "ERROR: Playbook $playbook has issues."
