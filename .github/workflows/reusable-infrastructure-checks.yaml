@@ -218,6 +218,7 @@ jobs:
   ansible-dry-run:
     name: Ansible dry-run
     runs-on: ubuntu-latest
+    secrets: inherit
 
     steps:
       - name: Checkout
