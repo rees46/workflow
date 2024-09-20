@@ -247,11 +247,13 @@ jobs:
         run: |
           exit_code=0
 
+          echo "$INVENTORY_PATH"
+
           while read -r dir; do
             for playbook in "$dir"/*.yml; do
               if [ -f "$playbook" ]; then
                 echo "🔎🔎🔎 Validating playbook $playbook in $dir"
-                ansible-playbook --check -i $INVENTORY_PATH "$playbook"
+                ansible-playbook --check -i "$INVENTORY_PATH" "$playbook"
                 if [ $? -ne 0 ]; then
                   echo "ERROR: Playbook $playbook has issues."
                   exit_code=1
