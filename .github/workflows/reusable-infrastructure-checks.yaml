@@ -2,6 +2,9 @@ name: Reusable infrastructure checks
 
 on:
   workflow_call:
+    secrets:
+      SVC_CICD_PRIVATE_KEY:
+        required: true
 
 jobs:
   #  ansible-lint:
@@ -256,9 +259,7 @@ jobs:
         run: |
           exit_code=0
 
-          echo "$(cat ~/.ssh/id_rsa)"
-
-          echo "$INVENTORY_PATH"
+          cat ~/.ssh/id_rsa
 
           while read -r dir; do
             for playbook in "$dir"/*.yml; do
