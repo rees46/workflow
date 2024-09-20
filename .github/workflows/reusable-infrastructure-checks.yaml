@@ -228,7 +228,22 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y ansible
 
+      - name: Find Inventory File
+        id: find_inventory
+        run: |
+          inventory_file=$(find $GITHUB_WORKSPACE -name 'inventory' -type f | head -n 1)
+
+          if [ -z "$inventory_file" ]; then
+            echo "ERROR: No inventory file found."
+            exit 1
+          fi
+
+          echo "Found inventory file at: $inventory_file"
+          echo "path=$inventory_file" >> $GITHUB_OUTPUT
+
       - name: Ansible dry-run
+        env:
+          INVENTORY_PATH: ${{ steps.find_inventory.outputs.path }}
         run: |
           exit_code=0
 
@@ -236,7 +251,7 @@ jobs:
             for playbook in "$dir"/*.yml; do
               if [ -f "$playbook" ]; then
                 echo "🔎🔎🔎 Validating playbook $playbook in $dir"
-                ansible-playbook --check "$playbook"
+                ansible-playbook --check -i $INVENTORY_PATH "$playbook"
                 if [ $? -ne 0 ]; then
                   echo "ERROR: Playbook $playbook has issues."
                   exit_code=1
