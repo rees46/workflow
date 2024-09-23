@@ -1,0 +1,39 @@
+name: Reusable infrastructure checks HAProxy
+
+on:
+  workflow_call:
+
+jobs:
+  haproxy:
+    name: HAProxy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install HAProxy
+        run: |
+          sudo apt-get update && sudo apt-get install -y haproxy
+
+      - name: Validate HAProxy configs
+        run: |
+          exit_code=0
+           while read -r conf; do
+            printf "\n\n"
+            echo "🔎🔎🔎 Validating $conf 🔎🔎🔎"
+
+            if haproxy -c -f "$conf"; then
+              echo "RESULT: ✅✅✅"
+            else
+              echo "RESULT: ⛔⛔⛔"
+              exit_code=1
+            fi
+          done < <(find $GITHUB_WORKSPACE -type f -name 'haproxy.cfg')
+
+          if [ "$exit_code" -eq 0 ]; then
+            echo "✅✅✅ All haproxy.cfg files are valid ✅✅✅"
+          else
+            echo "⛔⛔⛔ One or more configuration files are invalid ⛔⛔⛔"
+            exit 1
+          fi

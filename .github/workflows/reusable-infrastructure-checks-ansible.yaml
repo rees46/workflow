@@ -1,0 +1,98 @@
+name: Reusable infrastructure checks ansible
+
+on:
+  workflow_call:
+    inputs:
+      ANSIBLE_PATH:
+        required: false
+        default: ansible
+        type: string
+    secrets:
+      SVC_CICD_PRIVATE_KEY:
+        required: true
+
+jobs:
+  lint:
+    uses: ansible/ansible-content-actions/.github/workflows/ansible_lint.yaml@main
+
+  dry-run:
+    name: Ansible dry-run
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Ansible
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ansible
+
+      - name: Set up ssh
+        env:
+          SSH_AUTH_SOCK: /tmp/ssh_agent.sock
+          PRIVATE_KEY: ${{ secrets.SVC_CICD_PRIVATE_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$PRIVATE_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          echo "StrictHostKeyChecking no" >> ~/.ssh/config
+          ssh-agent -a $SSH_AUTH_SOCK > /dev/null	
+          ssh-add ~/.ssh/id_rsa
+
+      - name: Find Inventory File
+        env:
+          ANSIBLE_PATH: ${{ inputs.ANSIBLE_PATH }}
+        id: find_inventory
+        run: |
+          inventory_file=$(find $GITHUB_WORKSPACE/$ANSIBLE_PATH -name 'inventory' -type f | head -n 1)
+
+          if [ -z "$inventory_file" ]; then
+            echo "ERROR: No inventory file found."
+            exit 1
+          fi
+
+          echo "Found inventory file at: $inventory_file"
+          echo "path=$inventory_file" >> $GITHUB_OUTPUT
+
+      - name: Ansible dry-run
+        env:
+          INVENTORY_PATH: ${{ steps.find_inventory.outputs.path }}
+          ANSIBLE_PATH: ${{ inputs.ANSIBLE_PATH }}
+        run: |
+          exit_code=0
+
+          cat ~/.ssh/config
+
+          while read -r dir; do
+            for playbook in "$dir"/*.yml; do
+              if [ -f "$playbook" ]; then
+                config_dir=$(dirname "$dir")
+                ansible_cfg="$config_dir/ansible.cfg"
+
+                if [ -f "$ansible_cfg" ]; then
+                  echo "Found ansible.cfg for $playbook at: $ansible_cfg"
+                  cp "$ansible_cfg" ~/.ansible.cfg
+                else
+                  echo "ERROR: No ansible.cfg found for $playbook"
+                  exit_code=1
+                  continue
+                fi
+
+                echo "🔎🔎🔎 Validating playbook $playbook in $dir"
+
+                ansible-playbook --check -i "$INVENTORY_PATH" --private-key="~/.ssh/id_rsa" "$playbook"
+                if [ $? -ne 0 ]; then
+                  echo "ERROR: Playbook $playbook has issues."
+                  exit_code=1
+                fi
+              fi
+            done
+          done < <(find $GITHUB_WORKSPACE/$ANSIBLE_PATH -type d -name 'playbooks')
+
+          if [ $exit_code -eq 0 ]; then
+            echo "All playbooks are valid."
+          else
+            echo "One or more playbooks are invalid."
+            exit 1
+          fi

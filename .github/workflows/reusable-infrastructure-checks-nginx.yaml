@@ -1,0 +1,45 @@
+name: Reusable infrastructure checks NGINX
+
+on:
+  workflow_call:
+
+jobs:
+  check:
+    name: Check NGINX
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Create NGINX user
+        env:
+          USERNAME: nginx
+          PASSWORD: pass
+        run: |
+          sudo useradd -m -s /bin/bash $USERNAME
+          echo "$USERNAME:$PASSWORD" | sudo chpasswd
+          echo "$USERNAME ALL=(ALL) NOPASSWD:ALL" | sudo tee /etc/sudoers.d/$USERNAME
+
+      - name: Validate NGINX configs
+        run: |
+          id $USERNAME
+          exit_code=0
+          while read -r conf; do
+            printf "\n\n"
+            echo "🔎🔎🔎 Validating $conf 🔎🔎🔎"
+
+            if sudo nginx -t -c "$conf"; then
+              echo "RESULT: ✅✅✅"
+            else
+              echo "RESULT: ⛔⛔⛔️"
+              exit_code=1
+            fi
+          done < <(find $GITHUB_WORKSPACE -name 'nginx.conf')
+
+          if [ "$exit_code" -eq 0 ]; then
+            echo "✅✅✅ All nginx.conf files are valid ✅✅✅"
+          else
+            echo "⛔⛔⛔ One or more configuration files are invalid ⛔⛔⛔"
+            exit 1
+          fi
