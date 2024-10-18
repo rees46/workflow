@@ -58,7 +58,8 @@ jobs:
         id: decode
         run: |
           echo "${{ secrets.PLAY_ACCOUNT_AS_BASE64 }}" | base64 --decode > google-play-service-account.json
-          echo "::set-output name=playJson::$(cat google-play-service-account.json)"
+          playJson=$(cat google-play-service-account.json)
+          echo "playJson=$playJson" >> $GITHUB_OUTPUT
 
       # Building release bundle
       - name: Build Release AAB
