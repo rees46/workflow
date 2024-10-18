@@ -55,8 +55,10 @@ jobs:
           echo "${{ secrets.KEYSTORE_AS_BASE64 }}" | base64 --decode > app/keystore.jks
 
       - name: Decode Google Play service account JSON
+        id: decode
         run: |
           echo "${{ secrets.PLAY_ACCOUNT_AS_BASE64 }}" | base64 --decode > google-play-service-account.json
+          echo "::set-output name=playJson::$(cat google-play-service-account.json)"
 
       # Building release bundle
       - name: Build Release AAB
