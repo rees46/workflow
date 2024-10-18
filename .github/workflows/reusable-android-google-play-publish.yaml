@@ -1,4 +1,4 @@
-name: Reusable Android Publish
+name: Reusable Android Demo Shop Publish
 
 on:
   workflow_call:
@@ -15,7 +15,7 @@ on:
     secrets:
       PLAY_ACCOUNT_AS_BASE64:
         required: true
-      SIGNING_STORE_FILE:
+      KEYSTORE_AS_BASE64:
         required: true
       SIGNING_STORE_PASSWORD:
         required: true
@@ -29,7 +29,7 @@ on:
         required: true
 
 jobs:
-  publish:
+  publish_and_version_bump:
     runs-on: ubuntu-latest
 
     steps:
@@ -52,8 +52,13 @@ jobs:
 
       - name: Create Keystore file
         run: |
-          echo "${{ secrets.SIGNING_STORE_FILE }}" | base64 --decode > app/keystore.jks
+          echo "${{ secrets.KEYSTORE_AS_BASE64 }}" | base64 --decode > app/keystore.jks
 
+      - name: Decode Google Play service account JSON
+        run: |
+          echo "${{ secrets.PLAY_ACCOUNT_AS_BASE64 }}" | base64 --decode > google-play-service-account.json
+
+      # Building release bundle
       - name: Build Release AAB
         run: ./gradlew bundleProdRelease
         env:
@@ -62,19 +67,22 @@ jobs:
           SIGNING_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
           SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
 
+      # Sending to Google Play
       - name: Deploy to Google Play Internal Testing
         uses: r0adkll/upload-google-play@v1
         with:
-          serviceAccountJsonPlainText: ${{ secrets.PLAY_ACCOUNT_AS_BASE64 }}
+          serviceAccountJsonPlainText: ${{ steps.decode.outputs.playJson }}
           packageName: ${{ inputs.packageName }}
           releaseFiles: ${{ inputs.releaseFiles }}
           track: "internal"
 
+      # Increment version
       - name: Bump version
         run: ./gradlew incrementVersion
         env:
           PROPERTIES_FILE: ${{ inputs.PROPERTIES_FILE }}
 
+      # Getting new version
       - name: Retrieve new version
         id: versionName
         run: |
@@ -82,6 +90,7 @@ jobs:
           echo "versionName=$version" >> $GITHUB_ENV
           echo "versionName=$version" >> $GITHUB_OUTPUT
 
+      # Commit changes
       - name: Commit changes
         id: committer
         uses: planetscale/ghcommit-action@v0.1.44
