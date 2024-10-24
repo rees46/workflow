@@ -14,6 +14,8 @@ on:
 jobs:
   lint:
     uses: ansible/ansible-content-actions/.github/workflows/ansible_lint.yaml@main
+    with:
+      working_directory: ${{ inputs.ANSIBLE_PATH }}
 
   dry-run:
     name: Ansible dry-run
@@ -37,7 +39,7 @@ jobs:
           echo "$PRIVATE_KEY" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           echo "StrictHostKeyChecking no" >> ~/.ssh/config
-          ssh-agent -a $SSH_AUTH_SOCK > /dev/null	
+          ssh-agent -a $SSH_AUTH_SOCK > /dev/null
           ssh-add ~/.ssh/id_rsa
 
       - name: Ansible dry-run
@@ -48,7 +50,7 @@ jobs:
           exit_code=0
 
           while read -r dir; do
-            for playbook in "$dir"/*.yml; do
+            for playbook in $(find "$dir" -type f -name '*.y*ml'); do
               if [ -f "$playbook" ]; then
                 echo "🔎🔎🔎 Validating playbook $playbook in $dir"
 
