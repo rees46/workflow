@@ -125,9 +125,12 @@ jobs:
 
       # Commit version changes
       - name: Commit version changes
-        uses: stefanzweifel/git-auto-commit-action@v4
-        with:
-          commit_message: 'chore: bump version to ${{ steps.versionName.outputs.versionName }}'
-          file_pattern: ${{ inputs.PROPERTIES_FILE }}
+        id: committer
+        uses: planetscale/ghcommit-action@v0.1.44
         env:
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
+        with:
+          repo: ${{ github.repository }}
+          branch: master
+          commit_message: 'chore: bump version to ${{ steps.versionName.outputs.versionName }}'
+          file_pattern: ${{ inputs.PROPERTIES_FILE }}
