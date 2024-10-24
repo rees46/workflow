@@ -1,0 +1,136 @@
+name: Reusable iOS TestFlight Publish
+
+on:
+  workflow_call:
+    inputs:
+      app_identifier:
+        required: true
+        type: string
+      ipa_file:
+        required: true
+        type: string
+      PROPERTIES_FILE:
+        required: true
+        type: string
+      xcworkspace:
+        required: true
+        type: string
+      scheme:
+        required: true
+        type: string
+      export_options_plist:
+        required: true
+        type: string
+    secrets:
+      APP_STORE_CONNECT_API_KEY_ID:
+        required: true
+      APP_STORE_CONNECT_ISSUER_ID:
+        required: true
+      APP_STORE_CONNECT_API_KEY:
+        required: true
+      GITHUB_APP_ID:
+        required: true
+      GITHUB_APP_PRIVATE_KEY:
+        required: true
+
+jobs:
+  publish_and_version_bump:
+    runs-on: macos-latest
+
+    steps:
+      - uses: tibdex/github-app-token@v1
+        id: app-token
+        with:
+          app_id: ${{ secrets.GITHUB_APP_ID }}
+          private_key: ${{ secrets.GITHUB_APP_PRIVATE_KEY }}
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+
+      - name: Set up Xcode
+        run: |
+          sudo xcode-select --switch /Applications/Xcode.app/Contents/Developer
+
+      - name: Install Fastlane
+        run: |
+          gem install fastlane
+
+      # Decoding key for App Store Connect
+      - name: Decode App Store Connect API Key
+        id: decode
+        run: |
+          echo "${{ secrets.APP_STORE_CONNECT_API_KEY }}" | base64 --decode > AuthKey.p8
+
+      - name: Build IPA
+        run: |
+          if [ ! -f "${{ inputs.xcworkspace }}" ]; then
+            echo "Workspace file not found!"
+            exit 1
+          fi
+
+          if [ ! -f "${{ inputs.export_options_plist }}" ]; then
+            echo "ExportOptions.plist file not found!"
+            exit 1
+          fi
+
+          xcodebuild -workspace ${{ inputs.xcworkspace }} \
+            -scheme ${{ inputs.scheme }} \
+            -sdk iphoneos \
+            -configuration AppStoreDistribution \
+            archive -archivePath $PWD/build/App.xcarchive
+
+          xcodebuild -exportArchive \
+            -archivePath $PWD/build/App.xcarchive \
+            -exportPath $PWD/build \
+            -exportOptionsPlist ${{ inputs.export_options_plist }}
+
+      # Upload IPA build to TestFlight
+      - name: Upload to TestFlight
+        run: |
+          if [ ! -f "${{ inputs.ipa_file }}" ]; then
+            echo "IPA file not found!"
+            exit 1
+          fi
+
+          fastlane pilot upload \
+            --api_key_path AuthKey.p8 \
+            --app_identifier ${{ inputs.app_identifier }} \
+            --ipa ${{ inputs.ipa_file }}
+
+      # Increment version
+      - name: Bump version
+        run: ./increment_version.sh
+        env:
+          PROPERTIES_FILE: ${{ inputs.PROPERTIES_FILE }}
+
+      # Retrieve new version
+      - name: Retrieve new version
+        id: versionName
+        run: |
+          if [ ! -f "${{ inputs.PROPERTIES_FILE }}" ]; then
+            echo "Properties file not found!"
+            exit 1
+          fi
+
+          version=$(grep "VERSION_NAME=" ${{ inputs.PROPERTIES_FILE }} | cut -d'=' -f2)
+          if [ -z "$version" ]; then
+            echo "Version not found in properties file!"
+            exit 1
+          fi
+
+          echo "versionName=$version" >> $GITHUB_ENV
+          echo "versionName=$version" >> $GITHUB_OUTPUT
+
+      # Commit version changes
+      - name: Commit version changes
+        id: committer
+        uses: planetscale/ghcommit-action@v0.1.44
+        env:
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
+        with:
+          repo: ${{ github.repository }}
+          branch: master
+          commit_message: 'chore: bump version to ${{ steps.versionName.outputs.versionName }}'
+          file_pattern: ${{ inputs.PROPERTIES_FILE }}
