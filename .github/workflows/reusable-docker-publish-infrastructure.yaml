@@ -44,6 +44,7 @@ jobs:
           REPOSITORY_OWNER: ${{ github.repository_owner }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PRIVATE_KEY: ${{ secrets.SVC_CICD_PRIVATE_KEY }}
+          SSH_PRIVATE_KEY_ANSIBLE: ${{ secrets.SSH_PRIVATE_KEY_ANSIBLE }}
         run: |
           echo $GITHUB_TOKEN | docker login ghcr.io -u $REPOSITORY_OWNER --password-stdin
           CHANGED_DOCKERFILES=$(echo "${{ steps.changed-files.outputs.all_changed_files }}" | tr -d '[]" ' | tr ',' '\n' | grep 'Dockerfile')
@@ -57,7 +58,7 @@ jobs:
 
             if [[ $(basename $DIR) == 'terraform-agent' ]]; then
              echo "Adding --build-arg for terraform-agent"
-             docker build -t $IMAGE_NAME -t $IMAGE_NAME_HASH --build-arg SSH_PRIVATE_KEY="$PRIVATE_KEY" $DIR 
+             docker build -t $IMAGE_NAME -t $IMAGE_NAME_HASH --build-arg SSH_PRIVATE_KEY="$SSH_PRIVATE_KEY_ANSIBLE" $DIR 
             else 
              echo "Building without args"
              docker build -t $IMAGE_NAME -t $IMAGE_NAME_HASH $DIR
