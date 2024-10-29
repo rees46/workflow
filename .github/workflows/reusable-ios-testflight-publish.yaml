@@ -126,7 +126,7 @@ jobs:
       # Commit version changes
       - name: Commit version changes
         id: committer
-        uses: planetscale/ghcommit-action@v0.1.44
+        uses: planetscale/ghcommit-action@v0.1.6
         env:
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
         with:
