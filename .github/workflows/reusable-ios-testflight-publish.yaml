@@ -35,14 +35,14 @@ on:
 
 jobs:
   publish_and_version_bump:
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
 
     steps:
-      - uses: tibdex/github-app-token@v1
+      - uses: actions/create-github-app-token@v1
         id: app-token
         with:
-          app_id: ${{ secrets.GITHUB_APP_ID }}
-          private_key: ${{ secrets.GITHUB_APP_PRIVATE_KEY }}
+          app-id: ${{ secrets.GITHUB_APP_ID }}
+          private-key: ${{ secrets.GITHUB_APP_PRIVATE_KEY }}
 
       - name: Checkout repository
         uses: actions/checkout@v4
