@@ -53,11 +53,7 @@ jobs:
         run: |
           sudo xcode-select --switch /Applications/Xcode.app/Contents/Developer
 
-      - name: Install Fastlane
-        run: |
-          gem install fastlane
-
-      # Decoding key for App Store Connect
+      # Decode App Store Connect API Key
       - name: Decode App Store Connect API Key
         id: decode
         run: |
@@ -88,16 +84,20 @@ jobs:
 
       # Upload IPA build to TestFlight
       - name: Upload to TestFlight
+        env:
+          API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+          ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          API_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY }}
         run: |
           if [ ! -f "${{ inputs.ipa_file }}" ]; then
             echo "IPA file not found!"
             exit 1
           fi
 
-          fastlane pilot upload \
-            --api_key_path AuthKey.p8 \
-            --app_identifier ${{ inputs.app_identifier }} \
-            --ipa ${{ inputs.ipa_file }}
+          xcrun altool --upload-app -f ${{ inputs.ipa_file }} \
+            --type ios \
+            --apiKey $API_KEY_ID \
+            --apiIssuer $ISSUER_ID
 
       # Increment version
       - name: Bump version
