@@ -3,7 +3,7 @@ name: Build and Publish Docker Images
 on:
   workflow_call:
     secrets:
-      SVC_CICD_PRIVATE_KEY:
+      SSH_PRIVATE_KEY_ANSIBLE:
         required: true
 
 jobs:
