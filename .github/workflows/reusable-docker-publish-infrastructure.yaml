@@ -3,7 +3,7 @@ name: Build and Publish Docker Images
 on:
   workflow_call:
     secrets:
-      SSH_PRIVATE_KEY_ANSIBLE:
+      SSH_PRIVATE_KEY:
         required: true
 
 jobs:
@@ -43,7 +43,7 @@ jobs:
         env:
           REPOSITORY_OWNER: ${{ github.repository_owner }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY_ANSIBLE }}
+          PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         run: |
           echo $GITHUB_TOKEN | docker login ghcr.io -u $REPOSITORY_OWNER --password-stdin
           CHANGED_DOCKERFILES=$(echo "${{ steps.changed-files.outputs.all_changed_files }}" | tr -d '[]" ' | tr ',' '\n' | grep 'Dockerfile')
