@@ -27,7 +27,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          ref: master
+          ref: ${{ github.base_ref }}
           fetch-depth: 0
 
       - name: Setup Node
@@ -37,23 +37,31 @@ jobs:
 
       - name: Changed files
         id: changed_files
-        uses: tj-actions/changed-files@v42
+        uses: tj-actions/changed-files@v45
+        with:
+          base_sha: ${{ github.base_ref }}
+          since_last_remote_commit: true
 
       - name: Check if any packages need build
         id: changed_packages
         run: |
-          echo "packages=$(echo "$CHANGED_FILES" | grep 'packages/' | awk -F'/' '{print $2}' | uniq)" >> $"GITHUB_OUTPUT" 
+          echo "packages=$(echo "${{ steps.changed_files.outputs.all_changed_files }}" | grep 'packages/' | awk -F'/' '{print $2}' | uniq)" >> $GITHUB_OUTPUT
 
       - name: Build and Push Docker images
         env:
           CHANGED_FILES: ${{ steps.changed_files.outputs.all_changed_files }}
+          CHANGED_PACKAGES: ${{ steps.changed_packages.outputs.packages }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPOSITORY_OWNER: ${{ github.repository_owner }}
-        if: ${{ steps.changed_packages.outputs.packages }} != ''
+        if: steps.changed_packages.outputs.packages != ''
         run: |
-          PACKAGES=$(echo "$CHANGED_FILES" | tr ' ' '\n' | grep 'packages/' | awk -F'/' '{print $2}' | uniq)
-          echo "Trying to build $PACKAGES"
-          for package in $PACKAGES
+          echo $GITHUB_TOKEN | docker login ghcr.io -u $REPOSITORY_OWNER --password-stdin
+
+          IFS=' ' read -r -a packages_array <<< $CHANGED_PACKAGES
+
+          echo "Trying to build $packages_array[@]"
+
+          for package in "${packages_array[@]}"
           do
             echo "🏗🏗🏗️  Building $package..."
             if [ -f "./packages/$package/Dockerfile" ]; then
@@ -64,7 +72,6 @@ jobs:
                 image_name=ghcr.io/$REPOSITORY_OWNER/$package:latest
               fi
               docker build . -f packages/$package/Dockerfile -t $image_name --quiet
-              echo $GITHUB_TOKEN | docker login ghcr.io -u $REPOSITORY_OWNER --password-stdin
               docker push $image_name --quiet
               echo "✅✅✅ Pushed successfully $image_name"
             else
