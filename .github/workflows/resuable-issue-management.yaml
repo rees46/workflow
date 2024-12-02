@@ -1,0 +1,155 @@
+name: Resuable issue management
+
+on:
+  workflow_call:
+    inputs:
+      retries:
+        type: number
+        required: false
+        default: 3
+      projectNumber:
+        type: number
+        required: true
+      appId:
+        type: string
+        required: true
+    secrets:
+      appSecret:
+        type: string
+        required: true
+
+jobs:
+  run:
+    name: Check issue dates
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/create-github-app-token@v1
+        id: app-token
+        with:
+          app-id: ${{ inputs.appId }}
+          private-key: ${{ secrets.appSecret }}
+          owner: ${{ github.repository_owner }}
+
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+
+      - name: Fetch issues from project
+        id: fetch_project_items
+        uses: actions/github-script@v7
+        with:
+          retries: ${{ inputs.retries }}
+          script: |
+            const projectNumber = ${{ inputs.projectNumber }}
+            const org = context.repo.owner;
+
+            const query = `
+              query ($org: String!, $projectNumber: Int!) {
+                organization(login: $org) {
+                  projectV2(number: $projectNumber) {
+                    items(first: 100) {
+                      nodes {
+                        content {
+                          ... on Issue {
+                            number
+                            title
+                          }
+                        }
+                        fieldValues(first: 10) {
+                          nodes {
+                            field {
+                              name
+                            }
+                            value
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            `;
+
+            const result = await github.graphql(query, {
+              org,
+              projectNumber,
+            });
+
+            return result.organization.projectV2.items.nodes
+              .map(item => ({
+                issue: item.content,
+                fields: item.fieldValues.nodes.reduce((acc, field) => {
+                  acc[field.field.name] = field.value;
+                  return acc;
+                }, {}),
+              }))
+              .filter(item => item.issue);
+
+      - name: Process and comment on overdue issues
+        uses: actions/github-script@v7
+        with:
+          retries: ${{ inputs.retries }}
+          script: |
+            const items = ${{ steps.fetch_project_items.outputs.result }};
+            const today = new Date().toISOString().split('T')[0];
+
+            console.log(`Today's date is ${today}`);
+            console.log(`Found ${items.length} items in the project`);
+
+            for (const item of items) {
+              const issueNumber = item.issue.number;
+              const issueTitle = item.issue.title;
+              const startDate = item.fields['Start'];
+              const endDate = item.fields['End est'];
+
+            console.log(`Processing issue #${issueNumber}: ${issueTitle} with dates (start: ${startDate}, end: ${endDate}`);
+              if (endDate && endDate < today) {
+                console.log(`Issue #${issueNumber} has an expired end date (${endDate}). Adding a comment...`);
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issueNumber,
+                  body: `🔔 Attention! The estimated end date (${endDate}) for this issue has passed. Please update the timeline or close the issue.`,
+                });
+              } else {
+                console.log(`Issue #${issueNumber} is within the timeline or doesn't have an end date.`);
+              }
+            }
+
+      - name: Add "Start" date to tasks In Progress
+        uses: actions/github-script@v7
+        with:
+          retries: ${{ inputs.retries }}
+          script: |
+            const items = ${{ steps.fetch_project_items.outputs.result }};
+            const today = new Date().toISOString().split('T')[0];
+
+            console.log(`Today's date is ${today}`);
+            console.log(`Found ${items.length} items in the project`);
+
+            for (const item of items) {
+              const issueNumber = item.issue.number;
+              const issueTitle = item.issue.title;
+              const status = item.fields['Status'];
+              const startDate = item.fields['Start'];
+
+              console.log(`Processing issue #${issueNumber}: ${issueTitle}`);
+              if (status === 'In Progress' && !startDate) {
+                console.log(`Issue #${issueNumber} is In Progress but missing Start date. Setting it to today (${today})...`);
+                await github.graphql(`
+                  mutation ($projectId: ID!, $itemId: ID!, $fieldId: ID!, $value: String!) {
+                    updateProjectV2ItemFieldValue(input: {projectId: $projectId, itemId: $itemId, fieldId: $fieldId, value: $value}) {
+                      projectV2Item {
+                        id
+                      }
+                    }
+                  }
+                `, {
+                  projectId: ${{ inputs.project_number }},
+                  itemId: item.id,
+                  fieldId: Object.keys(item.fields).find(key => item.fields[key] === 'Start'), // Ищем ID поля Start
+                  value: today,
+                });
+              }
+            }
