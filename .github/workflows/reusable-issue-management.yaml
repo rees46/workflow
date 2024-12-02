@@ -30,38 +30,54 @@ jobs:
           private-key: ${{ secrets.appSecret }}
           owner: ${{ github.repository_owner }}
 
-      - uses: actions/checkout@v4
-        with:
-          token: ${{ steps.app-token.outputs.token }}
-
-      - name: Fetch issues from project
-        id: fetch_project_items
+      - name: Get project ID
+        id: fetch_project_id
         uses: actions/github-script@v7
         with:
           retries: ${{ inputs.retries }}
+          github-token: ${{ steps.app-token.outputs.token }}
           script: |
-            const projectNumber = ${{ inputs.projectNumber }}
+            const projectNumber = ${{ inputs.projectNumber }};
             const org = context.repo.owner;
 
             const query = `
               query ($org: String!, $projectNumber: Int!) {
                 organization(login: $org) {
                   projectV2(number: $projectNumber) {
-                    items(first: 100) {
+                    id
+                  }
+                }
+              }
+            `;
+
+            const result = await github.graphql(query, {
+              org,
+              projectNumber,
+            });
+
+            console.log('Project ID:', result.organization.projectV2.id);
+
+            return result.organization.projectV2.id;
+
+      - name: Get all project fields
+        id: fetch_project_fields
+        uses: actions/github-script@v7
+        with:
+          retries: ${{ inputs.retries }}
+          github-token: ${{ steps.app-token.outputs.token }}
+          script: |
+            const projectNumber = ${{ inputs.projectNumber }};
+            const org = context.repo.owner;
+
+            const query = `
+              query ($org: String!, $projectNumber: Int!) {
+                organization(login: $org) {
+                  projectV2(number: $projectNumber) {
+                    fields(first: 50) {
                       nodes {
-                        content {
-                          ... on Issue {
-                            number
-                            title
-                          }
-                        }
-                        fieldValues(first: 10) {
-                          nodes {
-                            field {
-                              name
-                            }
-                            value
-                          }
+                        ... on ProjectV2Field {
+                          id
+                          name
                         }
                       }
                     }
@@ -75,20 +91,126 @@ jobs:
               projectNumber,
             });
 
-            return result.organization.projectV2.items.nodes
-              .map(item => ({
-                issue: item.content,
-                fields: item.fieldValues.nodes.reduce((acc, field) => {
-                  acc[field.field.name] = field.value;
-                  return acc;
-                }, {}),
-              }))
-              .filter(item => item.issue);
+            const fields = result.organization.projectV2.fields.nodes.filter((node) => node.id);
+            console.log("Available fields:", fields);
+
+            return fields;
+
+      - name: Fetch issues from project
+        id: fetch_project_items
+        uses: actions/github-script@v7
+        with:
+          retries: ${{ inputs.retries }}
+          github-token: ${{ steps.app-token.outputs.token }}
+          script: |
+            const projectNumber = ${{ inputs.projectNumber }};
+            const org = context.repo.owner;
+
+            const projectFields = ${{ steps.fetch_project_fields.outputs.result }};
+            const startDateFieldId = projectFields.find((field) => field.name.includes('Start'))?.id;
+            const endDateFieldId = projectFields.find((field) => field.name.includes('End'))?.id;
+            const statusFieldId = projectFields.find((field) => field.name.includes('Status'))?.id;
+
+            const items = [];
+
+            let hasNextPage = true;
+            let afterCursor = null;
+
+            const query = `
+              query ($org: String!, $projectNumber: Int!, $first: Int!, $after: String) {
+                  organization(login: $org) {
+                    projectV2(number: $projectNumber) {
+                      items(first: $first, after: $after) {
+                        pageInfo {
+                          hasNextPage
+                          endCursor
+                        }
+                        nodes {
+                          id
+                          content {
+                            ... on Issue {
+                              number
+                              state
+                              assignees(first: 3) {
+                                nodes {
+                                  login
+                                }
+                              }
+                            }
+                          }
+                          startDate: fieldValueByName(name: "Start") {
+                            ... on ProjectV2ItemFieldDateValue {
+                              id
+                              date
+                            }
+                          }
+                          endDate: fieldValueByName(name: "End est") {
+                            ... on ProjectV2ItemFieldDateValue {
+                              date
+                            }
+                          }
+                          status: fieldValueByName(name: "Status") {
+                            ... on ProjectV2ItemFieldSingleSelectValue {
+                              name
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+            `;
+
+            while (hasNextPage) {
+              const result = await github.graphql(query, {
+                org,
+                projectNumber,
+                first: 100,
+                after: afterCursor,
+              });
+
+              const projectItems = result.organization.projectV2.items;
+
+              items.push(...projectItems.nodes
+                .filter((node) => node.content?.state === 'OPEN')
+                .map((node) => ({
+                  id: node.id,
+                  issue: {
+                    number: node.content?.number ?? null,
+                    assignees: node.content?.assignees?.nodes?.map((node) => node?.login) ?? [],
+                  },
+                  startDate: {
+                    id: node.startDate?.id ?? startDateFieldId,
+                    value: node.startDate?.date ?? null,
+                  },
+                  endDate: {
+                    id: node.endDate?.id ?? endDateFieldId,
+                    value: node.endDate?.date ?? null,
+                  },
+                  status: {
+                    id: node.status?.id ?? statusFieldId,
+                    value: node.status?.name ?? null,
+                  },
+                })))
+
+              hasNextPage = projectItems.pageInfo.hasNextPage;
+              afterCursor = projectItems.pageInfo.endCursor;
+            }
+
+            const finalResult = items.filter((item) => 
+              !['Pool of Ideas', 'Obsolete', 'Postponed', 'Duplicate', 'Done', 'Duplicate', 'To release']
+              .includes(item.status.value)
+            );
+
+            console.log('Result length:', finalResult.length);
+
+            return finalResult;
 
       - name: Process and comment on overdue issues
         uses: actions/github-script@v7
         with:
           retries: ${{ inputs.retries }}
+          github-token: ${{ steps.app-token.outputs.token }}
           script: |
             const items = ${{ steps.fetch_project_items.outputs.result }};
             const today = new Date().toISOString().split('T')[0];
@@ -97,58 +219,89 @@ jobs:
             console.log(`Found ${items.length} items in the project`);
 
             for (const item of items) {
-              const issueNumber = item.issue.number;
-              const issueTitle = item.issue.title;
-              const startDate = item.fields['Start'];
-              const endDate = item.fields['End est'];
+              const { number: issueNumber, assignees } = item.issue;
+              const { startDate, endDate, status } = item;
+              const assigneesText = assignees.map((item) => `@${item}`).join(' ');
 
-            console.log(`Processing issue #${issueNumber}: ${issueTitle} with dates (start: ${startDate}, end: ${endDate}`);
-              if (endDate && endDate < today) {
-                console.log(`Issue #${issueNumber} has an expired end date (${endDate}). Adding a comment...`);
+              console.log(`Processing issue #${issueNumber} with dates (start: ${startDate.value}, end: ${endDate.value}`);
+
+              if (endDate.value && endDate.value < today) {
+                console.log(`❗️❗❗️️Issue #${issueNumber} has an expired end date (${endDate.value}). Adding a comment... ❗️❗❗`);
                 await github.rest.issues.createComment({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
                   issue_number: issueNumber,
-                  body: `🔔 Attention! The estimated end date (${endDate}) for this issue has passed. Please update the timeline or close the issue.`,
+                  body: `🔔 ${assigneesText} таску планировали завершить до ${endDate.value}, а сегодня уже ${today}. Текущий статус - '${status.value}'. Обнови дату завершения задачи либо поменяй статус на актуальный`,
                 });
               } else {
-                console.log(`Issue #${issueNumber} is within the timeline or doesn't have an end date.`);
+                console.log(`✅✅✅ Issue #${issueNumber} is within the timeline or doesn't have an end date ✅✅✅`);
               }
             }
 
-      - name: Add "Start" date to tasks In Progress
+      - name: Add "Start" date to tasks "In Progress"
         uses: actions/github-script@v7
+        if: ${{ !cancelled() }}
         with:
           retries: ${{ inputs.retries }}
+          github-token: ${{ steps.app-token.outputs.token }}
           script: |
             const items = ${{ steps.fetch_project_items.outputs.result }};
             const today = new Date().toISOString().split('T')[0];
+            const projectId = ${{ steps.fetch_project_id.outputs.result }};
 
             console.log(`Today's date is ${today}`);
             console.log(`Found ${items.length} items in the project`);
 
-            for (const item of items) {
-              const issueNumber = item.issue.number;
-              const issueTitle = item.issue.title;
-              const status = item.fields['Status'];
-              const startDate = item.fields['Start'];
-
-              console.log(`Processing issue #${issueNumber}: ${issueTitle}`);
-              if (status === 'In Progress' && !startDate) {
-                console.log(`Issue #${issueNumber} is In Progress but missing Start date. Setting it to today (${today})...`);
-                await github.graphql(`
-                  mutation ($projectId: ID!, $itemId: ID!, $fieldId: ID!, $value: String!) {
-                    updateProjectV2ItemFieldValue(input: {projectId: $projectId, itemId: $itemId, fieldId: $fieldId, value: $value}) {
-                      projectV2Item {
-                        id
-                      }
+            const mutation = `
+                mutation ($projectId: ID!, $itemId: ID!, $fieldId: ID!, $value: ProjectV2FieldValue!) {
+                  updateProjectV2ItemFieldValue(input: {projectId: $projectId, itemId: $itemId, fieldId: $fieldId, value: $value}) {
+                    projectV2Item {
+                      id
                     }
                   }
-                `, {
-                  projectId: ${{ inputs.project_number }},
-                  itemId: item.id,
-                  fieldId: Object.keys(item.fields).find(key => item.fields[key] === 'Start'), // Ищем ID поля Start
-                  value: today,
+                }
+              `;
+
+            for (const item of items) {
+              const { number: issueNumber } = item.issue;
+              const { startDate, endDate, status, id } = item;
+
+              console.log(`Processing issue #${issueNumber}`);
+
+              if (status.value === 'In Progress' && !startDate.value) {
+                console.log(`❗️❗❗ ️Issue #${issueNumber} is 'In Progress' but missing Start date. Setting it to today (${today})... ❗️❗❗`);
+                await github.graphql(mutation, {
+                  projectId,
+                  itemId: id,
+                  fieldId: startDate.id,
+                  value: { date: today },
+                });
+              }
+            }
+
+      - name: Check "End est" date for tasks "In progress"
+        uses: actions/github-script@v7
+        with:
+          retries: ${{ inputs.retries }}
+          github-token: ${{ steps.app-token.outputs.token }}
+          script: |
+            const items = ${{ steps.fetch_project_items.outputs.result }};
+
+            for (const item of items) {
+              const { number: issueNumber, assignees } = item.issue;
+              const { endDate, status } = item;
+
+              const assigneesText = assignees.map((item) => `@${item}`).join(' ');
+
+              console.log(`Processing issue #${issueNumber}`);
+
+              if (status.value === 'In Progress' && !endDate.value) {
+                console.log(`❗️❗❗ ️Issue #${issueNumber} is 'In Progress' but has no "End est" ❗️❗❗`);
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issueNumber,
+                  body: `🔔 ${assigneesText} таска в статусе '${status.value}', а даты ее завершения нет. Необходимо добавить "End est".\n\n<details>\n\n![end-date-setting](https://github.com/rees46/development/blob/master/static/issue-manager/end-date-setting.png?raw=true)\n\n</details>`,
                 });
               }
             }
