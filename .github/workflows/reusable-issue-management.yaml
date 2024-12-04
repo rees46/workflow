@@ -108,7 +108,7 @@ jobs:
 
             const projectFields = ${{ steps.fetch_project_fields.outputs.result }};
             const startDateFieldId = projectFields.find((field) => field.name.includes('Start'))?.id;
-            const endDateFieldId = projectFields.find((field) => field.name.includes('End'))?.id;
+            const endDateFieldId = projectFields.find((field) => field.name.includes('Target'))?.id;
             const statusFieldId = projectFields.find((field) => field.name.includes('Status'))?.id;
 
             const items = [];
@@ -144,7 +144,7 @@ jobs:
                               date
                             }
                           }
-                          endDate: fieldValueByName(name: "End est") {
+                          endDate: fieldValueByName(name: "Target") {
                             ... on ProjectV2ItemFieldDateValue {
                               date
                             }
@@ -279,7 +279,7 @@ jobs:
               }
             }
 
-      - name: Check "End est" date for tasks "In progress"
+      - name: Check "Target" date for tasks "In progress"
         uses: actions/github-script@v7
         with:
           retries: ${{ inputs.retries }}
@@ -296,12 +296,12 @@ jobs:
               console.log(`Processing issue #${issueNumber}`);
 
               if (status.value === 'In Progress' && !endDate.value) {
-                console.log(`❗️❗❗ ️Issue #${issueNumber} is 'In Progress' but has no "End est" ❗️❗❗`);
+                console.log(`❗️❗❗ ️Issue #${issueNumber} is 'In Progress' but has no "Target" ❗️❗❗`);
                 await github.rest.issues.createComment({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
                   issue_number: issueNumber,
-                  body: `🔔 ${assigneesText} таска в статусе '${status.value}', а даты ее завершения нет. Необходимо добавить "End est".\n\n<details>\n\n![end-date-setting](https://github.com/rees46/development/blob/master/static/issue-manager/end-date-setting.png?raw=true)\n\n</details>`,
+                  body: `🔔 ${assigneesText} таска в статусе '${status.value}', а даты ее завершения нет. Необходимо добавить "Target".\n\n<details>\n\n![end-date-setting](https://github.com/rees46/development/blob/master/static/issue-manager/end-date-setting.png?raw=true)\n\n</details>`,
                 });
               }
             }
