@@ -42,4 +42,4 @@ jobs:
         run: |
           cd $(dirname $PLAYBOOK_PATH)
 
-          ansible-playbook --check --diff --private-key="~/.ssh/id_rsa" "$PLAYBOOK_PATH"
+          ansible-playbook --check --diff --private-key="~/.ssh/id_rsa" $(basename "$PLAYBOOK_PATH")
