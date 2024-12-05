@@ -1,0 +1,45 @@
+name: Reusable Ansible playbook dry-run
+
+on:
+  workflow_call:
+    inputs:
+      PLAYBOOK_PATH:
+        required: true
+        type: string
+    secrets:
+      SSH_PRIVATE_KEY:
+        required: true
+
+jobs:
+  dry-run:
+    name: Ansible dry-run
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Ansible
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ansible
+
+      - name: Set up ssh
+        env:
+          SSH_AUTH_SOCK: /tmp/ssh_agent.sock
+          PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$PRIVATE_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          echo "StrictHostKeyChecking no" >> ~/.ssh/config
+          ssh-agent -a $SSH_AUTH_SOCK > /dev/null
+          ssh-add ~/.ssh/id_rsa
+
+      - name: Ansible dry-run
+        env:
+          PLAYBOOK_PATH: ${{ inputs.PLAYBOOK_PATH }}
+        run: |
+          cd $(dirname $PLAYBOOK_PATH)
+
+          ansible-playbook --check --diff --private-key="~/.ssh/id_rsa" "$PLAYBOOK_PATH"
