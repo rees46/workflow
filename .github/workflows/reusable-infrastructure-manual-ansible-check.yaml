@@ -3,7 +3,13 @@ name: Reusable Ansible playbook dry-run
 on:
   workflow_call:
     inputs:
-      PLAYBOOK_PATH:
+      PLAYBOOK_NAME:
+        required: true
+        type: string
+      FOLDER:
+        required: true
+        type: string
+      PLAYBOOKS_PATH:
         required: true
         type: string
     secrets:
@@ -19,10 +25,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install Ansible
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y ansible
+      - name: Setup Ansible
+        uses: alex-oleshkevich/setup-ansible@v1.0.1
+        with:
+          version: '11'
 
       - name: Set up ssh
         env:
@@ -36,10 +42,30 @@ jobs:
           ssh-agent -a $SSH_AUTH_SOCK > /dev/null
           ssh-add ~/.ssh/id_rsa
 
-      - name: Ansible dry-run
+      - name: Run Ansible for all matched files
         env:
-          PLAYBOOK_PATH: ${{ inputs.PLAYBOOK_PATH }}
+          PLAYBOOKS_PATH: ${{ inputs.PLAYBOOKS_PATH }}
+          PLAYBOOK_NAME: ${{ inputs.PLAYBOOK_NAME }}
+          FOLDER: ${{ inputs.FOLDER }}
         run: |
-          cd $(dirname $PLAYBOOK_PATH)
+          echo "Looking for playbook $PLAYBOOK_NAME under $FOLDER in parent folder $PLAYBOOKS_PATH"
 
-          ansible-playbook --check --diff --private-key="~/.ssh/id_rsa" $(basename "$PLAYBOOK_PATH")
+          MATCHED_FILES=$(find $PLAYBOOKS_PATH | grep "$FOLDER" | grep "$PLAYBOOK_NAME")
+
+          echo "$MATCHED_FILES"
+
+          if [ -z "$MATCHED_FILES" ]; then
+            echo "No matching files found."
+
+            exit 1
+          fi
+
+          for FILE in $MATCHED_FILES; do
+            echo "Running ansible-playbook for $FILE"
+
+            cd $(dirname "$FILE")
+
+            ansible-playbook --check --diff --private-key="~/.ssh/id_rsa" "$(basename $FILE)"
+
+            cd "$(git rev-parse --show-toplevel)"
+          done
