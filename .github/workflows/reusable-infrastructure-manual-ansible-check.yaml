@@ -15,6 +15,8 @@ on:
     secrets:
       SSH_PRIVATE_KEY:
         required: true
+      VPN_CONFIG:
+        required: false
 
 jobs:
   dry-run:
@@ -41,6 +43,39 @@ jobs:
           echo "StrictHostKeyChecking no" >> ~/.ssh/config
           ssh-agent -a $SSH_AUTH_SOCK > /dev/null
           ssh-add ~/.ssh/id_rsa
+
+      - name: Check if VPN_CONFIG is provided
+        id: check_vpn_config
+        run: |
+          if [ -z "${{ secrets.VPN_CONFIG }}" ]; then
+            echo "VPN_CONFIG secret is not provided."
+            echo "vpn_config_provided=false" >> $GITHUB_ENV
+          else
+            echo "VPN_CONFIG secret is provided."
+            echo "vpn_config_provided=true" >> $GITHUB_ENV
+          fi
+
+      - name: Connect to VPN
+        if: env.vpn_config_provided == 'true'
+        run: |
+          sudo apt install -yq openvpn openvpn-systemd-resolved
+          echo "${{ secrets.VPN_CONFIG }}" > vpn_config.ovpn
+
+          sudo openvpn --config vpn_config.ovpn --daemon
+
+          echo "Waiting for VPN connection..."
+
+          for i in {1..15}; do
+            if ip a | grep -q "tun0"; then
+              echo "VPN connected successfully!"
+              exit 0
+            fi
+            echo "Waiting for VPN to establish (attempt $i)..."
+            sleep 1
+          done
+
+          echo "Failed to connect to VPN."
+          exit 1
 
       - name: Run Ansible for all matched files
         env:
