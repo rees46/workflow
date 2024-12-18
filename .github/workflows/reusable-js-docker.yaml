@@ -94,6 +94,8 @@ jobs:
           image_name_latest=ghcr.io/\$REPOSITORY_OWNER/\$package_name:\$TAG; \
           docker build . -t \$image_name_latest -t \$image_name --quiet; \
           echo \$GH_TOKEN | docker login ghcr.io -u \$REPOSITORY_OWNER --password-stdin; \
-          docker push \$image_name; \
-          docker push \$image_name_latest; \
+          docker push \$image_name -q; \
+          echo "✅✅✅ Pushed successfully $image_name"; \
+          docker push \$image_name_latest -q; \
+          echo "✅✅✅ Pushed successfully $image_name_latest"; \
           fi"'
