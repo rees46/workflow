@@ -3,16 +3,12 @@ name: Deploy nodejs services
 on:
   workflow_call:
     inputs:
-      branch:
-        description: 'Git branch name'
-        required: true
-        type: string
       job_name:
         description: 'Jenkins job name'
         required: true
         type: string
-      commit_hash:
-        description: 'Github commit hash'
+      params:
+        description: 'List of parameters for Jenkins'
         required: true
         type: string
     secrets:
@@ -29,15 +25,29 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Generate parameters string
+        id: generate_params
+        run: |
+          PARAMS=""
+          for param in $(echo '${{ inputs.params }}' | jq -c '.[]'); do
+            NAME=$(echo "$param" | jq -r '.name')
+            VALUE=$(echo "$param" | jq -r '.value')
+            if [ -z "$PARAMS" ]; then
+              PARAMS="${NAME}=${VALUE}"
+              continue
+            fi
+            PARAMS="${PARAMS}&${NAME}=${VALUE}"
+          done
+          echo "params_string=${PARAMS}" >> $GITHUB_OUTPUT
+
       - name: Trigger Jenkins Job
         env:
           JENKINS_URL: ${{ secrets.URL }}
           JENKINS_DEPLOY_USER: ${{ secrets.USER }}
           JENKINS_DEPLOY_TOKEN: ${{ secrets.TOKEN }}
-          GIT_BRANCH: ${{ inputs.branch }}
           JOB_NAME: ${{ inputs.job_name }}
-          COMMIT_HASH: ${{ inputs.commit_hash }}
+          PARAMS_STRING: ${{ steps.generate_params.outputs.params_string }}
           
         run: |
           curl -X POST -u "$JENKINS_DEPLOY_USER:$JENKINS_DEPLOY_TOKEN" \
-              "${JENKINS_URL}/job/${JOB_NAME}/buildWithParameters?COMMIT_HASH=${COMMIT_HASH}&BRANCH_NAME=${GIT_BRANCH}"
+              "${JENKINS_URL}/job/${JOB_NAME}/buildWithParameters?${PARAMS_STRING}"
