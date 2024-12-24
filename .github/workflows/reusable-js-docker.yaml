@@ -95,7 +95,7 @@ jobs:
           docker build . -t \$image_name_latest -t \$image_name --quiet; \
           echo \$GH_TOKEN | docker login ghcr.io -u \$REPOSITORY_OWNER --password-stdin; \
           docker push -q \$image_name; \
-          echo "✅✅✅ Pushed successfully \$image_name"; \
+          echo \"✅✅✅ Pushed successfully \$image_name\"; \
           docker push -q \$image_name_latest; \
-          echo "✅✅✅ Pushed successfully \$image_name_latest"; \
+          echo \"✅✅✅ Pushed successfully \$image_name_latest\"; \
           fi"'
