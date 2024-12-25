@@ -7,8 +7,28 @@ on:
         description: 'Jenkins job name'
         required: true
         type: string
-      params:
-        description: 'List of parameters for Jenkins'
+      image_tag:
+        description: 'Docker image tag'
+        required: true
+        type: string
+      git_branch_name:
+        description: 'Git branch name'
+        required: true
+        type: string
+      git_commit:
+        description: 'Git commit hash'
+        required: true
+        type: string
+      git_commit_msg:
+        description: 'Git commit message'
+        required: true
+        type: string
+      git_commit_author:
+        description: 'Git commit author'
+        required: true
+        type: string
+      git_commit_url:
+        description: 'Git commit url'
         required: true
         type: string
     secrets:
@@ -25,29 +45,27 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Generate parameters string
-        id: generate_params
-        run: |
-          PARAMS=""
-          for param in $(echo '${{ inputs.params }}' | jq -c '.[]'); do
-            NAME=$(echo "$param" | jq -r '.name')
-            VALUE=$(echo "$param" | jq -r '.value')
-            if [ -z "$PARAMS" ]; then
-              PARAMS="${NAME}=${VALUE}"
-              continue
-            fi
-            PARAMS="${PARAMS}&${NAME}=${VALUE}"
-          done
-          echo "params_string=${PARAMS}" >> $GITHUB_OUTPUT
-
       - name: Trigger Jenkins Job
         env:
           JENKINS_URL: ${{ secrets.URL }}
           JENKINS_DEPLOY_USER: ${{ secrets.USER }}
           JENKINS_DEPLOY_TOKEN: ${{ secrets.TOKEN }}
           JOB_NAME: ${{ inputs.job_name }}
-          PARAMS_STRING: ${{ steps.generate_params.outputs.params_string }}
+          IMAGE_TAG: ${{ inputs.image_tag }}
+          GIT_BRANCH_NAME: ${{ inputs.git_branch_name }}
+          GIT_COMMIT: ${{ inputs.git_commit }}
+          GIT_COMMIT_MSG: ${{ inputs.git_commit_msg }}
+          GIT_COMMIT_AUTHOR: ${{ inputs.git_commit_author }}
+          GIT_COMMIT_URL: ${{ inputs.git_commit_url }}
           
         run: |
+          echo "Triggering Jenkins Job: $JOB_NAME"
           curl -X POST -u "$JENKINS_DEPLOY_USER:$JENKINS_DEPLOY_TOKEN" \
-              "${JENKINS_URL}/job/${JOB_NAME}/buildWithParameters?${PARAMS_STRING}"
+              "${JENKINS_URL}/job/${JOB_NAME}/buildWithParameters" \
+          --data-urlencode "IMAGE_TAG=${IMAGE_TAG}" \
+          --data-urlencode "GIT_BRANCH_NAME=${GIT_BRANCH_NAME}" \
+          --data-urlencode "GIT_COMMIT=${GIT_COMMIT}" \
+          --data-urlencode "GIT_COMMIT_MSG=${GIT_COMMIT_MSG}" \
+          --data-urlencode "GIT_COMMIT_AUTHOR=${GIT_COMMIT_AUTHOR}" \
+          --data-urlencode "GIT_COMMIT_URL=${GIT_COMMIT_URL}"
+          
