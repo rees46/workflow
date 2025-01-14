@@ -45,7 +45,7 @@ jobs:
       - name: Check if any packages need build
         id: changed_packages
         run: |
-          echo "packages=$(echo "${{ steps.changed_files.outputs.all_changed_files }}" | tr ' ' '\n' | grep 'packages/' | awk -F'/' '{print $2}' | uniq)" >> $GITHUB_OUTPUT
+          echo "packages=$(echo "${{ steps.changed_files.outputs.all_changed_files }}" | tr ' ' '\n' | grep 'packages/' | awk -F'/' '{print $2}' | uniq | tr '\n' ' ')" >> $GITHUB_OUTPUT
 
       - name: Build and Push Docker images
         env:
