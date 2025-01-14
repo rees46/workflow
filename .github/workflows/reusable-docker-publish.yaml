@@ -59,7 +59,7 @@ jobs:
 
           echo "Trying to build packages: $CHANGED_PACKAGES"
 
-          packages_array=($CHANGED_PACKAGES)
+          packages_array=($(echo "$CHANGED_PACKAGES" | tr "\n" " "))
 
           for package in "${packages_array[@]}"
           do
