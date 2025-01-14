@@ -57,9 +57,9 @@ jobs:
         run: |
           echo $GITHUB_TOKEN | docker login ghcr.io -u $REPOSITORY_OWNER --password-stdin
 
-          IFS=' ' read -r -a packages_array <<< $CHANGED_PACKAGES
+          echo "Trying to build packages: $CHANGED_PACKAGES"
 
-          echo "Trying to build $packages_array[@]"
+          packages_array=($(echo "$CHANGED_PACKAGES" | tr "\n" " "))
 
           for package in "${packages_array[@]}"
           do
