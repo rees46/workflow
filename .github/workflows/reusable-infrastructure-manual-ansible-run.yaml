@@ -110,7 +110,7 @@ jobs:
 
             cd $(dirname "$FILE")
 
-            ansible-playbook --check --diff --private-key="~/.ssh/id_rsa" "$(basename $FILE)"
+            ansible-playbook --diff --private-key="~/.ssh/id_rsa" "$(basename $FILE)"
 
             cd "$(git rev-parse --show-toplevel)"
           done
