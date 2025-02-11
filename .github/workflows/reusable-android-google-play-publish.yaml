@@ -70,6 +70,15 @@ jobs:
           SIGNING_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
           SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
 
+      # Building release apk
+      - name: Build Release APK
+        run: ./gradlew assembleProdRelease
+        env:
+          SIGNING_STORE_FILE: app/keystore.jks
+          SIGNING_STORE_PASSWORD: ${{ secrets.SIGNING_STORE_PASSWORD }}
+          SIGNING_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
+          SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
+
       # Sending to Google Play
       - name: Deploy to Google Play Internal Testing
         uses: r0adkll/upload-google-play@v1
