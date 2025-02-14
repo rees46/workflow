@@ -26,7 +26,7 @@ jobs:
     steps:
       - name: Validate FOLDER input
         run: |
-          ALLOWED_FOLDERS=("synchronize", "kari")
+          ALLOWED_FOLDERS=("synchronize" "kari")
 
           if [[ ! " ${ALLOWED_FOLDERS[@]} " =~ " ${{ inputs.FOLDER }} " ]]; then
             echo "Invalid FOLDER: ${{ inputs.FOLDER }}. Allowed values are: ${ALLOWED_FOLDERS[*]}"
