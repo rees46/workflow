@@ -45,7 +45,9 @@ jobs:
             ${{ runner.os }}-yarn-
 
       - name: Switch branch
-        run: git switch ${{ github.head_ref }}
+        run: |
+          git fetch --all
+          git switch ${{ github.head_ref }}
 
       - name: Install
         run: yarn install --inline-builds
