@@ -84,7 +84,7 @@ jobs:
           awk '
           {
             gsub(/<<: \*default_clickhouse_pg/, "<<: *default_clickhouse")
-    
+
             if ($0 ~ /default_clickhouse:/) {
               in_default_clickhouse = 1
             }

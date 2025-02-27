@@ -64,7 +64,7 @@ jobs:
               exit_code=1
             fi
           done < <(find $GITHUB_WORKSPACE -type f -name 'elasticsearch.yml')
-          
+
           # ElasticSearch.yaml
           while read -r conf; do
             printf "\n\n"

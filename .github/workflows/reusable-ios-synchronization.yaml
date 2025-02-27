@@ -28,7 +28,6 @@ jobs:
           current_version=$(awk -F"'" '/s.version *=/ {print $2}' "$FILE_PATH")
           echo "version=$current_version" >> $GITHUB_OUTPUT
 
-
       - name: Get last merged PR author login
         working-directory: source
         id: pr_author

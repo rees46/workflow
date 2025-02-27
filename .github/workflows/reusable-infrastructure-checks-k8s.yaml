@@ -26,4 +26,4 @@ jobs:
         if: ${{ !cancelled() }}
         with:
           entrypoint: '/kubeconform'
-          args: "-summary -output pretty ${{ inputs.PATH }}"
+          args: '-summary -output pretty ${{ inputs.PATH }}'

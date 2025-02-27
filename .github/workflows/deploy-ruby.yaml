@@ -37,7 +37,7 @@ jobs:
           GIT_BRANCH: ${{ inputs.branch }}
           JOB_NAME: ${{ inputs.job_name }}
           COMMIT_HASH: ${{ inputs.commit_hash }}
-          
+
         run: |
           curl -X POST -u "$JENKINS_DEPLOY_USER:$JENKINS_DEPLOY_TOKEN" \
               "${JENKINS_URL}/job/${JOB_NAME}/buildWithParameters?COMMIT_HASH=${COMMIT_HASH}&BRANCH_NAME=${GIT_BRANCH}"
