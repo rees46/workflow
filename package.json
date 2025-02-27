@@ -1,8 +1,7 @@
 {
   "name": "workflow",
-  "license": "BSD-3-Clause",
   "private": true,
-  "packageManager": "yarn@4.1.1",
+  "license": "BSD-3-Clause",
   "workspaces": [
     "scripts/**",
     "global/**"
@@ -11,5 +10,6 @@
     "@atls/code-runtime": "1.0.0",
     "@types/node": "22.0.0",
     "typescript": "5.2.2"
-  }
+  },
+  "packageManager": "yarn@4.1.1"
 }

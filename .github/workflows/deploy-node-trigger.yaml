@@ -57,7 +57,7 @@ jobs:
           GIT_COMMIT_MSG: ${{ inputs.git_commit_msg }}
           GIT_COMMIT_AUTHOR: ${{ inputs.git_commit_author }}
           GIT_COMMIT_URL: ${{ inputs.git_commit_url }}
-          
+
         run: |
           echo "Triggering Jenkins Job: $JOB_NAME"
           curl -X POST -u "$JENKINS_DEPLOY_USER:$JENKINS_DEPLOY_TOKEN" \
@@ -68,4 +68,3 @@ jobs:
           --data-urlencode "GIT_COMMIT_MSG=${GIT_COMMIT_MSG}" \
           --data-urlencode "GIT_COMMIT_AUTHOR=${GIT_COMMIT_AUTHOR}" \
           --data-urlencode "GIT_COMMIT_URL=${GIT_COMMIT_URL}"
-          

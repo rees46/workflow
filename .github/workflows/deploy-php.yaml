@@ -55,7 +55,7 @@ jobs:
       - name: Check if any services need deploy
         id: changed_packages
         run: |
-          echo "packages=$(echo "$CHANGED_FILES" | grep 'packages/' | awk -F'/' '{print $2}' | uniq)" >> $"GITHUB_OUTPUT" 
+          echo "packages=$(echo "$CHANGED_FILES" | grep 'packages/' | awk -F'/' '{print $2}' | uniq)" >> $"GITHUB_OUTPUT"
 
       - name: Trigger Jenkins Job
         env:

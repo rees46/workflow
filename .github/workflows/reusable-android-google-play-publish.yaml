@@ -76,7 +76,7 @@ jobs:
           serviceAccountJson: google-play-service-account.json
           packageName: ${{ inputs.packageName }}
           releaseFiles: ${{ inputs.releaseFiles }}
-          track: "internal"
+          track: 'internal'
 
       # Increment version
       - name: Bump version

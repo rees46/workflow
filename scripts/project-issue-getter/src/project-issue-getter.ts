@@ -1,12 +1,17 @@
 import { client } from '@global/github-client'
 
-type GetProjectIssueItemId = (projectId: string, oissueNumber?: number, owner?: string, repo?: string) => Promise<string | undefined>
+type GetProjectIssueItemId = (
+  projectId: string,
+  oissueNumber?: number,
+  owner?: string,
+  repo?: string
+) => Promise<string | undefined>
 
 export const getProjectIssueItemId: GetProjectIssueItemId = async (
   projectId,
   issueNumber,
-  owner = "rees46",
-  repo = "planning",
+  owner = 'rees46',
+  repo = 'planning'
 ) => {
   const query = `#graphql
     query($owner: String!, $repo: String!, $issueNumber: Int!) {
@@ -24,7 +29,7 @@ export const getProjectIssueItemId: GetProjectIssueItemId = async (
         }
       }
     }
-  `;
+  `
 
   const response = await client.graphql(query, {
     owner,
@@ -32,21 +37,17 @@ export const getProjectIssueItemId: GetProjectIssueItemId = async (
     issueNumber,
   })
 
-  const issue = response.repository.issue;
+  const issue = response.repository.issue
 
   if (!issue) {
-    throw new Error(`Issue с номером ${issueNumber} не найден`);
+    throw new Error(`Issue с номером ${issueNumber} не найден`)
   }
 
-  const projectItem = issue.projectItems.nodes.find(
-    (item) => item.project.id === projectId,
-  )
+  const projectItem = issue.projectItems.nodes.find((item) => item.project.id === projectId)
 
   if (!projectItem) {
-    throw new Error(
-      `Project item для issue #${issueNumber} не найден в проекте ${projectId}`,
-    )
+    throw new Error(`Project item для issue #${issueNumber} не найден в проекте ${projectId}`)
   }
 
-  return projectItem.id;
+  return projectItem.id
 }
