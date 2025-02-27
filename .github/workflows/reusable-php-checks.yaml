@@ -99,6 +99,7 @@ jobs:
           '
 
       - name: Run core tests
+        if: ${{ steps.changed_packages.outputs.packages != '' }}
         run: |
           echo "🏗️🏗️🏗️ Testing core..."
           mv packages/core/config/test_secrets.ini.example packages/core/config/test_secrets.ini
