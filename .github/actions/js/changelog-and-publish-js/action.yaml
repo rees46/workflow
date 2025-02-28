@@ -38,7 +38,7 @@ runs:
         GITHUB_TOKEN: ${{ inputs.token }}
         BASE_COMMIT: ${{ inputs.baseCommit }}
         EXCLUDE: ${{ inputs.exclude }}
-      run: yarn workspaces foreach --since=$BASE_COMMIT^ --exclude=$EXCLUDE -v run changelog
+      run: yarn workspaces foreach --since=$BASE_COMMIT^ --exclude=$EXCLUDE -vpj 2 run changelog
       shell: bash
 
     - name: Force Yarn to use NPM Registry
@@ -54,5 +54,5 @@ runs:
         YARN_NPM_AUTH_TOKEN: ${{ inputs.npmAuthToken }}
         BASE_COMMIT: ${{ inputs.baseCommit }}
         EXCLUDE: ${{ inputs.exclude }}
-      run: yarn workspaces foreach --since=$BASE_COMMIT^ --exclude=$EXCLUDE --no-private -v npm publish --access public
+      run: yarn workspaces foreach --since=$BASE_COMMIT^ --exclude=$EXCLUDE --no-private -vpj 2 npm publish --access public
       shell: bash
