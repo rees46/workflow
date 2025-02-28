@@ -32,7 +32,7 @@ runs:
         BASE_COMMIT: ${{ inputs.baseCommit }}
         GH_TOKEN: ${{ inputs.token }}
         EXCLUDE: ${{ inputs.exclude }}
-      run: yarn workspaces foreach --since=$BASE_COMMIT^ --exclude=$EXCLUDE -vp --jobs=2 exec 'bash -c "VERSION=$npm_package_version && NAME=$npm_package_name && gh release delete \"\$NAME-v\$VERSION\" -y --cleanup-tag"'
+      run: yarn workspaces foreach --since=$BASE_COMMIT^ --exclude=$EXCLUDE -vpj 2 exec 'bash -c "VERSION=$npm_package_version && NAME=$npm_package_name && gh release delete \"\$NAME-v\$VERSION\" -y --cleanup-tag"'
       shell: bash
 
     - name: Release single package
@@ -42,5 +42,5 @@ runs:
         BASE_COMMIT: ${{ inputs.baseCommit }}
         GH_TOKEN: ${{ inputs.token }}
         EXCLUDE: ${{ inputs.exclude }}
-      run: yarn workspaces foreach --since=$BASE_COMMIT^ --exclude=$EXCLUDE -vp --jobs=2 exec 'bash -c "VERSION=$npm_package_version && gh release delete \"v\$VERSION\" -y --cleanup-tag"'
+      run: yarn workspaces foreach --since=$BASE_COMMIT^ --exclude=$EXCLUDE -vpj 2 exec 'bash -c "VERSION=$npm_package_version && gh release delete \"v\$VERSION\" -y --cleanup-tag"'
       shell: bash

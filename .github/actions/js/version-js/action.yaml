@@ -55,5 +55,5 @@ runs:
           CHANGES_FLAG="--all"
         fi
 
-        yarn workspaces foreach $CHANGES_FLAG $PRIVATE_FLAG --exclude=$EXCLUDE -vp --jobs=2 version patch --immediate
+        yarn workspaces foreach $CHANGES_FLAG $PRIVATE_FLAG --exclude=$EXCLUDE -v version patch --immediate
       shell: bash
