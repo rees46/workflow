@@ -53,7 +53,7 @@ runs:
 
     # - name: Commit changes
     #   id: committer
-    #   uses: planetscale/ghcommit-action@v0.2.0
+    #   uses: planetscale/ghcommit-action@v0.2.8
     #   env:
     #     GITHUB_TOKEN: ${{ inputs.token }}
     #   with:
@@ -61,23 +61,10 @@ runs:
     #     branch: master
     #     commit_message: ${{ steps.commit_message.outputs.commitMessage }}
     #     file_pattern: "*.json *.md *.yaml *.yml *.lock"
-    #
-    - name: Debug stage branch state
-      if: inputs.additionalBranch != ''
-      run: |
-        git fetch origin
-        git stash
-        git checkout stage
-        git stash pop
-        # echo "Last commit in stage:"
-        # git log -n 1
-        # echo "Differences with origin/stage:"
-        # git diff origin/stage
-      shell: bash
 
     - name: Commit changes to additional branch
       if: inputs.additionalBranch != ''
-      uses: planetscale/ghcommit-action@v0.2.0
+      uses: planetscale/ghcommit-action@v0.2.8
       env:
         GITHUB_TOKEN: ${{ inputs.token }}
       with:
