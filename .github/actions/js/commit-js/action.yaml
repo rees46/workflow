@@ -51,16 +51,27 @@ runs:
         rm $temp_file
       shell: bash
 
-    - name: Commit changes
-      id: committer
-      uses: planetscale/ghcommit-action@v0.2.0
-      env:
-        GITHUB_TOKEN: ${{ inputs.token }}
-      with:
-        repo: ${{ github.repository }}
-        branch: master
-        commit_message: ${{ steps.commit_message.outputs.commitMessage }}
-        file_pattern: "*.json *.md *.yaml *.yml *.lock"
+    # - name: Commit changes
+    #   id: committer
+    #   uses: planetscale/ghcommit-action@v0.2.0
+    #   env:
+    #     GITHUB_TOKEN: ${{ inputs.token }}
+    #   with:
+    #     repo: ${{ github.repository }}
+    #     branch: master
+    #     commit_message: ${{ steps.commit_message.outputs.commitMessage }}
+    #     file_pattern: "*.json *.md *.yaml *.yml *.lock"
+    #
+    # - name: Debug stage branch state
+    #   if: inputs.additionalBranch != ''
+    #   run: |
+    #     git fetch origin
+    #     git checkout stage
+    #     echo "Last commit in stage:"
+    #     git log -n 1
+    #     echo "Differences with origin/stage:"
+    #     git diff origin/stage
+    #   shell: bash
 
     - name: Commit changes to additional branch
       if: inputs.additionalBranch != ''
