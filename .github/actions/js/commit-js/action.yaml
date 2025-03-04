@@ -62,17 +62,6 @@ runs:
         commit_message: ${{ steps.commit_message.outputs.commitMessage }}
         file_pattern: "*.json *.md *.yaml *.yml *.lock"
 
-    - name: Debug stage branch state
-      if: inputs.additionalBranch != ''
-      run: |
-        git fetch origin
-        git checkout stage
-        echo "Last commit in stage:"
-        git log -n 1
-        echo "Differences with origin/stage:"
-        git diff origin/stage
-      shell: bash
-
     - name: Commit changes to additional branch
       if: inputs.additionalBranch != ''
       uses: planetscale/ghcommit-action@v0.2.0
