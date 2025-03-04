@@ -62,6 +62,12 @@ runs:
     #     commit_message: ${{ steps.commit_message.outputs.commitMessage }}
     #     file_pattern: "*.json *.md *.yaml *.yml *.lock"
 
+    - name: List all branches and latest commits
+      run: |
+        git fetch --all
+        git for-each-ref --format='%(refname:short) - %(objectname:short) - %(authorname) - %(committerdate:relative)' refs/remotes/
+      shell: bash
+
     - name: Commit changes to additional branch
       if: inputs.additionalBranch != ''
       uses: planetscale/ghcommit-action@v0.2.8
