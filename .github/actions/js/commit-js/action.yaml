@@ -66,7 +66,9 @@ runs:
       if: inputs.additionalBranch != ''
       run: |
         git fetch origin
-        # git checkout stage
+        git stash
+        git checkout stage
+        git stash pop
         # echo "Last commit in stage:"
         # git log -n 1
         # echo "Differences with origin/stage:"
