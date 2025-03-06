@@ -53,6 +53,7 @@ jobs:
             --exclude '.idea' \
             --exclude '.github' \
             --exclude '.gitignore' \
+            --exclude 'LICENSE' \
             --exclude 'README.md' \
 
       - name: Apply changes to Kotlin files
@@ -80,7 +81,15 @@ jobs:
       - name: Rename directories
         working-directory: target
         run: |
-          find . -depth -type d -iname 'rees46' -exec rename 's/rees46/personaClick/ig' {} +
+          find . -depth -type d -iname '*rees46*' -exec bash -c '
+            for dir; do
+              newdir=$(echo "$dir" | sed -e "s/rees46/personaClick/gi")
+              if [ "$dir" != "$newdir" ]; then
+                echo "Renaming directory: $dir -> $newdir"
+                mv "$dir" "$newdir"
+              fi
+            done
+          ' bash {} +
 
       - name: Create commit
         working-directory: target
