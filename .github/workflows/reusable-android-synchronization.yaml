@@ -5,6 +5,11 @@ on:
     secrets:
       token:
         required: true
+    inputs:
+      targetRepository:
+        type: string
+        required: true
+        default: "Target repository"
 
 jobs:
   run:
@@ -40,7 +45,7 @@ jobs:
       - name: Check out remote repository
         uses: actions/checkout@v4
         with:
-          repository: personaclick/demo-android
+          repository: ${{inputs.targetRepository}}
           token: ${{ secrets.token }}
           path: target
 
