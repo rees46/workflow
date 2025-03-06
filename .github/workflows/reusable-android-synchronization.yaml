@@ -47,6 +47,17 @@ jobs:
       #   env:
       #     GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Get last merged PR author login
+        working-directory: source
+        id: pr_author
+        run: |
+          PR_NUMBER=$(gh pr list --state merged --limit 1 --json number --jq '.[0].number')
+          LAST_PR_AUTHOR=$(gh pr view $PR_NUMBER --json author --jq '.author.login')
+          echo "LAST_PR_AUTHOR=$LAST_PR_AUTHOR" >> $GITHUB_OUTPUT
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # INFO directory not exist in android repo - dont use it
       # - name: Rename sources folder
       #   working-directory: source
       #   run: |
@@ -58,6 +69,13 @@ jobs:
       #     repository: personaclick/ios-sdk
       #     token: ${{ secrets.token }}
       #     path: target
+
+      - name: Check out remote repository
+        uses: actions/checkout@v4
+        with:
+          repository: personaclick/demo-android
+          token: ${{ secrets.token }}
+          path: target
 
       # - name: Sync files to remote repository
       #   run: |
