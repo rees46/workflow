@@ -1,0 +1,131 @@
+name: Sync iOS Repositories
+
+on:
+  workflow_call:
+    secrets:
+      token:
+        required: true
+
+jobs:
+  run:
+    name: Synchronization
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          path: source
+        env:
+          GITHUB_TOKEN: ${{ secrets.token }}
+
+      # - name: Get current version from source
+      #   working-directory: source
+      #   env:
+      #     FILE_PATH: 'REES46.podspec'
+      #   id: version_source
+      #   run: |
+      #     current_version=$(awk -F"'" '/s.version *=/ {print $2}' "$FILE_PATH")
+      #     echo "version=$current_version" >> $GITHUB_OUTPUT
+
+      # - name: Get last merged PR author login
+      #   working-directory: source
+      #   id: pr_author
+      #   run: |
+      #     PR_NUMBER=$(gh pr list --state merged --limit 1 --json number --jq '.[0].number')
+      #     LAST_PR_AUTHOR=$(gh pr view $PR_NUMBER --json author --jq '.author.login')
+      #     echo "LAST_PR_AUTHOR=$LAST_PR_AUTHOR" >> $GITHUB_OUTPUT
+      #   env:
+      #     GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # - name: Rename sources folder
+      #   working-directory: source
+      #   run: |
+      #     mv REES46 PersonaClick
+
+      # - name: Check out remote repository
+      #   uses: actions/checkout@v4
+      #   with:
+      #     repository: personaclick/ios-sdk
+      #     token: ${{ secrets.token }}
+      #     path: target
+
+      # - name: Sync files to remote repository
+      #   run: |
+      #     rsync -av --progress \
+      #       source/ target/ \
+      #       --exclude '.git' \
+      #       --exclude '.idea' \
+      #       --exclude '.github' \
+      #       --exclude '.gitignore' \
+      #       --exclude 'LICENSE' \
+      #       --exclude 'README.md' \
+      #       --exclude 'Readme.md' \
+      #       --exclude 'DemoApp' \
+      #       --exclude 'REES46.podspec' \
+
+      # - name: Apply changes to Swift files
+      #   working-directory: target
+      #   run: |
+      #     find . -type f \( -name '*.swift' \) -exec sed -i \
+      #       -e 's|https://api.rees46.com/|https://api.personaclick.com/|g' \
+      #       -e 's/api.rees46.com/api.personaclick.com/g' \
+      #       -e 's/rees46.com/personaclick.com/g' \
+      #       -e 's/rees46/personaClick/g' \
+      #       -e 's/REES46/PersonaClick/g' \
+      #       -e 's/Rees46/PersonaClick/g' {} +
+
+      # - name: Apply changes to Podspec
+      #   env:
+      #     VERSION: ${{ steps.version_source.outputs.version }}
+      #   working-directory: target
+      #   run: |
+      #     find . -type f \( -name '*.podspec' \) -exec sed -i \
+      #       -e "s/s.version *= *'.*'/s.version = '${VERSION}'/g" \
+      #       -e 's/REES46/PersonaClick/g' {} +
+
+      # - name: Apply changes to XIB files
+      #   working-directory: target
+      #   run: |
+      #     find . -type f \( -name '*.xib' \) -exec sed -i \
+      #       -e 's/REES46/PersonaClick/g' \
+      #       -e 's/Rees46/PersonaClick/g' {} +
+
+      # - name: Create commit
+      #   working-directory: target
+      #   run: |
+      #     git config --global user.name Jade Smith
+      #     git config --global user.email github-bot@rees46.com
+      #     git add .
+      #     echo "Changes to be committed:"
+      #     git diff --staged
+      #     git commit -m "feat: release"
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.token }}
+
+      # - name: Set branch name
+      #   id: branch_name
+      #   run: echo "BRANCH_NAME=feat/new-release-$(date +%Y%m%d%H%M%S)" >> $GITHUB_OUTPUT
+
+      # - name: Checkout new branch and push
+      #   working-directory: target
+      #   run: |
+      #     git checkout -b $BRANCH_NAME
+      #     git push --set-upstream origin $BRANCH_NAME
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.token }}
+      #     BRANCH_NAME: ${{ steps.branch_name.outputs.BRANCH_NAME }}
+
+      # - name: Create Pull Request
+      #   working-directory: target
+      #   run: |
+      #     PR_TITLE="Automated release"
+      #     PR_BODY="This is an automated pull request to update from branch $BRANCH_NAME"
+      #     echo "Assigning PR to LAST_PR_AUTHOR: $LAST_PR_AUTHOR"
+      #     echo "Adding MANAGER: $MANAGER as a reviewer"
+      #     gh pr create --title "$PR_TITLE" --body "$PR_BODY" --base master --head $BRANCH_NAME --assignee $LAST_PR_AUTHOR --reviewer $MANAGER
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.token }}
+      #     BRANCH_NAME: ${{ steps.branch_name.outputs.BRANCH_NAME }}
+      #     LAST_PR_AUTHOR: ${{ steps.pr_author.outputs.LAST_PR_AUTHOR }}
+      #     MANAGER: TorinAsakura
