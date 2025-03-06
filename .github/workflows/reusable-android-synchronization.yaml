@@ -139,7 +139,7 @@ jobs:
       - name: Apply changes to XML & TOML files
         working-directory: target
         run: |
-          find . -type f \( -name '*.xml' -o -name '*.toml' \) -exec sed -i \
+          find . -type f \( -name '*.md' -o -name '*.xml' -o -name '*.toml' \) -exec sed -i \
             -e 's|https://api.rees46.com/|https://api.personaclick.com/|g' \
             -e 's/api.rees46.com/api.personaclick.com/g' \
             -e 's/rees46.com/personaclick.com/g' \
