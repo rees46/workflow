@@ -53,6 +53,7 @@ jobs:
             --exclude '.idea' \
             --exclude '.github' \
             --exclude '.gitignore' \
+            --exclude 'README.md' \
 
       - name: Apply changes to Kotlin files
         working-directory: target
@@ -75,6 +76,11 @@ jobs:
             -e 's/rees46/personaClick/g' \
             -e 's/REES46/PersonaClick/g' \
             -e 's/Rees46/PersonaClick/g' {} +
+
+      - name: Rename directories
+        working-directory: target
+        run: |
+          find . -depth -type d -iname 'rees46' -exec rename 's/rees46/personaClick/ig' {} +
 
       - name: Create commit
         working-directory: target
