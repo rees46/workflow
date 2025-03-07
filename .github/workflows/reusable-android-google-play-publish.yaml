@@ -67,15 +67,17 @@ jobs:
           echo "${{ secrets.PLAY_ACCOUNT_AS_BASE64 }}" | base64 --decode > google-play-service-account.json
           playJson=$(cat google-play-service-account.json)
 
-      - name: Debug FX
+      - name: Debug FS
         run: |
           find . -print | sed -e 's;[^/]*\/;|____;g;s;____|; |;g'
+          ls app/src
+          ls app
 
       # Building release bundle
       - name: Build Release AAB
         run: ./gradlew bundleProdRelease
         env:
-          SIGNING_STORE_FILE: app/keystore.jks
+          SIGNING_STORE_FILE: app/src/keystore.jks
           SIGNING_STORE_PASSWORD: ${{ secrets.SIGNING_STORE_PASSWORD }}
           SIGNING_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
           SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
