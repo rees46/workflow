@@ -45,11 +45,9 @@ jobs:
           GOOGLE_SERVICES_FILE_AS_BASE64: ${{ secrets.GOOGLE_SERVICES_FILE_AS_BASE64 }}
 
       - name: Install Fastlane Dependencies
-        working-directory: android
         run: bundle install
 
       - name: Build & Publish to Google Play
-        working-directory: android
         run: bundle exec fastlane deploy
         env:
           SIGNING_STORE_PASSWORD: ${{ secrets.SIGNING_STORE_PASSWORD }}
