@@ -54,7 +54,7 @@ jobs:
 
       - name: Create Keystore file
         run: |
-          echo "${{ secrets.KEYSTORE_AS_BASE64 }}" | base64 --decode > /keystore.jks
+          echo "${{ secrets.KEYSTORE_AS_BASE64 }}" | base64 --decode > /tmp/keystore.jks
 
       - name: Decode and create google-services.json
         run: |
@@ -77,7 +77,7 @@ jobs:
       - name: Build Release AAB
         run: ./gradlew bundleProdRelease
         env:
-          SIGNING_STORE_FILE: ./keystore.jks
+          SIGNING_STORE_FILE: /tmp/keystore.jks
           SIGNING_STORE_PASSWORD: ${{ secrets.SIGNING_STORE_PASSWORD }}
           SIGNING_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
           SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
