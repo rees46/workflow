@@ -75,8 +75,7 @@ jobs:
 
       # Building release bundle
       - name: Build Release AAB
-        # run: ./gradlew bundleProdRelease
-        run: ./gradlew bundleRelease
+        run: ./gradlew bundleProdRelease
         env:
           SIGNING_STORE_FILE: ${{ github.workspace }}/app/keystore.jks
           SIGNING_STORE_PASSWORD: ${{ secrets.SIGNING_STORE_PASSWORD }}
