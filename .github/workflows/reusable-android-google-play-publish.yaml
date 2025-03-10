@@ -46,6 +46,7 @@ jobs:
 
       - name: Install Fastlane Dependencies
         run: bundle install
+        working-directory: .
 
       - name: Build & Publish to Google Play
         run: bundle exec fastlane deploy
