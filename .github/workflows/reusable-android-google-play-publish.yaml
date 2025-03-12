@@ -73,14 +73,13 @@ jobs:
           distribution: "zulu"
 
       # Building release bundle
-      - name: Build Release AAB
-        run: ./gradlew bundleProdRelease
-        env:
-          SIGNING_STORE_FILE: ${{ github.workspace }}/app/keystore.jks
-          SIGNING_STORE_PASSWORD: ${{ secrets.RELEASE_STORE_PASSWORD }}
-          SIGNING_KEY_ALIAS: ${{ secrets.RELEASE_KEY_ALIAS }}
-          SIGNING_KEY_PASSWORD: ${{ secrets.RELEASE_KEY_PASSWORD }}
-
+      # - name: Build Release AAB
+      #   run: ./gradlew bundleProdRelease
+      #   env:
+      #     SIGNING_STORE_FILE: ${{ github.workspace }}/app/keystore.jks
+      #     SIGNING_STORE_PASSWORD: ${{ secrets.RELEASE_STORE_PASSWORD }}
+      #     SIGNING_KEY_ALIAS: ${{ secrets.RELEASE_KEY_ALIAS }}
+      #     SIGNING_KEY_PASSWORD: ${{ secrets.RELEASE_KEY_PASSWORD }}
       # Sending to Google Play
       # - name: Deploy to Google Play Internal Testing
       #   uses: r0adkll/upload-google-play@v1
@@ -92,6 +91,11 @@ jobs:
       # Increment version
       - name: Bump version
         run: ./gradlew incrementVersion
+        env:
+          SIGNING_STORE_FILE: ${{ github.workspace }}/app/keystore.jks
+          SIGNING_STORE_PASSWORD: ${{ secrets.RELEASE_STORE_PASSWORD }}
+          SIGNING_KEY_ALIAS: ${{ secrets.RELEASE_KEY_ALIAS }}
+          SIGNING_KEY_PASSWORD: ${{ secrets.RELEASE_KEY_PASSWORD }}
         # env:
         # PROPERTIES_FILE: ${{ inputs.propertiesFilePath }}
 
