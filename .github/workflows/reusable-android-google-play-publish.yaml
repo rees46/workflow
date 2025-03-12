@@ -37,7 +37,7 @@ jobs:
       - uses: actions/create-github-app-token@v1
         id: app-token
         with:
-          app-id: ${{ vars.githubAppId }}
+          app-id: ${{ inputs.githubAppId }}
           private-key: ${{ secrets.GITHUB_APP_PRIVATE_KEY }}
 
       - name: Checkout repository
