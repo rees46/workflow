@@ -56,9 +56,9 @@ jobs:
         id: keystore
         run: |
           echo "${{ secrets.KEYSTORE_AS_BASE64 }}" | base64 --decode > app/keystore.jks
-          ABS_PATH=$(realpath app/keystore.jks)
-          echo "Keystore absolute path: ${ABS_PATH}"
-          echo "abs_keystore_path=${ABS_PATH}" >> $GITHUB_OUTPUT
+          # ABS_PATH=$(realpath app/keystore.jks)
+          # echo "Keystore absolute path: ${ABS_PATH}"
+          # echo "abs_keystore_path=${ABS_PATH}" >> $GITHUB_OUTPUT
 
       - name: Decode Google Play service account JSON
         id: decode
@@ -67,15 +67,13 @@ jobs:
 
       - name: Decode and create google-services.json
         run: |
-          echo "$GOOGLE_SERVICES_JSON" | base64 -d > app/google-services.json
-        env:
-          GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_FILE_AS_BASE64 }}
+          echo "${{ secrets.GOOGLE_SERVICES_FILE_AS_BASE64 }}" | base64 -d > app/google-services.json
 
       # Building release bundle
       - name: Build Release AAB
         run: ./gradlew bundleProdRelease
         env:
-          SIGNING_STORE_FILE: ${{ steps.keystore.outputs.abs_keystore_path }}
+          SIGNING_STORE_FILE: ${{ github.workspace }}/app/keystore.jks
           SIGNING_STORE_PASSWORD: ${{ secrets.SIGNING_STORE_PASSWORD }}
           SIGNING_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
           SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
