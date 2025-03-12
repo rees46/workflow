@@ -28,6 +28,8 @@ on:
         required: true
       RELEASE_KEY_PASSWORD:
         required: true
+      PLAY_ACCOUNT_AS_BASE64:
+        required: true
 
 jobs:
   publish_and_version_bump:
@@ -52,6 +54,12 @@ jobs:
         env:
           GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_FILE_AS_BASE64 }}
 
+      - name: Decode Google Play service account JSON
+        id: decode
+        run: |
+          echo "${{ secrets.PLAY_ACCOUNT_AS_BASE64 }}" | base64 --decode > google-play-service-account.json
+          playJson=$(cat google-play-service-account.json)
+
       - name: Decode Keystore
         run: |
           echo "$KEYSTORE_AS_BASE64" | base64 --decode > app/keystore.jks
@@ -65,7 +73,7 @@ jobs:
           distribution: "zulu"
 
       # Building release bundle
-      - name: Build Release APK
+      - name: Build Release AAB
         run: ./gradlew bundleProdRelease
         env:
           SIGNING_STORE_FILE: ${{ github.workspace }}/app/keystore.jks
