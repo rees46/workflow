@@ -42,10 +42,10 @@ jobs:
       #     app-id: ${{ inputs.githubAppId }}
       #     private-key: ${{ secrets.GITHUB_APP_PRIVATE_KEY }}
       #
-      # - name: Checkout repository
-      #   uses: actions/checkout@v4
-      #   # with:
-      #   #   token: ${{ steps.app-token.outputs.token }}
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        # with:
+        #   token: ${{ steps.app-token.outputs.token }}
       #
       # - name: Decode and create google-services.json
       #   run: |
@@ -89,7 +89,6 @@ jobs:
       #     packageName: ${{ inputs.packageName }}
       #     releaseFiles: ${{ inputs.aabReleasePath }}
       #     track: "internal"
-
       # Increment version
       - name: Bump version
         run: ./gradlew incrementVersion
