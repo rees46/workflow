@@ -93,8 +93,8 @@ jobs:
       # Increment version
       - name: Bump version
         run: ./gradlew incrementVersion
-        env:
-          # PROPERTIES_FILE: ${{ inputs.propertiesFilePath }}
+        # env:
+        # PROPERTIES_FILE: ${{ inputs.propertiesFilePath }}
 
       # Getting new version
       - name: Retrieve new version
