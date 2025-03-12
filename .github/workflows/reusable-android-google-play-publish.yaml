@@ -44,8 +44,6 @@ jobs:
 
       - name: Checkout repository
         uses: actions/checkout@v4
-        # with:
-        #   token: ${{ steps.app-token.outputs.token }}
 
       - name: Decode and create google-services.json
         run: |
@@ -73,21 +71,23 @@ jobs:
           distribution: "zulu"
 
       # Building release bundle
-      # - name: Build Release AAB
-      #   run: ./gradlew bundleProdRelease
-      #   env:
-      #     SIGNING_STORE_FILE: ${{ github.workspace }}/app/keystore.jks
-      #     SIGNING_STORE_PASSWORD: ${{ secrets.RELEASE_STORE_PASSWORD }}
-      #     SIGNING_KEY_ALIAS: ${{ secrets.RELEASE_KEY_ALIAS }}
-      #     SIGNING_KEY_PASSWORD: ${{ secrets.RELEASE_KEY_PASSWORD }}
+      - name: Build Release AAB
+        run: ./gradlew bundleProdRelease
+        env:
+          SIGNING_STORE_FILE: ${{ github.workspace }}/app/keystore.jks
+          SIGNING_STORE_PASSWORD: ${{ secrets.RELEASE_STORE_PASSWORD }}
+          SIGNING_KEY_ALIAS: ${{ secrets.RELEASE_KEY_ALIAS }}
+          SIGNING_KEY_PASSWORD: ${{ secrets.RELEASE_KEY_PASSWORD }}
+
       # Sending to Google Play
-      # - name: Deploy to Google Play Internal Testing
-      #   uses: r0adkll/upload-google-play@v1
-      #   with:
-      #     serviceAccountJson: google-play-service-account.json
-      #     packageName: ${{ inputs.packageName }}
-      #     releaseFiles: ${{ inputs.aabReleasePath }}
-      #     track: "internal"
+      - name: Deploy to Google Play Internal Testing
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJson: google-play-service-account.json
+          packageName: ${{ inputs.packageName }}
+          releaseFiles: ${{ inputs.aabReleasePath }}
+          track: "internal"
+
       # Increment version
       - name: Bump version
         run: ./gradlew incrementVersion
@@ -106,14 +106,14 @@ jobs:
           echo "versionName=$version" >> $GITHUB_ENV
           echo "versionName=$version" >> $GITHUB_OUTPUT
 
-      # # Commit changes
-      # - name: Commit changes
-      #   id: committer
-      #   uses: planetscale/ghcommit-action@v0.1.44
-      #   env:
-      #     GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
-      #   with:
-      #     repo: ${{ github.repository }}
-      #     branch: master
-      #     commit_message: "chore: bump version to ${{ steps.versionName.outputs.versionName }}"
-      #     file_pattern: ${{ inputs.propertiesFilePath }}
+      # Commit changes
+      - name: Commit changes
+        id: committer
+        uses: planetscale/ghcommit-action@v0.1.44
+        env:
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
+        with:
+          repo: ${{ github.repository }}
+          branch: master
+          commit_message: "chore: bump version to ${{ steps.versionName.outputs.versionName }}"
+          file_pattern: ${{ inputs.propertiesFilePath }}
