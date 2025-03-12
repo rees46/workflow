@@ -92,12 +92,11 @@ jobs:
       - name: Bump version
         run: ./gradlew incrementVersion
         env:
+          PROPERTIES_FILE: ${{ inputs.propertiesFilePath }}
           SIGNING_STORE_FILE: ${{ github.workspace }}/app/keystore.jks
           SIGNING_STORE_PASSWORD: ${{ secrets.RELEASE_STORE_PASSWORD }}
           SIGNING_KEY_ALIAS: ${{ secrets.RELEASE_KEY_ALIAS }}
           SIGNING_KEY_PASSWORD: ${{ secrets.RELEASE_KEY_PASSWORD }}
-        # env:
-        # PROPERTIES_FILE: ${{ inputs.propertiesFilePath }}
 
       # Getting new version
       - name: Retrieve new version
