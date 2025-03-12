@@ -61,8 +61,10 @@ jobs:
       - name: Decode Google Play service account JSON
         id: decode
         run: |
+          echo "${{ secrets.PLAY_ACCOUNT_AS_BASE64 }}" | base64 --decode > app/google-services.json
           echo "${{ secrets.PLAY_ACCOUNT_AS_BASE64 }}" | base64 --decode > google-play-service-account.json
-          playJson=$(cat google-play-service-account.json)
+          # TODO remove
+          # playJson=$(cat google-play-service-account.json)
 
       # Building release bundle
       - name: Build Release AAB
