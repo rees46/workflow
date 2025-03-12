@@ -102,7 +102,7 @@ jobs:
       - name: Retrieve new version
         id: versionName
         run: |
-          version=$(grep "VERSION_NAME=" ${{ inputs.PROPERTIES_FILE }} | cut -d'=' -f2)
+          version=$(grep "VERSION_NAME=" ${{ inputs.propertiesFilePath }} | cut -d'=' -f2)
           echo "versionName=$version" >> $GITHUB_ENV
           echo "versionName=$version" >> $GITHUB_OUTPUT
 
