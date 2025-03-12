@@ -27,6 +27,8 @@ on:
         required: true
       GITHUB_APP_PRIVATE_KEY:
         required: true
+      GOOGLE_SERVICES_FILE_AS_BASE64:
+        required: true
 
 jobs:
   publish_and_version_bump:
@@ -61,10 +63,13 @@ jobs:
       - name: Decode Google Play service account JSON
         id: decode
         run: |
-          echo "${{ secrets.PLAY_ACCOUNT_AS_BASE64 }}" | base64 --decode > app/google-services.json
           echo "${{ secrets.PLAY_ACCOUNT_AS_BASE64 }}" | base64 --decode > google-play-service-account.json
-          # TODO remove
-          # playJson=$(cat google-play-service-account.json)
+
+      - name: Decode and create google-services.json
+        run: |
+          echo "$GOOGLE_SERVICES_JSON" | base64 -d > app/google-services.json
+        env:
+          GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_FILE_AS_BASE64 }}
 
       # Building release bundle
       - name: Build Release AAB
