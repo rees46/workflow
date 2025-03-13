@@ -83,13 +83,13 @@ jobs:
             -scheme ${{ inputs.scheme }} \
             -sdk iphoneos \
             -configuration AppStoreDistribution \
+            -allowProvisioningUpdates \
             archive -archivePath $PWD/build/App.xcarchive
-            -allowProvisioningUpdates
 
           xcodebuild -exportArchive \
             -archivePath $PWD/build/App.xcarchive \
             -exportPath $PWD/build \
-            -exportOptionsPlist ${{ inputs.export_options_plist }}
+            -exportOptionsPlist ${{ inputs.export_options_plist }} \
             -allowProvisioningUpdates
 
       # Upload IPA build to TestFlight
