@@ -35,7 +35,7 @@ on:
 
 jobs:
   publish_and_version_bump:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
 
     steps:
       - uses: actions/create-github-app-token@v1
@@ -132,5 +132,5 @@ jobs:
         with:
           repo: ${{ github.repository }}
           branch: master
-          commit_message: 'chore: bump version to ${{ steps.versionName.outputs.versionName }}'
+          commit_message: "chore: bump version to ${{ steps.versionName.outputs.versionName }}"
           file_pattern: ${{ inputs.PROPERTIES_FILE }}
