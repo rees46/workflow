@@ -106,6 +106,7 @@ jobs:
             -sdk iphoneos \
             -configuration AppStoreDistribution \
             -allowProvisioningUpdates \
+            -authenticationKeyID {{ secrets.APP_STORE_CONNECT_API_KEY_ID }} \
             -authenticationKeyPath ${{ github.workspace }}/private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}.p8 \
             archive -archivePath $PWD/build/App.xcarchive
 
@@ -114,7 +115,8 @@ jobs:
             -exportPath $PWD/build \
             -exportOptionsPlist ${{ inputs.export_options_plist }} \
             -allowProvisioningUpdates \
-            -authenticationKeyPath ${{ github.workspace }}/private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}.p8 \
+            -authenticationKeyID {{ secrets.APP_STORE_CONNECT_API_KEY_ID }} \
+            -authenticationKeyPath ${{ github.workspace }}/private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}.p8
 
       # Upload IPA build to TestFlight
       - name: Upload to TestFlight
