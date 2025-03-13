@@ -64,6 +64,10 @@ jobs:
           mkdir -p ~/.appstoreconnect/private_keys
           mv AuthKey.p8 ~/.appstoreconnect/private_keys/
 
+      - name: Fix permissions for AuthKey.p8
+        run: |
+          chmod 600 ~/.appstoreconnect/private_keys/AuthKey.p8
+
       - name: Debug Check AuthKey.p8
         run: |
           ls -l ~/.appstoreconnect/private_keys/AuthKey.p8
@@ -73,7 +77,8 @@ jobs:
           xcrun altool --list-providers \
           --apiKey ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }} \
           --apiIssuer ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
-          --key ~/.appstoreconnect/private_keys/AuthKey.p8
+          # TODO fix it
+          --key /Users/runner/.appstoreconnect/private_keys/AuthKey.p8
 
       - name: Install Provisioning Profile
         run: |
