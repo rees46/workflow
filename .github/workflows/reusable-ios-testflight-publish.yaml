@@ -61,12 +61,12 @@ jobs:
 
       - name: Build IPA
         run: |
-          if [ ! -f "${{ inputs.xcworkspace }}" ]; then
+          if [ ! -f "${{ inputs.xcworkspace }}" ] && [ ! -d "${{ inputs.xcworkspace }}" ]; then
             echo "Workspace file not found!"
             exit 1
           fi
 
-          if [ ! -f "${{ inputs.export_options_plist }}" ]; then
+          if [ ! -f "${{ inputs.export_options_plist }}" ] && [ ! -d "${{ inputs.export_options_plist }}" ]; then
             echo "ExportOptions.plist file not found!"
             exit 1
           fi
