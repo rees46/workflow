@@ -84,9 +84,8 @@ jobs:
           rm -rf Podfile.lock
           pod install --repo-update
 
-      - name: Set up API Key for Xcode signing
+      - name: Add Apple Developer Account
         run: |
-          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
           mkdir -p ~/Library/Developer/Xcode/UserData/Accounts
           echo '{ "appstoreconnect": { "API_KEY_ID": "${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}", "ISSUER_ID": "${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}" } }' > ~/Library/Developer/Xcode/UserData/Accounts/com.apple.account.AppStoreConnect.plist
 
@@ -107,13 +106,15 @@ jobs:
             -sdk iphoneos \
             -configuration AppStoreDistribution \
             -allowProvisioningUpdates \
+            -authenticationKeyPath ${{ github.workspace }}/private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}.p8 \
             archive -archivePath $PWD/build/App.xcarchive
 
           xcodebuild -exportArchive \
             -archivePath $PWD/build/App.xcarchive \
             -exportPath $PWD/build \
             -exportOptionsPlist ${{ inputs.export_options_plist }} \
-            -allowProvisioningUpdates
+            -allowProvisioningUpdates \
+            -authenticationKeyPath ${{ github.workspace }}/private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}.p8 \
 
       # Upload IPA build to TestFlight
       - name: Upload to TestFlight
