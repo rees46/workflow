@@ -126,17 +126,13 @@ jobs:
             -archivePath $PWD/build/App.xcarchive \
             -exportPath $PWD/build \
             -exportOptionsPlist ${{ inputs.export_options_plist }} \
-            -allowProvisioningUpdates \
-            -authenticationKeyID ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }} \
-            -authenticationKeyIssuerID ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }} \
-            -authenticationKeyPath ${{ github.workspace }}/private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}.p8
+            -allowProvisioningUpdates
 
       # Upload IPA build to TestFlight
       - name: Upload to TestFlight
         env:
           API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
           ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
-          API_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY }}
         run: |
           if [ ! -f "${{ inputs.ipa_file }}" ]; then
             echo "IPA file not found!"
@@ -146,7 +142,7 @@ jobs:
           xcrun altool --list-providers \
           --apiKey $API_KEY_ID \
           --apiIssuer $ISSUER_ID \
-          --key ~/.appstoreconnect/private_keys/AuthKey.p8
+          # --key ~/.appstoreconnect/private_keys/AuthKey.p8
 
       # Increment version
       - name: Bump version
