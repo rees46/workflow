@@ -89,6 +89,17 @@ jobs:
           mkdir -p ~/Library/Developer/Xcode/UserData/Accounts
           echo '{ "appstoreconnect": { "API_KEY_ID": "${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}", "ISSUER_ID": "${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}" } }' > ~/Library/Developer/Xcode/UserData/Accounts/com.apple.account.AppStoreConnect.plist
 
+      - name: Check for Swift errors
+        run: |
+          xcodebuild -workspace ${{ inputs.xcworkspace }} \
+          -scheme ${{ inputs.scheme }} \
+          -sdk iphoneos \
+          -configuration AppStoreDistribution \
+          -allowProvisioningUpdates \
+          build | tee build.log
+
+          grep -E "error:|warning:" build.log || echo "No Swift errors detected."
+
       - name: Build IPA
         run: |
           if [ ! -f "${{ inputs.xcworkspace }}" ] && [ ! -d "${{ inputs.xcworkspace }}" ]; then
