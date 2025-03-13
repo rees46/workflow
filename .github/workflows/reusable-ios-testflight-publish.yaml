@@ -84,6 +84,12 @@ jobs:
           rm -rf Podfile.lock
           pod install --repo-update
 
+      - name: Set up API Key for Xcode signing
+        run: |
+          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
+          mkdir -p ~/Library/Developer/Xcode/UserData/Accounts
+          echo '{ "appstoreconnect": { "API_KEY_ID": "${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}", "ISSUER_ID": "${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}" } }' > ~/Library/Developer/Xcode/UserData/Accounts/com.apple.account.AppStoreConnect.plist
+
       - name: Build IPA
         run: |
           if [ ! -f "${{ inputs.xcworkspace }}" ] && [ ! -d "${{ inputs.xcworkspace }}" ]; then
