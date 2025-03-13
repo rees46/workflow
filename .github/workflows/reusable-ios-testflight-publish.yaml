@@ -59,6 +59,17 @@ jobs:
         run: |
           echo "${{ secrets.APP_STORE_CONNECT_API_KEY }}" | base64 --decode > AuthKey.p8
 
+      - name: Verify API Key Authentication
+        run: |
+          xcrun altool --list-providers \
+          --apiKey ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }} \
+          --apiIssuer ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+
+      - name: Verify Installed Provisioning Profiles
+        run: |
+          ls -al ~/Library/MobileDevice/Provisioning\ Profiles/
+          security find-identity -v -p codesigning
+
       - name: Clean CocoaPods cache
         run: |
           rm -rf ~/Library/Developer/Xcode/DerivedData
