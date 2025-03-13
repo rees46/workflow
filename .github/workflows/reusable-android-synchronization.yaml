@@ -66,6 +66,7 @@ jobs:
         run: |
           find . -type f \( -name '*.kts' -o -name '*.kt' \) -exec sed -i \
             -e 's|https://api.rees46.com/|https://api.personaclick.com/|g' \
+            -e 's/com.rees46:rees46-sdk/com.personaclick:personaclick-sdk/g' \
             -e 's/api.rees46.com/api.personaclick.com/g' \
             -e 's/rees46.com/personaclick.com/g' \
             -e 's/rees46/personaClick/g' \
