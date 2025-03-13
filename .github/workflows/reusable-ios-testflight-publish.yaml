@@ -66,7 +66,7 @@ jobs:
           --apiKey ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }} \
           --apiIssuer ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
           # TODO fix it
-          # --key /Users/runner/.appstoreconnect/private_keys/AuthKey.p8
+          --key ${{ github.workspace }}/private_keys/AuthKey.p8
 
       - name: Install Provisioning Profile
         run: |
