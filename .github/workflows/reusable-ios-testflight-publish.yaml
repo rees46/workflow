@@ -65,8 +65,6 @@ jobs:
           xcrun altool --list-providers \
           --apiKey ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }} \
           --apiIssuer ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
-          # TODO fix it
-          --key ${{ github.workspace }}/private_keys/AuthKey.p8
 
       - name: Install Provisioning Profile
         run: |
