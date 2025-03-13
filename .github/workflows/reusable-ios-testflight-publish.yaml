@@ -116,7 +116,7 @@ jobs:
             -scheme ${{ inputs.scheme }} \
             -sdk iphoneos \
             -configuration AppStoreDistribution \
-            # -allowProvisioningUpdates \
+            -allowProvisioningUpdates \
             -authenticationKeyID ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }} \
             -authenticationKeyIssuerID ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }} \
             -authenticationKeyPath ${{ github.workspace }}/private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}.p8 \
