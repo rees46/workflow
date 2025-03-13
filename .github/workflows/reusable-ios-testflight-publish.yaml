@@ -73,6 +73,7 @@ jobs:
           xcrun altool --list-providers \
           --apiKey ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }} \
           --apiIssuer ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          --key ~/.appstoreconnect/private_keys/AuthKey.p8
 
       - name: Install Provisioning Profile
         run: |
