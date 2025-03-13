@@ -59,12 +59,14 @@ jobs:
             --exclude '.gitignore' \
             --exclude 'LICENSE' \
             --exclude 'README.md' \
+            --exclude 'version.properties' \
 
       - name: Apply changes to Kotlin files
         working-directory: target
         run: |
           find . -type f \( -name '*.kts' -o -name '*.kt' \) -exec sed -i \
             -e 's|https://api.rees46.com/|https://api.personaclick.com/|g' \
+            -e 's/com.rees46:rees46-sdk/com.personaclick:personaclick-sdk/g' \
             -e 's/api.rees46.com/api.personaclick.com/g' \
             -e 's/rees46.com/personaclick.com/g' \
             -e 's/rees46/personaClick/g' \
