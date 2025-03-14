@@ -71,10 +71,10 @@ jobs:
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
           echo "${{ secrets.PROVISIONING_PROFILE }}" | base64 --decode > ~/Library/MobileDevice/Provisioning\ Profiles/profile.mobileprovision
 
-      # - name: Check Installed Provisioning Profiles
-      #   run: |
-      #     security find-identity -v -p codesigning
-      #     ls -al ~/Library/MobileDevice/Provisioning\ Profiles/
+      - name: Check Installed Provisioning Profiles
+        run: |
+          security find-identity -v -p codesigning
+          ls -al ~/Library/MobileDevice/Provisioning\ Profiles/
 
       - name: Clean CocoaPods cache
         run: |
