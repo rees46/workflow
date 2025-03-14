@@ -60,12 +60,6 @@ jobs:
           mkdir private_keys
           echo "${{ secrets.APP_STORE_CONNECT_API_KEY }}" | base64 --decode > private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}.p8
 
-      - name: Authenticate with Apple Developer Portal
-        run: |
-          xcrun altool --list-providers \
-          --apiKey ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }} \
-          --apiIssuer ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
-
       - name: Pod install
         run: |
           pod cache clean --all
@@ -94,14 +88,12 @@ jobs:
             -authenticationKeyIssuerID ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }} \
             -authenticationKeyPath ${{ github.workspace }}/private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}.p8 \
             archive -archivePath $PWD/build/App.xcarchive
-            # CODE_SIGN_IDENTITY='' CODE_SIGNING_REQUIRED='NO' CODE_SIGN_ENTITLEMENTS=''
 
           xcodebuild -exportArchive \
             -archivePath $PWD/build/App.xcarchive \
             -exportPath $PWD/build \
             -exportOptionsPlist ${{ inputs.export_options_plist }} \
-            -allowProvisioningUpdates \
-            # CODE_SIGN_IDENTITY='' CODE_SIGNING_REQUIRED='NO' CODE_SIGN_ENTITLEMENTS=''
+            -allowProvisioningUpdates
 
       # Upload IPA build to TestFlight
       - name: Upload to TestFlight
