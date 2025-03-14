@@ -66,10 +66,10 @@ jobs:
           --apiKey ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }} \
           --apiIssuer ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
 
-      # - name: Install Provisioning Profile
-      #   run: |
-      #     mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
-      #     echo "${{ secrets.PROVISIONING_PROFILE }}" | base64 --decode > ~/Library/MobileDevice/Provisioning\ Profiles/profile.mobileprovision
+      - name: Install Provisioning Profile
+        run: |
+          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
+          echo "${{ secrets.PROVISIONING_PROFILE }}" | base64 --decode > ~/Library/MobileDevice/Provisioning\ Profiles/profile.mobileprovision
 
       # - name: Check Installed Provisioning Profiles
       #   run: |
@@ -78,27 +78,7 @@ jobs:
 
       - name: Clean CocoaPods cache
         run: |
-          # rm -rf ~/Library/Developer/Xcode/DerivedData
-          # rm -rf ~/Library/Caches/CocoaPods
-          # rm -rf Pods
-          # rm -rf Podfile.lock
           pod install --repo-update
-
-      # - name: Add Apple Developer Account
-      #   run: |
-      #     mkdir -p ~/Library/Developer/Xcode/UserData/Accounts
-      #     echo '{ "appstoreconnect": { "API_KEY_ID": "${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}", "ISSUER_ID": "${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}" } }' > ~/Library/Developer/Xcode/UserData/Accounts/com.apple.account.AppStoreConnect.plist
-
-      # - name: Check for Swift errors
-      #   run: |
-      #     xcodebuild -workspace ${{ inputs.xcworkspace }} \
-      #     -scheme ${{ inputs.scheme }} \
-      #     -sdk iphoneos \
-      #     -configuration AppStoreDistribution \
-      #     -allowProvisioningUpdates \
-      #     build | tee build.log
-      #
-      #     grep -E "error:|warning:" build.log || echo "No Swift errors detected."
 
       - name: Build IPA
         run: |
