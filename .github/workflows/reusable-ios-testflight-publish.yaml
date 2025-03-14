@@ -76,9 +76,12 @@ jobs:
           security find-identity -v -p codesigning
           ls -al ~/Library/MobileDevice/Provisioning\ Profiles/
 
-      - name: Clean CocoaPods cache
+      - name: Pod install
         run: |
-          pod install --repo-update
+          pod cache clean --all
+          rm -rf Pods
+          rm Podsfile.lock
+          pod install
 
       - name: Build IPA
         run: |
@@ -100,12 +103,14 @@ jobs:
             -authenticationKeyID ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }} \
             -authenticationKeyIssuerID ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }} \
             -authenticationKeyPath ${{ github.workspace }}/private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}.p8 \
-            archive -archivePath $PWD/build/App.xcarchive
+            archive -archivePath $PWD/build/App.xcarchive \
+            CODE_SIGN_IDENTITY='' CODE_SIGNING_REQUIRED='NO' CODE_SIGN_ENTITLEMENTS=''
 
           xcodebuild -exportArchive \
             -archivePath $PWD/build/App.xcarchive \
             -exportPath $PWD/build \
-            -exportOptionsPlist ${{ inputs.export_options_plist }}
+            -exportOptionsPlist ${{ inputs.export_options_plist }} \
+            CODE_SIGN_IDENTITY='' CODE_SIGNING_REQUIRED='NO' CODE_SIGN_ENTITLEMENTS=''
             # -allowProvisioningUpdates
 
       # Upload IPA build to TestFlight
