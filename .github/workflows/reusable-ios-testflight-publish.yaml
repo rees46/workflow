@@ -66,16 +66,6 @@ jobs:
           --apiKey ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }} \
           --apiIssuer ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
 
-      - name: Install Provisioning Profile
-        run: |
-          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
-          echo "${{ secrets.PROVISIONING_PROFILE }}" | base64 --decode > ~/Library/MobileDevice/Provisioning\ Profiles/profile.mobileprovision
-
-      - name: Check Installed Provisioning Profiles
-        run: |
-          security find-identity -v -p codesigning
-          ls -al ~/Library/MobileDevice/Provisioning\ Profiles/
-
       - name: Pod install
         run: |
           pod cache clean --all
