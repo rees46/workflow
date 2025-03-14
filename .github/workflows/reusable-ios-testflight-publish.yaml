@@ -103,7 +103,7 @@ jobs:
             -authenticationKeyID ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }} \
             -authenticationKeyIssuerID ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }} \
             -authenticationKeyPath ${{ github.workspace }}/private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}.p8 \
-            archive -archivePath $PWD/build/App.xcarchive \
+            archive -archivePath $PWD/build/App.xcarchive
             # CODE_SIGN_IDENTITY='' CODE_SIGNING_REQUIRED='NO' CODE_SIGN_ENTITLEMENTS=''
 
           xcodebuild -exportArchive \
@@ -111,7 +111,7 @@ jobs:
             -exportPath $PWD/build \
             -exportOptionsPlist ${{ inputs.export_options_plist }} \
             -allowProvisioningUpdates \
-            CODE_SIGN_IDENTITY='' CODE_SIGNING_REQUIRED='NO' CODE_SIGN_ENTITLEMENTS=''
+            # CODE_SIGN_IDENTITY='' CODE_SIGNING_REQUIRED='NO' CODE_SIGN_ENTITLEMENTS=''
 
       # Upload IPA build to TestFlight
       - name: Upload to TestFlight
