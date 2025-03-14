@@ -80,7 +80,7 @@ jobs:
         run: |
           pod cache clean --all
           rm -rf Pods
-          rm Podsfile.lock
+          rm Podfile.lock
           pod install
 
       - name: Build IPA
