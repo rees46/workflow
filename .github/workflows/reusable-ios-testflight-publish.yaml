@@ -93,6 +93,15 @@ jobs:
           rm Podfile.lock
           pod install
 
+      - name: Authenticate with App Store Connect API Key
+        run: |
+          xcrun altool --list-providers \
+          --apiKey "$API_KEY_ID" \
+          --apiIssuer "$ISSUER_ID"
+        env:
+          API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+          ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+
       # Build IPA
       - name: Build IPA
         run: |
