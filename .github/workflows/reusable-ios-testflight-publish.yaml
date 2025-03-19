@@ -78,6 +78,7 @@ jobs:
       # Install the provisioning profile
       - name: Install provisioning profile
         run: |
+          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
           echo "${{ secrets.IOS_PROVISIONING_PROFILE }}" | base64 --decode > ~/Library/MobileDevice/Provisioning\ Profiles/YourProvisioningProfile.mobileprovision
 
       # Pod install
