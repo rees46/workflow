@@ -32,6 +32,12 @@ on:
         required: true
       GITHUB_APP_PRIVATE_KEY:
         required: true
+      IOS_CERTIFICATE_P12:
+        required: true
+      IOS_CERTIFICATE_PASSWORD:
+        required: true
+      IOS_PROVISIONING_PROFILE:
+        required: true
 
 jobs:
   publish_and_version_bump:
@@ -53,13 +59,26 @@ jobs:
         run: |
           sudo xcode-select --switch /Applications/Xcode.app/Contents/Developer
 
-      # Decode App Store Connect API Key
-      - name: Decode App Store Connect API Key
-        id: decode
+      # Create and set up keychain
+      - name: Set up Keychain
         run: |
-          mkdir private_keys
-          echo "${{ secrets.APP_STORE_CONNECT_API_KEY }}" | base64 --decode > private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}.p8
+          security create-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
+          security default-keychain -s build.keychain
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
+          security set-keychain-settings -t 3600 -l ~/Library/Keychains/build.keychain
 
+      # Import the .p12 certificate
+      - name: Import iOS certificate (.p12)
+        run: |
+          echo "${{ secrets.IOS_CERTIFICATE_P12 }}" | base64 --decode > ios_certificate.p12
+          security import ios_certificate.p12 -k ~/Library/Keychains/build.keychain -P "${{ secrets.IOS_CERTIFICATE_PASSWORD }}" -T /usr/bin/codesign
+
+      # Install the provisioning profile
+      - name: Install provisioning profile
+        run: |
+          echo "${{ secrets.IOS_PROVISIONING_PROFILE }}" | base64 --decode > ~/Library/MobileDevice/Provisioning\ Profiles/YourProvisioningProfile.mobileprovision
+
+      # Pod install
       - name: Pod install
         run: |
           pod cache clean --all
@@ -67,6 +86,7 @@ jobs:
           rm Podfile.lock
           pod install
 
+      # Build IPA
       - name: Build IPA
         run: |
           if [ ! -f "${{ inputs.xcworkspace }}" ] && [ ! -d "${{ inputs.xcworkspace }}" ]; then
@@ -84,10 +104,7 @@ jobs:
             -sdk iphoneos \
             -configuration AppStoreDistribution \
             -allowProvisioningUpdates \
-            -authenticationKeyID ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }} \
-            -authenticationKeyIssuerID ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }} \
-            -authenticationKeyPath ${{ github.workspace }}/private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}.p8 \
-            archive -archivePath $PWD/build/App.xcarchive
+            -archivePath $PWD/build/App.xcarchive
 
           xcodebuild -exportArchive \
             -archivePath $PWD/build/App.xcarchive \
@@ -107,9 +124,8 @@ jobs:
           fi
 
           xcrun altool --list-providers \
-          --apiKey $API_KEY_ID \
-          --apiIssuer $ISSUER_ID \
-          # --key ~/.appstoreconnect/private_keys/AuthKey.p8
+            --apiKey $API_KEY_ID \
+            --apiIssuer $ISSUER_ID
 
       # Increment version
       - name: Bump version
