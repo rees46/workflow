@@ -67,23 +67,6 @@ jobs:
           security unlock-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
           security set-keychain-settings -t 3600 -l ~/Library/Keychains/build.keychain
 
-      - name: Prepare AuthKey directory
-        run: |
-          mkdir -p ~/.appstoreconnect/private_keys
-          echo "${{ secrets.APP_STORE_CONNECT_API_KEY }}" | base64 --decode > ~/.appstoreconnect/private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}.p8
-
-      - name: Set permissions for AuthKey
-        run: chmod 600 ~/.appstoreconnect/private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}.p8
-
-      - name: Authenticate with App Store Connect API Key
-        run: |
-          xcrun altool --list-providers \
-            --apiKey "$API_KEY_ID" \
-            --apiIssuer "$ISSUER_ID"
-        env:
-          API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
-          ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
-
       # Import the .p12 certificate
       - name: Import iOS certificate (.p12)
         env:
@@ -112,6 +95,9 @@ jobs:
 
       # Build IPA
       - name: Build IPA
+        env:
+          API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+          ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
         run: |
           if [ ! -f "${{ inputs.xcworkspace }}" ] && [ ! -d "${{ inputs.xcworkspace }}" ]; then
             echo "Workspace file not found!"
@@ -128,6 +114,8 @@ jobs:
             -sdk iphoneos \
             -configuration AppStoreDistribution \
             -allowProvisioningUpdates \
+            -authenticationKeyID "$API_KEY_ID" \
+            -authenticationKeyIssuerID "$APPLE_ID_ISSUER_ID" \
             -archivePath $PWD/build/App.xcarchive \
             CODE_SIGN_IDENTITY="Apple Development"
 
