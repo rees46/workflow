@@ -112,7 +112,7 @@ jobs:
             -configuration AppStoreDistribution \
             -allowProvisioningUpdates \
             -archivePath $PWD/build/App.xcarchive \
-            CODE_SIGN_IDENTITY="iPhone Distribution"
+            CODE_SIGN_IDENTITY="Apple Development"
 
           xcodebuild -exportArchive \
             -archivePath $PWD/build/App.xcarchive \
