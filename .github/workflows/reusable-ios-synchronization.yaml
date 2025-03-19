@@ -55,6 +55,24 @@ jobs:
           token: ${{ secrets.token }}
           path: target
 
+      - name: Clean target directory except excluded files
+        run: |
+          rsync -av --delete --exclude-from=<(echo \
+          '.git' \
+          '.idea' \
+          '.github' \
+          '.gitignore' \
+          'LICENSE' \
+          'README.md' \
+          'Readme.md' \
+          'DemoApp' \
+          'REES46.podspec' \
+          ) /dev/null target/
+
+      - name: Debug target dir
+        working-directory: target
+        run: ls -R
+
       - name: Sync files to remote repository
         run: |
           rsync -av --progress \
@@ -95,6 +113,12 @@ jobs:
           find . -type f \( -name '*.xib' \) -exec sed -i \
             -e 's/REES46/PersonaClick/g' \
             -e 's/Rees46/PersonaClick/g' {} +
+
+      - name: Create commit
+        working-directory: target
+        run: |
+          echo "Changes to be committed:"
+          git diff --staged
 
       - name: Create commit
         working-directory: target
