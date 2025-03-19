@@ -69,27 +69,9 @@ jobs:
           'REES46.podspec' \
           ) /dev/null target/
 
-      - name: Clean target directory except excluded files
-        run: |
-          rsync -av --delete --exclude-from=<(echo \
-          '.git' \
-          '.idea' \
-          '.github' \
-          '.gitignore' \
-          'LICENSE' \
-          'README.md' \
-          'Readme.md' \
-          'DemoApp' \
-          'REES46.podspec' \
-          ) /dev/null target/
-
       - name: Debug target dir
         working-directory: target
         run: ls -R
-
-      - name: Remove PersonaClick directory in target
-        working-directory: target
-        run: rm -rf PersonaClick
 
       - name: Sync files to remote repository
         run: |
