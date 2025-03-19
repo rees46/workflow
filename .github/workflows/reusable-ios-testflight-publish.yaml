@@ -77,9 +77,13 @@ jobs:
 
       # Install the provisioning profile
       - name: Install provisioning profile
+        id: install_profile
         run: |
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
-          echo "${{ secrets.IOS_PROVISIONING_PROFILE }}" | base64 --decode > ~/Library/MobileDevice/Provisioning\ Profiles/YourProvisioningProfile.mobileprovision
+          echo "${{ secrets.IOS_PROVISIONING_PROFILE }}" | base64 --decode > profile.mobileprovision
+          uuid=$(/usr/libexec/PlistBuddy -c 'Print UUID' /dev/stdin <<< $(security cms -D -i profile.mobileprovision))
+          mv profile.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/${uuid}.mobileprovision
+          echo "UUID=${uuid}" >> $GITHUB_ENV
 
       # Pod install
       - name: Pod install
@@ -106,10 +110,9 @@ jobs:
             -scheme ${{ inputs.scheme }} \
             -sdk iphoneos \
             -configuration AppStoreDistribution \
-            # -allowProvisioningUpdates \
+            -allowProvisioningUpdates \
             -archivePath $PWD/build/App.xcarchive \
-            CODE_SIGN_IDENTITY="iPhone Distribution" \
-            PROVISIONING_PROFILE_SPECIFIER="YourProvisioningProfile"
+            CODE_SIGN_IDENTITY="iPhone Distribution"
 
           xcodebuild -exportArchive \
             -archivePath $PWD/build/App.xcarchive \
