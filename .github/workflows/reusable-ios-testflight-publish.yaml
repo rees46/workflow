@@ -71,8 +71,8 @@ jobs:
       - name: Import iOS certificate (.p12)
         run: |
           echo "${{ secrets.IOS_CERTIFICATE_P12 }}" | base64 --decode > ios_certificate.p12
-      #     security import ios_certificate.p12 -k ~/Library/Keychains/build.keychain -P "${{ secrets.IOS_CERTIFICATE_PASSWORD }}" -T /usr/bin/codesign
-      #
+          security import ios_certificate.p12 -k ~/Library/Keychains/build.keychain -P "${{ secrets.IOS_CERTIFICATE_PASSWORD }}" -T /usr/bin/codesign
+
       # # Install the provisioning profile
       # - name: Install provisioning profile
       #   run: |
