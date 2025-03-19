@@ -107,7 +107,9 @@ jobs:
             -sdk iphoneos \
             -configuration AppStoreDistribution \
             -allowProvisioningUpdates \
-            -archivePath $PWD/build/App.xcarchive
+            -archivePath $PWD/build/App.xcarchive \
+            CODE_SIGN_IDENTITY="iPhone Distribution" \
+            PROVISIONING_PROFILE_SPECIFIER="YourProvisioningProfile"
 
           xcodebuild -exportArchive \
             -archivePath $PWD/build/App.xcarchive \
