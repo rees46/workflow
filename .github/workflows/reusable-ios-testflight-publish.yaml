@@ -106,7 +106,7 @@ jobs:
             -scheme ${{ inputs.scheme }} \
             -sdk iphoneos \
             -configuration AppStoreDistribution \
-            -allowProvisioningUpdates \
+            # -allowProvisioningUpdates \
             -archivePath $PWD/build/App.xcarchive \
             CODE_SIGN_IDENTITY="iPhone Distribution" \
             PROVISIONING_PROFILE_SPECIFIER="YourProvisioningProfile"
