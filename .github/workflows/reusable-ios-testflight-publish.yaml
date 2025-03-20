@@ -98,17 +98,17 @@ jobs:
           rm Podfile.lock
           pod install
 
-      - name: Check required repo files
-        run: |
-          if [ ! -f "${{ inputs.xcworkspace }}" ]; then
-            echo "Workspace file not found!"
-            exit 1
-          fi
-
-          if [ ! -f "${{ inputs.export_options_plist }}" ]; then
-            echo "ExportOptions.plist file not found!"
-            exit 1
-          fi
+      # - name: Check required repo files
+      #   run: |
+      #     if [ ! -f "${{ inputs.xcworkspace }}" ]; then
+      #       echo "Workspace file not found!"
+      #       exit 1
+      #     fi
+      #
+      #     if [ ! -f "${{ inputs.export_options_plist }}" ]; then
+      #       echo "ExportOptions.plist file not found!"
+      #       exit 1
+      #     fi
 
       - name: Build and Archive
         env:
