@@ -98,17 +98,13 @@ jobs:
         run: |
           xcrun xcodebuild \
             -workspace ${{ inputs.xcworkspace }} \
-            # -project "${PROJECT}" \
             -scheme ${{ inputs.scheme }} \
             -configuration AppStoreDistribution \
             -sdk iphoneos \
             -parallelizeTargets \
             -showBuildTimingSummary \
             -disableAutomaticPackageResolution \
-            # -derivedDataPath "${DERIVED_DATA_PATH}" \
             -archivePath $PWD/build/App.xcarchive \
-            # -resultBundlePath "${RESULT_BUNDLE_PATH}" \
-            # CURRENT_PROJECT_VERSION="${CURRENT_PROJECT_VERSION}" \
             archive
 
           xcrun xcodebuild \
