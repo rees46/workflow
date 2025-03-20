@@ -53,41 +53,59 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          token: ${{ steps.app-token.outputs.token }}
+          fetch-depth: 0
+          # token: ${{ steps.app-token.outputs.token }}
 
-      - name: Set up Xcode
-        run: |
-          sudo xcode-select --switch /Applications/Xcode.app/Contents/Developer
+      # - name: Set up Xcode
+      #   run: |
+      #     sudo xcode-select --switch /Applications/Xcode.app/Contents/Developer
 
-      - name: Decode API Key
-        run: |
-          echo "${{ secrets.APP_STORE_CONNECT_API_KEY }}" | base64 -d > AuthKey_${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}.p8
+      - name: Import code sign
+        uses: Apple-Actions/import-codesign-certs@v1
+        with:
+          p12-file-base64: ${{ secrets.IOS_CERTIFICATE_P12 }}
+          p12-password: ${{ secrets.IOS_CERTIFICATE_PASSWORD }}
+
+      - name: Download provisioning
+        uses: Apple-Actions/download-provisioning-profiles@v1
+        with:
+          bundle-id: com.myApp.MyApp
+          issuer-id: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          api-key-id: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+          api-private-key: ${{ secrets.APP_STORE_CONNECT_API_KEY }}
+
+      # - name: Decode API Key
+      #   run: |
+      #     echo "${{ secrets.APP_STORE_CONNECT_API_KEY }}" | base64 -d > AuthKey_${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}.p8
 
       - name: Build and Archive
         env:
           API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
           ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
         run: |
-          xcodebuild -workspace ${{ inputs.xcworkspace }} \
-                    -scheme ${{ inputs.scheme }} \
-                    -destination 'generic/platform=iOS' \
-                    -archivePath build/App.xcarchive \
-                    -allowProvisioningUpdates \
-                    -authenticationKeyPath AuthKey_$API_KEY_ID.p8 \
-                    -authenticationKeyID $API_KEY_ID \
-                    -authenticationKeyIssuerID $ISSUER_ID \
-                    archive
+          xcrun xcodebuild \
+            -workspace ${{ inputs.xcworkspace }} \
+            # -project "${PROJECT}" \
+            -scheme ${{ inputs.scheme }} \
+            -configuration AppStoreDistribution \
+            -sdk iphoneos \
+            -parallelizeTargets \
+            -showBuildTimingSummary \
+            -disableAutomaticPackageResolution \
+            # -derivedDataPath "${DERIVED_DATA_PATH}" \
+            -archivePath $PWD/build/App.xcarchive \
+            # -resultBundlePath "${RESULT_BUNDLE_PATH}" \
+            # CURRENT_PROJECT_VERSION="${CURRENT_PROJECT_VERSION}" \
+            archive
 
-      - name: Export IPA
-        run: |
-          xcodebuild -exportArchive \
-                    -archivePath build/App.xcarchive \
-                    -exportOptionsPlist ${{ inputs.export_options_plist }} \
-                    -exportPath build \
-                    -allowProvisioningUpdates
+          xcrun xcodebuild \
+            -exportArchive \
+            -exportOptionsPlist ${{ inputs.export_options_plist }} \
+            -archivePath $PWD/build/App.xcarchive \
+            -exportPath $PWD/build
 
       - name: Upload to TestFlight
-        uses: apple-actions/upload-testflight-build@v1
+        uses: Apple-Actions/upload-testflight-build@master
         with:
           app-path: ${{ inputs.ipa_file }}
           issuer-id: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
