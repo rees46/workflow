@@ -86,10 +86,10 @@ jobs:
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
           cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles
 
-      - name: Debug schemes
-        run: |
-          xcrun xcodebuild \
-            -list
+      # - name: Debug schemes
+      #   run: |
+      #     xcrun xcodebuild \
+      #       -list
 
       - name: Pod install
         run: |
@@ -124,7 +124,8 @@ jobs:
             -showBuildTimingSummary \
             -disableAutomaticPackageResolution \
             -archivePath $PWD/build/App.xcarchive \
-            archive
+            archive \
+            PROVISIONING_PROFILE_SPECIFIER="demo-ios profile"
 
           xcrun xcodebuild \
             -exportArchive \
