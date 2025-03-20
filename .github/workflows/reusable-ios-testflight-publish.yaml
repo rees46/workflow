@@ -61,13 +61,13 @@ jobs:
       #     sudo xcode-select --switch /Applications/Xcode.app/Contents/Developer
 
       - name: Import code sign
-        uses: Apple-Actions/import-codesign-certs@v1
+        uses: Apple-Actions/import-codesign-certs@v3
         with:
           p12-file-base64: ${{ secrets.IOS_CERTIFICATE_P12 }}
           p12-password: ${{ secrets.IOS_CERTIFICATE_PASSWORD }}
 
       - name: Download provisioning
-        uses: Apple-Actions/download-provisioning-profiles@v1
+        uses: Apple-Actions/download-provisioning-profiles@v3
         with:
           bundle-id: ${{ inputs.app_identifier }}
           issuer-id: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
