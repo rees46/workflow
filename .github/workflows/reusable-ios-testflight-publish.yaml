@@ -91,13 +91,25 @@ jobs:
           xcrun xcodebuild \
             -list
 
+      - name: Check required repo files
+        run: |
+          if [ ! -f "${{ inputs.xcworkspace }}" ]; then
+            echo "Workspace file not found!"
+            exit 1
+          fi
+
+          if [ ! -f "${{ inputs.export_options_plist }}" ]; then
+            echo "ExportOptions.plist file not found!"
+            exit 1
+          fi
+
       - name: Build and Archive
         env:
           API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
           ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
         run: |
           xcrun xcodebuild \
-            -workspace ${{ inputs.xcworkspace }} \
+            -project "demo-store-ios.xcodeproj" \
             -scheme ${{ inputs.scheme }} \
             -configuration AppStoreDistribution \
             -sdk iphoneos \
