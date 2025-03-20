@@ -32,12 +32,6 @@ on:
         required: true
       GITHUB_APP_PRIVATE_KEY:
         required: true
-      IOS_CERTIFICATE_P12:
-        required: true
-      IOS_CERTIFICATE_PASSWORD:
-        required: true
-      IOS_PROVISIONING_PROFILE:
-        required: true
 
 jobs:
   publish_and_version_bump:
@@ -55,90 +49,45 @@ jobs:
         with:
           token: ${{ steps.app-token.outputs.token }}
 
-      - name: Set up Xcode
-        run: |
-          sudo xcode-select --switch /Applications/Xcode.app/Contents/Developer
+      - name: Setup Xcode
+        uses: actions/setup-xcode@v2
+        with:
+          xcode-version: latest
 
-      # Create and set up keychain
-      - name: Set up Keychain
+      - name: Decode API Key
         run: |
-          security create-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
-          security default-keychain -s build.keychain
-          security unlock-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
-          security set-keychain-settings -t 3600 -l ~/Library/Keychains/build.keychain
+          echo "${{ secrets.APP_STORE_CONNECT_API_KEY }}" | base64 -d > AuthKey_${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}.p8
 
-      # Import the .p12 certificate
-      - name: Import iOS certificate (.p12)
-        env:
-          IOS_CERTIFICATE_PASSWORD: ${{ secrets.IOS_CERTIFICATE_PASSWORD }}
-        run: |
-          echo "${{ secrets.IOS_CERTIFICATE_P12 }}" | base64 --decode > ios_certificate.p12
-          security import ios_certificate.p12 -k ~/Library/Keychains/build.keychain -P "$IOS_CERTIFICATE_PASSWORD" -T /usr/bin/codesign
-
-      # Install the provisioning profile
-      - name: Install provisioning profile
-        id: install_profile
-        run: |
-          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
-          echo "${{ secrets.IOS_PROVISIONING_PROFILE }}" | base64 --decode > profile.mobileprovision
-          uuid=$(/usr/libexec/PlistBuddy -c 'Print UUID' /dev/stdin <<< $(security cms -D -i profile.mobileprovision))
-          mv profile.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/${uuid}.mobileprovision
-          echo "UUID=${uuid}" >> $GITHUB_ENV
-
-      # Pod install
-      - name: Pod install
-        run: |
-          pod cache clean --all
-          rm -rf Pods
-          rm Podfile.lock
-          pod install
-
-      # Build IPA
-      - name: Build IPA
+      - name: Build and Archive
         env:
           API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
           ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
         run: |
-          if [ ! -f "${{ inputs.xcworkspace }}" ] && [ ! -d "${{ inputs.xcworkspace }}" ]; then
-            echo "Workspace file not found!"
-            exit 1
-          fi
-
-          if [ ! -f "${{ inputs.export_options_plist }}" ] && [ ! -d "${{ inputs.export_options_plist }}" ]; then
-            echo "ExportOptions.plist file not found!"
-            exit 1
-          fi
-
           xcodebuild -workspace ${{ inputs.xcworkspace }} \
-            -scheme ${{ inputs.scheme }} \
-            -sdk iphoneos \
-            -configuration AppStoreDistribution \
-            -allowProvisioningUpdates \
-            -authenticationKeyID "$API_KEY_ID" \
-            -authenticationKeyIssuerID "$APPLE_ID_ISSUER_ID" \
-            -archivePath $PWD/build/App.xcarchive \
-            CODE_SIGN_IDENTITY="Apple Development"
+                    -scheme ${{ inputs.scheme }} \
+                    -destination 'generic/platform=iOS' \
+                    -archivePath build/App.xcarchive \
+                    -allowProvisioningUpdates \
+                    -authenticationKeyPath ./AuthKey_$API_KEY_ID.p8 \
+                    -authenticationKeyID $API_KEY_ID \
+                    -authenticationKeyIssuerID $ISSUER_ID \
+                    archive
 
-          xcodebuild -exportArchive \
-            -archivePath $PWD/build/App.xcarchive \
-            -exportPath $PWD/build \
-            -exportOptionsPlist ${{ inputs.export_options_plist }} \
-            -allowProvisioningUpdates
-
-      # Upload IPA build to TestFlight
-      - name: Upload to TestFlight
-        env:
-          API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
-          ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+      - name: Export IPA
         run: |
-          if [ ! -f "${{ inputs.ipa_file }}" ]; then
-            echo "IPA file not found!"
-            exit 1
-          fi
+          xcodebuild -exportArchive \
+                    -archivePath build/App.xcarchive \
+                    -exportOptionsPlist ${{ inputs.export_options_plist }} \
+                    -exportPath build \
+                    -allowProvisioningUpdates
 
-          xcrun altool --list-providers \
-            --apiKey $API_KEY_ID \
-            --apiIssuer $ISSUER_ID
+      - name: Upload to TestFlight
+        uses: apple-actions/upload-testflight-build@v1
+        with:
+          app-path: ${{ inputs.ipa_file }}
+          issuer-id: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          api-key-id: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+          api-private-key: ${{ secrets.APP_STORE_CONNECT_API_KEY }}
 
       # Increment version
       - name: Bump version
