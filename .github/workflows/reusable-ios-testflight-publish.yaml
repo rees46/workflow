@@ -55,10 +55,9 @@ jobs:
         with:
           token: ${{ steps.app-token.outputs.token }}
 
-      - name: Setup Xcode
-        uses: actions/setup-xcode@v2
-        with:
-          xcode-version: latest
+      - name: Set up Xcode
+        run: |
+          sudo xcode-select --switch /Applications/Xcode.app/Contents/Developer
 
       - name: Decode API Key
         run: |
