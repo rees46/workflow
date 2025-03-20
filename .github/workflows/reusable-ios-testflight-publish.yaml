@@ -118,22 +118,15 @@ jobs:
 
       - name: Build and Archive
         env:
-          API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
-          ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
         run: |
-          xcrun xcodebuild \
-            -workspace ${{ inputs.xcworkspace }} \
-            -scheme ${{ inputs.scheme }} \
-            -configuration AppStoreDistribution \
-            -sdk iphoneos \
-            -parallelizeTargets \
-            -showBuildTimingSummary \
-            -disableAutomaticPackageResolution \
+          xcodebuild \
+            -project YourProject.xcodeproj \
+            -scheme YourScheme \
+            -destination 'generic/platform=iOS' \
             -allowProvisioningUpdates \
-            -authenticationKeyID $API_KEY_ID \
-            -authenticationKeyIssuerID $ISSUER_ID \
-            -archivePath $PWD/build/App.xcarchive \
-            archive
+            CODE_SIGN_STYLE="Automatic"
 
           xcrun xcodebuild \
             -exportArchive \
