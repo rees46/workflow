@@ -123,9 +123,9 @@ jobs:
             -parallelizeTargets \
             -showBuildTimingSummary \
             -disableAutomaticPackageResolution \
+            -allowProvisioningUpdates \
             -archivePath $PWD/build/App.xcarchive \
             archive
-            # PROVISIONING_PROFILE_SPECIFIER="demo-ios profile"
 
           xcrun xcodebuild \
             -exportArchive \
