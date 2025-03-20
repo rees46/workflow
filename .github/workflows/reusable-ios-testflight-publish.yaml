@@ -73,7 +73,7 @@ jobs:
                     -destination 'generic/platform=iOS' \
                     -archivePath build/App.xcarchive \
                     -allowProvisioningUpdates \
-                    -authenticationKeyPath ./AuthKey_$API_KEY_ID.p8 \
+                    -authenticationKeyPath AuthKey_$API_KEY_ID.p8 \
                     -authenticationKeyID $API_KEY_ID \
                     -authenticationKeyIssuerID $ISSUER_ID \
                     archive
