@@ -110,45 +110,22 @@ jobs:
       #       exit 1
       #     fi
 
-      - name: Decode App Store Connect API Key
-        id: decode
-        run: |
-          mkdir private_keys
-          echo "${{ secrets.APP_STORE_CONNECT_API_KEY }}" | base64 --decode > private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}.p8
-
       - name: Build and Archive
         env:
           API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
           ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
         run: |
-          xcodebuild \
+          xcrun xcodebuild \
             -workspace ${{ inputs.xcworkspace }} \
             -scheme ${{ inputs.scheme }} \
-            -authenticationKeyID $API_KEY_ID \
-            -authenticationKeyIssuerID $ISSUER_ID \
-            -allowProvisioningUpdates \
-            archive 
-
-            # -configuration AppStoreDistribution \
-            # -sdk iphoneos \
-            # -parallelizeTargets \
-            # -showBuildTimingSummary \
-            # -disableAutomaticPackageResolution \
-            # -archivePath $PWD/build/App.xcarchive \
-
-          # xcrun xcodebuild \
-          #   -workspace ${{ inputs.xcworkspace }} \
-          #   -scheme ${{ inputs.scheme }} \
-          #   -configuration AppStoreDistribution \
-          #   -sdk iphoneos \
-          #   -parallelizeTargets \
-          #   -showBuildTimingSummary \
-          #   -disableAutomaticPackageResolution \
-          #   -allowProvisioningUpdates \
-          #   -authenticationKeyID $API_KEY_ID \
-          #   -authenticationKeyIssuerID $ISSUER_ID \
-          #   -archivePath $PWD/build/App.xcarchive \
-          #   archive
+            -configuration AppStoreDistribution \
+            -sdk iphoneos \
+            -parallelizeTargets \
+            -showBuildTimingSummary \
+            -disableAutomaticPackageResolution \
+            -archivePath $PWD/build/App.xcarchive \
+            archive \
+            PROVISIONING_PROFILE_SPECIFIER="demo-ios"
 
           xcrun xcodebuild \
             -exportArchive \
