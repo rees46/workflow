@@ -124,9 +124,10 @@ jobs:
           xcodebuild \
             -workspace ${{ inputs.xcworkspace }} \
             -scheme ${{ inputs.scheme }} \
+            -authenticationKeyID $API_KEY_ID \
+            -authenticationKeyIssuerID $ISSUER_ID \
             -allowProvisioningUpdates \
-            archive \
-            CODE_SIGN_STYLE="Automatic"
+            archive 
 
             # -configuration AppStoreDistribution \
             # -sdk iphoneos \
