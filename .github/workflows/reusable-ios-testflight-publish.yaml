@@ -32,6 +32,12 @@ on:
         required: true
       GITHUB_APP_PRIVATE_KEY:
         required: true
+      IOS_CERTIFICATE_P12:
+        required: true
+      IOS_CERTIFICATE_PASSWORD:
+        required: true
+      IOS_PROVISIONING_PROFILE:
+        required: true
 
 jobs:
   publish_and_version_bump:
