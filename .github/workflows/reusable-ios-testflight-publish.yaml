@@ -116,8 +116,7 @@ jobs:
           ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
         run: |
           xcrun xcodebuild \
-            -project demo-store-ios.xcodeproj \
-            # -workspace ${{ inputs.xcworkspace }} \
+            -workspace ${{ inputs.xcworkspace }} \
             -scheme ${{ inputs.scheme }} \
             -configuration AppStoreDistribution \
             -sdk iphoneos \
