@@ -86,6 +86,8 @@ jobs:
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
           cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles
 
+          cat $PP_PATH
+
       # - name: Debug schemes
       #   run: |
       #     xcrun xcodebuild \
