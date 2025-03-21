@@ -49,8 +49,9 @@ jobs:
           path: target
 
       - name: Clean target directory except excluded files
+        working-directory: target
         run: |
-          sudo find target/ -maxdepth 1 -type f \
+          sudo find . -maxdepth 1 -type f \
           ! -path ".git/*" \
           ! -path ".idea/*" \
           ! -path ".github/*" \
