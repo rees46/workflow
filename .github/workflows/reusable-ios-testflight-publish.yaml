@@ -127,9 +127,9 @@ jobs:
             -disableAutomaticPackageResolution \
             -archivePath $PWD/build/App.xcarchive \
             archive \
-            CODE_SIGN_STYLE=Manual \
-            CODE_SIGN_IDENTITY=demo-ios \
-            PROVISIONING_PROFILE_SPECIFIER="demo-ios"
+            CODE_SIGN_STYLE=Manual
+            # CODE_SIGN_IDENTITY=demo-ios \
+            # PROVISIONING_PROFILE_SPECIFIER="demo-ios"
 
           xcrun xcodebuild \
             -exportArchive \
