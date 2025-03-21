@@ -50,15 +50,15 @@ jobs:
 
       - name: Clean target directory except excluded files
         run: |
-          rsync -av --delete --exclude-from=<(echo \
-          '.git' \
-          '.idea' \
-          '.github' \
-          '.gitignore' \
-          'LICENSE' \
-          'README.md' \
-          'version.properties' \
-          ) /dev/null target/
+          sudo find target/ -maxdepth 1 -type f \
+          ! -path ".git/*" \
+          ! -path ".idea/*" \
+          ! -path ".github/*" \
+          ! -path ".gitignore/*" \
+          ! -name "LICENSE" \
+          ! -name "README.md" \
+          ! -name "version.properties" \
+          -delete
 
       - name: Sync files to remote repository
         run: |
