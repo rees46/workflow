@@ -25,7 +25,7 @@ jobs:
       - name: Get current version from source
         working-directory: source
         env:
-          FILE_PATH: "version.properties"
+          FILE_PATH: 'version.properties'
         id: version_source
         run: |
           current_version=$(awk -F"=" '/VERSION_NAME/ {print $2}' "$FILE_PATH")
