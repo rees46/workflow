@@ -51,7 +51,7 @@ jobs:
       - name: Clean target directory except excluded files
         working-directory: target
         run: |
-          sudo find . -maxdepth 1 -type f \
+          find . -mindepth 1 -maxdepth 1 \
           ! -path ".git/*" \
           ! -path ".idea/*" \
           ! -path ".github/*" \
@@ -59,7 +59,7 @@ jobs:
           ! -name "LICENSE" \
           ! -name "README.md" \
           ! -name "version.properties" \
-          -delete
+          -exec rm -rf {} +
 
       - name: Sync files to remote repository
         run: |
