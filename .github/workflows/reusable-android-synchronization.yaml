@@ -52,10 +52,10 @@ jobs:
         working-directory: target
         run: |
           find . -mindepth 1 -maxdepth 1 \
-          ! -path ".git/*" \
-          ! -path ".idea/*" \
-          ! -path ".github/*" \
-          ! -path ".gitignore/*" \
+          ! -name ".git" \
+          ! -name ".idea" \
+          ! -name ".github" \
+          ! -name ".gitignore" \
           ! -name "LICENSE" \
           ! -name "README.md" \
           ! -name "version.properties" \
