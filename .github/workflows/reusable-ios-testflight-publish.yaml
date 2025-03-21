@@ -86,8 +86,6 @@ jobs:
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
           cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles
 
-          cat $PP_PATH
-
       # - name: Debug schemes
       #   run: |
       #     xcrun xcodebuild \
@@ -127,9 +125,9 @@ jobs:
             -disableAutomaticPackageResolution \
             -archivePath $PWD/build/App.xcarchive \
             archive \
-            CODE_SIGN_STYLE=Manual
+            CODE_SIGN_STYLE=Manual \
             # CODE_SIGN_IDENTITY=demo-ios \
-            # PROVISIONING_PROFILE_SPECIFIER="demo-ios"
+            PROVISIONING_PROFILE_SPECIFIER=demo-ios
 
           xcrun xcodebuild \
             -exportArchive \
