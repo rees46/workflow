@@ -37,10 +37,7 @@ jobs:
 
       - name: Changed files
         id: changed_files
-        uses: tj-actions/changed-files@v45
-        with:
-          base_sha: ${{ github.base_ref }}
-          since_last_remote_commit: true
+        uses: tj-actions/changed-files@v46
 
       - name: Check if any packages need build
         id: changed_packages
