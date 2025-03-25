@@ -50,12 +50,6 @@ jobs:
     runs-on: macos-latest
 
     steps:
-      - uses: actions/create-github-app-token@v1
-        id: app-token
-        with:
-          app-id: ${{ secrets.GITHUB_APP_ID }}
-          private-key: ${{ secrets.GITHUB_APP_PRIVATE_KEY }}
-
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
@@ -154,23 +148,3 @@ jobs:
           issuer-id: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
           api-key-id: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
           api-private-key: ${{ secrets.APP_STORE_CONNECT_API_KEY }}
-
-      # Retrieve new version
-      - name: Retrieve new version
-        id: versionName
-        run: |
-          version=$(./workflow/scripts/multiplatform/get-version-name.sh)
-          echo "versionName=$version" >> $GITHUB_ENV
-          echo "versionName=$version" >> $GITHUB_OUTPUT
-
-      # Commit version changes
-      - name: Commit version changes
-        id: committer
-        uses: planetscale/ghcommit-action@v0.1.6
-        env:
-          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
-        with:
-          repo: ${{ github.repository }}
-          branch: master
-          commit_message: "chore: bump version to ${{ steps.versionName.outputs.versionName }}"
-          file_pattern: ${{ env.PROPERTIES_FILE }}
