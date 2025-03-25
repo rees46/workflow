@@ -67,12 +67,12 @@ jobs:
           repository: ${{ env.WORKFLOW_REPO }}
           path: workflow
           sparse-checkout: |
-            scripts/version-properties
+            scripts/multiplatform
 
       - name: Increment vesion manually
         run: |
-          ./workflow/scripts/version-properties/increment-patch-version.sh
-          VERSION=$(./workflow/scripts/version-properties/get-version-code.sh)
+          ./workflow/scripts/multiplatform/increment-patch-version.sh
+          VERSION=$(./workflow/scripts/multiplatform/get-version-code.sh)
           agvtool new-version -all $VERSION
 
       - name: Install the Apple certificate & provisioning profile & P8
@@ -159,7 +159,7 @@ jobs:
       - name: Retrieve new version
         id: versionName
         run: |
-          version=$(./workflow/scripts/version-properties/get-version-name.sh)
+          version=$(./workflow/scripts/multiplatform/get-version-name.sh)
           echo "versionName=$version" >> $GITHUB_ENV
           echo "versionName=$version" >> $GITHUB_OUTPUT
 
