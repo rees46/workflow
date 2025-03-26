@@ -36,10 +36,6 @@ jobs:
           sparse-checkout: |
             scripts/multiplatform
 
-      - name: Debug workflow
-        run: |
-          ls -R workflow
-
       - name: Increment vesion manually
         run: |
           ./workflow/scripts/multiplatform/increment-patch-version.sh
