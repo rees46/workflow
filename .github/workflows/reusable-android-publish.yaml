@@ -87,7 +87,7 @@ jobs:
 
       - name: Publish
         run: |
-          ./gradlew pubilsh
+          ./gradlew publish
 
       # - name: Debug sonatype pubilsh
       #   run: |
