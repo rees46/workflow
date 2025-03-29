@@ -72,7 +72,8 @@ jobs:
           PROPERTIES_FILE: ${{ inputs.PROPERTIES_FILE }}
           SIGNING_SECRET_KEY_RING_FILE: ${{ inputs.SIGNING_SECRET_KEY_RING_FILE }}
           SIGNING_SECRET_KEY_RING_FILE_LOCATION: ${{ inputs.SIGNING_SECRET_KEY_RING_FILE_LOCATION }}
-          VARIANT_NAME: ${{ inputs.VARIANT_NAME }}
+          # VARIANT_NAME: ${{ inputs.VARIANT_NAME }}
+          VARIANT_NAME: rees46
           URL: ${{ inputs.URL }}
           MAVEN_REPOSITORY_URL: ${{ inputs.MAVEN_REPOSITORY_URL }}
           OSSRH_USERNAME: ${{ inputs.OSSRH_USERNAME }}
