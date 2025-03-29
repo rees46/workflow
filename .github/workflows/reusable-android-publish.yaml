@@ -88,6 +88,7 @@ jobs:
       - name: Clean gradlew
         run: |
           ./gradlew clean
+          rm -rf ~/.gradle/caches/
 
       - name: Publish
         run: |
