@@ -1,0 +1,115 @@
+name: PersonaClick Synchronization
+
+env:
+  TERGET_REPO: "PersonaClick/workflow"
+  MANAGER_USERNAME: TorinAsakura
+
+on:
+  pull_request:
+    types:
+      - closed
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  run:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          path: source
+        env:
+          GITHUB_TOKEN: ${{ secrets.JADE_SMITH_BOT_TOKEN }}
+
+      - name: Check out remote repository
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.TERGET_REPO }}
+          token: ${{ secrets.JADE_SMITH_BOT_TOKEN }}
+          path: target
+
+      - name: Clean target directory except excluded files
+        working-directory: target
+        run: |
+          find . -mindepth 1 -maxdepth 1 \
+          ! -name ".git" \
+          ! -name ".idea" \
+          ! -name ".gitignore" \
+          ! -name "LICENSE" \
+          -exec rm -rf {} +
+
+      - name: Sync files to remote repository
+        run: |
+          # TODO need to separete .github/workflows/synchronization.yaml into personal directory
+          rsync -av --progress \
+            source/ target/ \
+            --exclude '.git' \
+            --exclude '.idea' \
+            --exclude '.gitignore' \
+            --exclude 'LICENSE' \
+            --exclude '.github/workflows/synchronization.yaml' \
+
+      - name: Apply changes to files
+        working-directory: target
+        run: |
+          find . -type f \( -name '*.ts' -o -name '*.sh' -o -name '*.yaml' \) -exec sed -i \
+            -e 's|https://api.rees46.com/|https://api.personaclick.com/|g' \
+            -e 's/com.rees46:rees46-sdk/com.personaclick:personaclick-sdk/g' \
+            -e 's/api.rees46.com/api.personaclick.com/g' \
+            -e 's/rees46.com/personaclick.com/g' \
+            -e 's/rees46/personaClick/g' \
+            -e 's/REES46/PersonaClick/g' \
+            -e 's/Rees46/PersonaClick/g' {} +
+
+      - name: Get last merged PR author login
+        working-directory: source
+        id: pr_author
+        run: |
+          PR_NUMBER=$(gh pr list --state merged --limit 1 --json number --jq '.[0].number')
+          LAST_PR_AUTHOR=$(gh pr view $PR_NUMBER --json author --jq '.author.login')
+          echo "LAST_PR_AUTHOR=$LAST_PR_AUTHOR" >> $GITHUB_OUTPUT
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create commit
+        working-directory: target
+        run: |
+          git config --global user.name Jade Smith
+          git config --global user.email github-bot@rees46.com
+          git add .
+          echo "Changes to be committed:"
+          git diff --staged
+          git commit -m "feat: release"
+        env:
+          GITHUB_TOKEN: ${{ secrets.JADE_SMITH_BOT_TOKEN }}
+
+      - name: Set branch name
+        id: branch_name
+        run: echo "BRANCH_NAME=feat/new-release-$(date +%Y%m%d%H%M%S)" >> $GITHUB_OUTPUT
+
+      - name: Checkout new branch and push
+        working-directory: target
+        run: |
+          git checkout -b $BRANCH_NAME
+          git push --set-upstream origin $BRANCH_NAME
+        env:
+          GITHUB_TOKEN: ${{ secrets.JADE_SMITH_BOT_TOKEN }}
+          BRANCH_NAME: ${{ steps.branch_name.outputs.BRANCH_NAME }}
+
+      - name: Create Pull Request
+        working-directory: target
+        run: |
+          PR_TITLE="Automated release"
+          PR_BODY="This is an automated pull request to update from branch $BRANCH_NAME"
+          DEFAULT_BRANCH=$(gh repo view --json defaultBranchRef -q ".defaultBranchRef.name")
+          echo "Assigning PR to LAST_PR_AUTHOR: $LAST_PR_AUTHOR"
+          echo "Adding MANAGER: $MANAGER as a reviewer"
+          gh pr create --title "$PR_TITLE" --body "$PR_BODY" --base "$DEFAULT_BRANCH" --head $BRANCH_NAME --assignee $LAST_PR_AUTHOR --reviewer $MANAGER
+        env:
+          GITHUB_TOKEN: ${{ secrets.JADE_SMITH_BOT_TOKEN }}
+          BRANCH_NAME: ${{ steps.branch_name.outputs.BRANCH_NAME }}
+          LAST_PR_AUTHOR: ${{ steps.pr_author.outputs.LAST_PR_AUTHOR }}
+          MANAGER: ${{ env.MANAGER_USERNAME }}
