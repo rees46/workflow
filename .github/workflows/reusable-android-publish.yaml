@@ -91,7 +91,7 @@ jobs:
 
       - name: Release sonatype
         run: |
-          ./gradlew closeAndReleaseSonatypeStagingRepository
+          ./gradlew closeAndReleaseRees46SonatypeStagingRepository
 
       # - name: Publish
       #   run: ./gradlew publish
