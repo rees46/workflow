@@ -87,7 +87,7 @@ jobs:
 
       - name: Debug sonatype pubilsh
         run: |
-          ./gradlew publishToSonatype --dry-run
+          ./gradlew publishRees46ReleaseLibraryPublicationToSonatypeRepository --dry-run
 
       # - name: Publish
       #   run: ./gradlew publish
