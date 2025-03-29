@@ -85,9 +85,5 @@ jobs:
           SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
           SIGNING_KEY_FILE_AS_BASE64_STRING: ${{ secrets.SIGNING_KEY_FILE_AS_BASE64_STRING }}
 
-      - name: Debu signing
-        run: |
-          ./gradlew sign --dry-run
-
-      # - name: Publish
-      #   run: ./gradlew publish
+      - name: Publish
+        run: ./gradlew publish
