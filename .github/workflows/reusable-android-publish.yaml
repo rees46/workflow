@@ -85,13 +85,16 @@ jobs:
           SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
           SIGNING_KEY_FILE_AS_BASE64_STRING: ${{ secrets.SIGNING_KEY_FILE_AS_BASE64_STRING }}
 
-      - name: Debug sonatype pubilsh
+      - name: Publish
         run: |
-          ./gradlew publishRees46ReleaseLibraryPublicationToSonatypeRepository --info | grep -i "upload\|fail\|error\|sonatype"
+          ./gradlew pubilsh
 
-      - name: Release sonatype
-        run: |
-          ./gradlew closeAndReleaseRees46SonatypeStagingRepository
+      # - name: Debug sonatype pubilsh
+      #   run: |
+      #     ./gradlew publishRees46ReleaseLibraryPublicationToSonatypeRepository --info | grep -i "upload\|fail\|error\|sonatype"
+      # - name: Release sonatype
+      #   run: |
+      #     ./gradlew closeAndReleaseRees46SonatypeStagingRepository
 
       # - name: Publish
       #   run: ./gradlew publish
