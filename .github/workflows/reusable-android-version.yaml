@@ -24,7 +24,7 @@ on:
       appId:
         required: true
         type: string
-        description: 'App ID for committing and pushing'
+        description: "App ID for committing and pushing"
       VARIANT_NAME:
         description: REES46 or PersonaClick
         type: string
@@ -40,7 +40,7 @@ on:
       OSSRH_USERNAME:
         required: false
         type: string
-        default: 'github-bot@rees46.com'
+        default: "github-bot@rees46.com"
     secrets:
       SONATA_USERNAME:
         required: true
@@ -78,6 +78,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           token: ${{ steps.app-token.outputs.token }}
+          branch: master
 
       - name: Prepare Android Action
         uses: rees46/workflow/.github/actions/android/prepare@master
@@ -118,5 +119,5 @@ jobs:
         with:
           repo: ${{ github.repository }}
           branch: master
-          commit_message: 'chore(common): version bump to ${{ steps.versionName.outputs.versionName }}'
-          file_pattern: 'personalization-sdk'
+          commit_message: "chore(common): version bump to ${{ steps.versionName.outputs.versionName }}"
+          file_pattern: "personalization-sdk"
