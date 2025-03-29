@@ -36,7 +36,7 @@ on:
       OSSRH_USERNAME:
         required: false
         type: string
-        default: 'github-bot@rees46.com'
+        default: "github-bot@rees46.com"
     secrets:
       SONATA_USERNAME:
         required: true
@@ -85,5 +85,9 @@ jobs:
           SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
           SIGNING_KEY_FILE_AS_BASE64_STRING: ${{ secrets.SIGNING_KEY_FILE_AS_BASE64_STRING }}
 
-      - name: Publish
-        run: ./gradlew publish
+      - name: Debu signing
+        run: |
+          ./gradlew sign --dry-run
+
+      # - name: Publish
+      #   run: ./gradlew publish
