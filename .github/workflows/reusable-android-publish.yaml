@@ -87,7 +87,7 @@ jobs:
 
       - name: Debug sonatype pubilsh
         run: |
-          ./gradlew publishRees46ReleaseLibraryPublicationToSonatypeRepository
+          ./gradlew publishRees46ReleaseLibraryPublicationToSonatypeRepository --info | grep -i "upload\|fail\|error\|sonatype"
 
       # - name: Publish
       #   run: ./gradlew publish
