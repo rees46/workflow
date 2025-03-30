@@ -8,19 +8,16 @@ env:
   REPLACEMENT_CONTENTS: "https://api.rees46.com/|https://api.personaclick.com/,com.rees46:rees46-sdk|com.personaclick:personaclick-sdk,api.rees46.com|api.personaclick.com,rees46.com|personaclick.com,rees46|personaClick,REES46|PersonaClick,Rees46|PersonaClick"
 
 on:
-  # TODO uncomment
   pull_request:
-  # pull_request:
-  #   types:
-  #     - closed
-  #   branches:
-  #     - master
-  # workflow_dispatch:
+    types:
+      - closed
+    branches:
+      - master
+  workflow_dispatch:
 
 jobs:
   run:
-    # TODO uncomment
-    # if: github.event.pull_request.merged == true || github.event_name == 'workflow_dispatch'
+    if: github.event.pull_request.merged == true || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
