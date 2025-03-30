@@ -3,61 +3,11 @@ name: Reusable Android SDK version
 on:
   workflow_call:
     inputs:
-      PROPERTIES_FILE:
-        default: gradle.properties
-        type: string
-        description: Relative file path for putting in secrets
-        required: false
-      SIGNING_SECRET_KEY_RING_FILE:
-        default: com.rees46.key.gpg
-        type: string
-        description: Location and name for signature file
-        required: false
-      SIGNING_SECRET_KEY_RING_FILE_LOCATION:
-        type: string
-        description: Location and name for signature file
-        required: true
-        default: ./personalization-sdk
-      GRADLE_VERSION:
-        type: number
-        required: false
       appId:
         required: true
         type: string
-        description: 'App ID for committing and pushing'
-      VARIANT_NAME:
-        description: REES46 or PersonaClick
-        type: string
-        required: true
-      URL:
-        description: GitHub repo URL
-        type: string
-        required: true
-      MAVEN_REPOSITORY_URL:
-        description: Maven repository publish to
-        type: string
-        required: true
-      OSSRH_USERNAME:
-        required: false
-        type: string
-        default: 'github-bot@rees46.com'
+        description: "App ID for committing and pushing"
     secrets:
-      SONATA_USERNAME:
-        required: true
-      SONATA_PASSWORD:
-        required: true
-      SONATYPE_REES46:
-        required: true
-      SONATYPE_PERSONACLICK:
-        required: true
-      OSSRH_PASSWORD:
-        required: true
-      SIGNING_KEY_ID:
-        required: true
-      SIGNING_PASSWORD:
-        required: true
-      SIGNING_KEY_FILE_AS_BASE64_STRING:
-        required: true
       appSecret:
         required: true
 
@@ -79,25 +29,6 @@ jobs:
         with:
           token: ${{ steps.app-token.outputs.token }}
 
-      - name: Prepare Android Action
-        uses: rees46/workflow/.github/actions/android/prepare@master
-        with:
-          PROPERTIES_FILE: ${{ inputs.PROPERTIES_FILE }}
-          SIGNING_SECRET_KEY_RING_FILE: ${{ inputs.SIGNING_SECRET_KEY_RING_FILE }}
-          SIGNING_SECRET_KEY_RING_FILE_LOCATION: ${{ inputs.SIGNING_SECRET_KEY_RING_FILE_LOCATION }}
-          VARIANT_NAME: ${{ inputs.VARIANT_NAME }}
-          URL: ${{ inputs.URL }}
-          MAVEN_REPOSITORY_URL: ${{ inputs.MAVEN_REPOSITORY_URL }}
-          OSSRH_USERNAME: ${{ inputs.OSSRH_USERNAME }}
-          OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
-          SONATA_USERNAME: ${{ secrets.SONATA_USERNAME }}
-          SONATA_PASSWORD: ${{ secrets.SONATA_PASSWORD }}
-          SONATYPE_PERSONACLICK: ${{ secrets.SONATYPE_PERSONACLICK }}
-          SONATYPE_REES46: ${{ secrets.SONATYPE_REES46 }}
-          SIGNING_KEY_ID: ${{ secrets.SIGNING_KEY_ID }}
-          SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
-          SIGNING_KEY_FILE_AS_BASE64_STRING: ${{ secrets.SIGNING_KEY_FILE_AS_BASE64_STRING }}
-
       - name: Patch version
         run: ./gradlew personalization-sdk:increaseVersionCode
 
@@ -118,5 +49,5 @@ jobs:
         with:
           repo: ${{ github.repository }}
           branch: master
-          commit_message: 'chore(common): version bump to ${{ steps.versionName.outputs.versionName }}'
-          file_pattern: 'personalization-sdk'
+          commit_message: "chore(common): version bump to ${{ steps.versionName.outputs.versionName }}"
+          file_pattern: "personalization-sdk"
