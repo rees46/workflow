@@ -3,18 +3,24 @@ name: PersonaClick Synchronization
 env:
   TERGET_REPO: "PersonaClick/workflow"
   MANAGER_USERNAME: TorinAsakura
+  SYNC_IGNORE: ".git,.idea,.gitignore,LICENSE,.github/workflows/synchronization.yaml"
+  REPLACMENT_EXTENTIONS: "*.ts,*.sh,*.yaml"
+  REPLACEMENT_CONTENTS: "https://api.rees46.com/|https://api.personaclick.com/,com.rees46:rees46-sdk|com.personaclick:personaclick-sdk,api.rees46.com|api.personaclick.com,rees46.com|personaclick.com,rees46|personaClick,REES46|PersonaClick,Rees46|PersonaClick"
 
 on:
+  # TODO uncomment
   pull_request:
-    types:
-      - closed
-    branches:
-      - master
-  workflow_dispatch:
+  # pull_request:
+  #   types:
+  #     - closed
+  #   branches:
+  #     - master
+  # workflow_dispatch:
 
 jobs:
   run:
-    if: github.event.pull_request.merged == true
+    # TODO uncomment
+    # if: github.event.pull_request.merged == true || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -34,35 +40,50 @@ jobs:
       - name: Clean target directory except excluded files
         working-directory: target
         run: |
-          find . -mindepth 1 -maxdepth 1 \
-          ! -name ".git" \
-          ! -name ".idea" \
-          ! -name ".gitignore" \
-          ! -name "LICENSE" \
-          -exec rm -rf {} +
+          IFS=',' read -r -a ignored_files <<< "$SYNC_IGNORE"
 
+          exclude_conditions=""
+          for ignored_file in "${ignored_files[@]}"; do
+            exclude_conditions=" $exclude_conditions ! -name \"$ignored_file\""
+          done
+
+          eval find . -mindepth 1 -maxdepth 1 $exclude_conditions -exec rm -rf {} +
+
+      # TODO need to separete .github/workflows/synchronization.yaml into personal directory
       - name: Sync files to remote repository
         run: |
-          # TODO need to separete .github/workflows/synchronization.yaml into personal directory
-          rsync -av --progress \
-            source/ target/ \
-            --exclude '.git' \
-            --exclude '.idea' \
-            --exclude '.gitignore' \
-            --exclude 'LICENSE' \
-            --exclude '.github/workflows/synchronization.yaml' \
+          IFS=',' read -r -a ignored_files <<< "$SYNC_IGNORE"
+
+          exclude_conditions=""
+          for ignored_file in "${ignored_files[@]}"; do
+            exclude_conditions=" $exclude_conditions --exclude \"$ignored_file\""
+          done
+
+          echo $exclude_conditions
+
+          eval rsync -av --progress source/ target/ $exclude_conditions
 
       - name: Apply changes to files
         working-directory: target
         run: |
-          find . -type f \( -name '*.ts' -o -name '*.sh' -o -name '*.yaml' \) -exec sed -i \
-            -e 's|https://api.rees46.com/|https://api.personaclick.com/|g' \
-            -e 's/com.rees46:rees46-sdk/com.personaclick:personaclick-sdk/g' \
-            -e 's/api.rees46.com/api.personaclick.com/g' \
-            -e 's/rees46.com/personaclick.com/g' \
-            -e 's/rees46/personaClick/g' \
-            -e 's/REES46/PersonaClick/g' \
-            -e 's/Rees46/PersonaClick/g' {} +
+          IFS=',' read -r -a replacement_extentions <<< "$REPLACMENT_EXTENTIONS"
+          IFS=',' read -r -a replacement_contents <<< "$REPLACEMENT_CONTENTS"
+
+          find_conditions=""
+          for extention in "${replacement_extentions[@]}"; do
+            if [ -z "$find_conditions" ]; then
+              find_conditions="-name \"$extention\""
+            else
+              find_conditions="$find_conditions -o -name \"$extention\""
+            fi
+          done
+
+          sed_arguments=""
+          for replacement_content in "${replacement_contents[@]}"; do
+            sed_arguments+="-e 's|$replacement_content|g' "
+          done
+
+          eval "find . -type f \( $find_conditions \) -exec sed -i $sed_arguments" {} +
 
       - name: Get last merged PR author login
         working-directory: source
