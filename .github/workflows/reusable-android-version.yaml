@@ -6,7 +6,7 @@ on:
       appId:
         required: true
         type: string
-        description: "App ID for committing and pushing"
+        description: 'App ID for committing and pushing'
     secrets:
       appSecret:
         required: true
@@ -49,5 +49,5 @@ jobs:
         with:
           repo: ${{ github.repository }}
           branch: master
-          commit_message: "chore(common): version bump to ${{ steps.versionName.outputs.versionName }}"
-          file_pattern: "personalization-sdk"
+          commit_message: 'chore(common): version bump to ${{ steps.versionName.outputs.versionName }}'
+          file_pattern: 'personalization-sdk'
