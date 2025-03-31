@@ -23,4 +23,4 @@ runs:
       with:
         repo: ${{ inputs.targetRepository }}
         branch: ${{ inputs.branchName }}
-        commit_message: "feat: release"
+        commit_message: 'feat: release'
