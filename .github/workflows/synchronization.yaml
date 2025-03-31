@@ -1,25 +1,22 @@
 name: PersonaClick Synchronization
 
 env:
-  TARGET_REPO: 'PersonaClick/workflow'
-  SYNC_IGNORE: '.git,.idea,LICENSE,.github/workflows/synchronization.yaml'
-  REPLACMENT_EXTENTIONS: '*.ts,*.sh,*.yaml'
-  REPLACEMENT_CONTENTS: 'https://api.rees46.com/|https://api.personaclick.com/,com.rees46:rees46-sdk|com.personaclick:personaclick-sdk,api.rees46.com|api.personaclick.com,rees46.com|personaclick.com,rees46|personaClick,REES46|PersonaClick,Rees46|PersonaClick'
+  TARGET_REPO: "PersonaClick/workflow"
+  SYNC_IGNORE: ".git,.idea,LICENSE,.github/workflows/synchronization.yaml"
+  REPLACMENT_EXTENTIONS: "*.ts,*.sh,*.yaml"
+  REPLACEMENT_CONTENTS: "https://api.rees46.com/|https://api.personaclick.com/,com.rees46:rees46-sdk|com.personaclick:personaclick-sdk,api.rees46.com|api.personaclick.com,rees46.com|personaclick.com,rees46|personaClick,REES46|PersonaClick,Rees46|PersonaClick"
 
 on:
   pull_request:
-  # TODO uncomment
-  # pull_request:
-  #   types:
-  #     - closed
-  #   branches:
-  #     - master
-  # workflow_dispatch:
+    types:
+      - closed
+    branches:
+      - master
+  workflow_dispatch:
 
 jobs:
   run:
-    # TODO uncomment
-    # if: github.event.pull_request.merged == true || github.event_name == 'workflow_dispatch'
+    if: github.event.pull_request.merged == true || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -99,37 +96,30 @@ jobs:
         run: |
           git add .
 
-      # TODO uncomment
-      # - uses: rees46/workflow/.github/actions/github/get-last-pr-author@master
-      - uses: rees46/workflow/.github/actions/github/pull-request/get-last-author@feat/sync
+      - uses: rees46/workflow/.github/actions/github/pull-request/get-last-author@master
         id: lastPrAuthorStep
         with:
           githubToken: ${{ steps.appTokenStep.outputs.token }}
 
-      # TODO master branch
-      - uses: rees46/workflow/.github/actions/github/utils/get-new-branch-name@feat/sync
+      - uses: rees46/workflow/.github/actions/github/utils/get-new-branch-name@master
         id: newBranchNameStep
 
-      # TODO master branch
-      - uses: rees46/workflow/.github/actions/github/checkout/new-branch@feat/sync
+      - uses: rees46/workflow/.github/actions/github/checkout/new-branch@master
         with:
           branchName: ${{ steps.newBranchNameStep.outputs.branchName }}
 
-      # TODO master branch
-      - uses: rees46/workflow/.github/actions/github/push/create@feat/sync
+      - uses: rees46/workflow/.github/actions/github/push/create@master
         with:
           branchName: ${{ steps.newBranchNameStep.outputs.branchName }}
           githubToken: ${{ steps.appTokenStep.outputs.token }}
 
-      # TODO master branch
-      - uses: rees46/workflow/.github/actions/github/commit/create@feat/sync
+      - uses: rees46/workflow/.github/actions/github/commit/create@master
         with:
           branchName: ${{ steps.newBranchNameStep.outputs.branchName }}
           githubToken: ${{ steps.appTokenStep.outputs.token }}
           targetRepository: ${{ env.TARGET_REPO }}
 
-      # TODO master branch
-      - uses: rees46/workflow/.github/actions/github/pull-request/create@feat/sync
+      - uses: rees46/workflow/.github/actions/github/pull-request/create@master
         with:
           githubToken: ${{ steps.appTokenStep.outputs.token }}
           lastPrAuthor: ${{ steps.lastPrAuthorStep.outputs.lastPrAuthor }}
