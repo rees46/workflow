@@ -1,8 +1,8 @@
 name: Reusable multiplatform bump
 
 env:
-  WORKFLOW_REPO: "rees46/workflow"
-  PROPERTIES_FILE: "version.properties"
+  WORKFLOW_REPO: 'rees46/workflow'
+  PROPERTIES_FILE: 'version.properties'
 
 on:
   workflow_call:
@@ -58,5 +58,5 @@ jobs:
         with:
           repo: ${{ github.repository }}
           branch: master
-          commit_message: "chore: bump version to ${{ steps.versionName.outputs.versionName }}"
+          commit_message: 'chore: bump version to ${{ steps.versionName.outputs.versionName }}'
           file_pattern: ${{ env.PROPERTIES_FILE }}

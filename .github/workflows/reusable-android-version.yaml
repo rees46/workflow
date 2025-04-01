@@ -6,7 +6,7 @@ on:
       appId:
         required: true
         type: string
-        description: "App ID for committing and pushing"
+        description: 'App ID for committing and pushing'
     secrets:
       appSecret:
         required: true
@@ -28,6 +28,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           token: ${{ steps.app-token.outputs.token }}
+          branch: master
 
       - name: Patch version
         run: ./gradlew personalization-sdk:increaseVersionCode
@@ -49,5 +50,5 @@ jobs:
         with:
           repo: ${{ github.repository }}
           branch: master
-          commit_message: "chore(common): version bump to ${{ steps.versionName.outputs.versionName }}"
-          file_pattern: "personalization-sdk"
+          commit_message: 'chore(common): version bump to ${{ steps.versionName.outputs.versionName }}'
+          file_pattern: 'personalization-sdk'
