@@ -1,7 +1,7 @@
 name: Sync iOS Repositories
 
 env:
-  WORKFLOW_REPO: "rees46/workflow"
+  WORKFLOW_REPO: 'rees46/workflow'
 
 on:
   workflow_call:
@@ -12,11 +12,11 @@ on:
       targetRepository:
         type: string
         required: true
-        default: "Target repository"
+        default: 'Target repository'
       versionFilePath:
         type: string
         required: true
-        default: "version.properties"
+        default: 'version.properties'
 
 jobs:
   run:

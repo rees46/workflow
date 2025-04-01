@@ -3,7 +3,7 @@ description: Create gradle.properties file
 
 inputs:
   GRADLE_VERSION:
-    default: "8.5"
+    default: '8.5'
     description: Gradle version
     required: false
   PROPERTIES_FILE:
@@ -60,7 +60,7 @@ runs:
       uses: actions/setup-java@v4
       with:
         java-version: 22
-        distribution: "zulu"
+        distribution: 'zulu'
 
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v3
@@ -71,7 +71,7 @@ runs:
       shell: bash
       env:
         PROPERTIES_FILE: ${{ inputs.PROPERTIES_FILE }}
-        OSSRH_USERNAME: "github-bot@rees46.com"
+        OSSRH_USERNAME: 'github-bot@rees46.com'
         OSSRH_PASSWORD: ${{ inputs.OSSRH_PASSWORD }}
         SONATA_USERNAME: ${{ inputs.SONATA_USERNAME }}
         SONATA_PASSWORD: ${{ inputs.SONATA_PASSWORD }}

@@ -6,7 +6,7 @@ on:
       appId:
         required: true
         type: string
-        description: "App ID for committing and pushing"
+        description: 'App ID for committing and pushing'
     secrets:
       appSecret:
         required: true
