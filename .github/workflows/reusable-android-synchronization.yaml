@@ -15,10 +15,8 @@ on:
         required: true
       sourceDirname:
         type: string
-        required: true
       targetDirname:
         type: string
-        required: true
       syncIgnore:
         type: string
         required: true
@@ -83,6 +81,7 @@ jobs:
           replacementContents: ${{ inputs.replacementContents }}
 
       - uses: rees46/workflow/.github/actions/utils/fs/rename-dirs@master
+        if: ${{ inputs.sourceDirname != '' && targetDirname != '' }}
         with:
           targetDirectory: ${{ env.TARGET_TMP_DIR_PATH }}
           sourceDirname: ${{ inputs.sourceDirname }}
