@@ -1,0 +1,126 @@
+name: PersonaClick Synchronization
+
+env:
+  TARGET_REPO: "PersonaClick/workflow"
+  SYNC_IGNORE: ".git,.idea,LICENSE,.github/workflows/synchronization.yaml"
+  REPLACMENT_EXTENTIONS: "*.ts,*.sh,*.yaml"
+  REPLACEMENT_CONTENTS: "https://api.rees46.com/|https://api.personaclick.com/,com.rees46:rees46-sdk|com.personaclick:personaclick-sdk,api.rees46.com|api.personaclick.com,rees46.com|personaclick.com,rees46|personaClick,REES46|PersonaClick,Rees46|PersonaClick"
+
+on:
+  pull_request:
+    types:
+      - closed
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  run:
+    if: github.event.pull_request.merged == true || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          path: tmp/source
+        env:
+          GITHUB_TOKEN: ${{ secrets.JADE_SMITH_BOT_TOKEN }}
+
+      - name: Check out remote repository
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.TARGET_REPO }}
+          token: ${{ secrets.JADE_SMITH_BOT_TOKEN }}
+          path: tmp/target
+
+      - uses: actions/create-github-app-token@v1
+        id: appTokenStep
+        with:
+          app-id: ${{ vars.PERSONACLICK_COURIER_ID }}
+          private-key: ${{ secrets.PERSONACLICK_COURIER_SECRET }}
+          owner: PersonaClick
+
+      - name: Clean target directory except excluded files
+        working-directory: tmp/target
+        run: |
+          IFS=',' read -r -a ignored_files <<< "$SYNC_IGNORE"
+
+          exclude_conditions=""
+          for ignored_file in "${ignored_files[@]}"; do
+            exclude_conditions=" $exclude_conditions ! -name \"$ignored_file\""
+          done
+
+          eval find . -mindepth 1 -maxdepth 1 $exclude_conditions -exec rm -rf {} +
+
+      # TODO need to separete .github/workflows/synchronization.yaml into personal directory
+      - name: Sync files to remote repository
+        run: |
+          IFS=',' read -r -a ignored_files <<< "$SYNC_IGNORE"
+
+          exclude_conditions=""
+          for ignored_file in "${ignored_files[@]}"; do
+            exclude_conditions=" $exclude_conditions --exclude \"$ignored_file\""
+          done
+
+          echo $exclude_conditions
+
+          eval rsync -av --progress tmp/source/ tmp/target/ $exclude_conditions
+
+      - name: Apply changes to files
+        working-directory: tmp/target
+        run: |
+          IFS=',' read -r -a replacement_extentions <<< "$REPLACMENT_EXTENTIONS"
+          IFS=',' read -r -a replacement_contents <<< "$REPLACEMENT_CONTENTS"
+
+          find_conditions=""
+          for extention in "${replacement_extentions[@]}"; do
+            if [ -z "$find_conditions" ]; then
+              find_conditions="-name \"$extention\""
+            else
+              find_conditions="$find_conditions -o -name \"$extention\""
+            fi
+          done
+
+          sed_arguments=""
+          for replacement_content in "${replacement_contents[@]}"; do
+            sed_arguments+="-e 's|$replacement_content|g' "
+          done
+
+          eval "find . -type f \( $find_conditions \) -exec sed -i $sed_arguments" {} +
+
+      - name: Copy files from targe dir
+        run: |
+          rsync -a tmp/target/ .
+
+      - name: Debug current dir
+        run: |
+          git add .
+
+      - uses: rees46/workflow/.github/actions/github/pull-request/get-last-author@master
+        id: lastPrAuthorStep
+        with:
+          githubToken: ${{ steps.appTokenStep.outputs.token }}
+
+      - uses: rees46/workflow/.github/actions/github/utils/get-new-branch-name@master
+        id: newBranchNameStep
+
+      - uses: rees46/workflow/.github/actions/github/checkout/new-branch@master
+        with:
+          branchName: ${{ steps.newBranchNameStep.outputs.branchName }}
+
+      - uses: rees46/workflow/.github/actions/github/push/create@master
+        with:
+          branchName: ${{ steps.newBranchNameStep.outputs.branchName }}
+          githubToken: ${{ steps.appTokenStep.outputs.token }}
+
+      - uses: rees46/workflow/.github/actions/github/commit/create@master
+        with:
+          branchName: ${{ steps.newBranchNameStep.outputs.branchName }}
+          githubToken: ${{ steps.appTokenStep.outputs.token }}
+          targetRepository: ${{ env.TARGET_REPO }}
+
+      - uses: rees46/workflow/.github/actions/github/pull-request/create@master
+        with:
+          githubToken: ${{ steps.appTokenStep.outputs.token }}
+          lastPrAuthor: ${{ steps.lastPrAuthorStep.outputs.lastPrAuthor }}
+          branchName: ${{ steps.newBranchNameStep.outputs.branchName }}
