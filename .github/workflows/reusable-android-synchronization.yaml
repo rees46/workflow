@@ -64,83 +64,35 @@ jobs:
           token: ${{ steps.appTokenStep.outputs.token }}
           repository: ${{inputs.targetRepository}}
 
-      # TODO move to actions
-      - name: Clean target directory except excluded files
-        working-directory: ${{ env.TARGET_TMP_DIR_PATH }}
-        env:
-          SYNC_IGNORE: ${{ inputs.syncIgnore }}
-        run: |
-          IFS=',' read -r -a ignored_files <<< "$SYNC_IGNORE"
+      - uses: rees46/workflow/.github/actions/utils/fs/clean-dir@master
+        with:
+          targetDirectory: ${{ env.TARGET_TMP_DIR_PATH }}
+          syncIgnore: ${{ inputs.syncIgnore }}
 
-          exclude_conditions=""
-          for ignored_file in "${ignored_files[@]}"; do
-            exclude_conditions=" $exclude_conditions ! -name \"$ignored_file\""
-          done
+      - uses: rees46/workflow/.github/actions/utils/fs/sync-dirs@master
+        with:
+          syncIgnore: ${{ inputs.syncIgnore }}
+          targetDirectory: ${{ env.TARGET_TMP_DIR_PATH }}
+          sourceDirectory: ${{ env.SOURCE_TMP_DIR_PATH }}
 
-          eval find . -mindepth 1 -maxdepth 1 $exclude_conditions -exec rm -rf {} +
+      - uses: rees46/workflow/.github/actions/utils/fs/replace-file-content@master
+        with:
+          syncIgnore: ${{ inputs.syncIgnore }}
+          targetDirectory: ${{ env.TARGET_TMP_DIR_PATH }}
+          replacementExtentions: ${{ inputs.replacementExtentions }}
+          replacementContents: ${{ inputs.replacementContents }}
 
-      # TODO move to actions
-      # TODO need to separete .github/workflows/synchronization.yaml into personal directory
-      - name: Sync files to remote repository
-        env:
-          SYNC_IGNORE: ${{ inputs.syncIgnore }}
-        run: |
-          IFS=',' read -r -a ignored_files <<< "$SYNC_IGNORE"
+      - uses: rees46/workflow/.github/actions/utils/fs/rename-dirs@master
+        with:
+          targetDirectory: ${{ env.TARGET_TMP_DIR_PATH }}
+          sourceDirname: ${{ inputs.sourceDirname }}
+          targetDirname: ${{ inputs.targetDirname }}
 
-          exclude_conditions=""
-          for ignored_file in "${ignored_files[@]}"; do
-            exclude_conditions=" $exclude_conditions --exclude \"$ignored_file\""
-          done
-
-          echo $exclude_conditions
-
-          eval rsync -av --progress "$SOURCE_TMP_DIR_PATH" "$TARGET_TMP_DIR_PATH" $exclude_conditions
-
-      # TODO move to actions
-      - name: Apply changes to files
-        working-directory: ${{ env.TARGET_TMP_DIR_PATH }}
-        env:
-          REPLACMENT_EXTENTIONS: ${{ inputs.replacementExtentions }}
-          REPLACEMENT_CONTENTS: ${{ inputs.replacementContents }}
-        run: |
-          IFS=',' read -r -a replacement_extentions <<< "$REPLACMENT_EXTENTIONS"
-          IFS=',' read -r -a replacement_contents <<< "$REPLACEMENT_CONTENTS"
-
-          find_conditions=""
-          for extention in "${replacement_extentions[@]}"; do
-            if [ -z "$find_conditions" ]; then
-              find_conditions="-name \"$extention\""
-            else
-              find_conditions="$find_conditions -o -name \"$extention\""
-            fi
-          done
-
-          sed_arguments=""
-          for replacement_content in "${replacement_contents[@]}"; do
-            sed_arguments+="-e 's|$replacement_content|g' "
-          done
-
-          eval "find . -type f \( $find_conditions \) -exec sed -i $sed_arguments" {} +
-
-      # TODO move to actions
-      - name: Rename directories
-        working-directory: ${{ TARGET_TMP_DIR_PATH }}
-        run: |
-          find . -depth -type d -iname '*${{ inputs.sourceDirname }}*' -exec bash -c '
-            for dir; do
-              newdir=$(echo "$dir" | sed -e "s/${{ inputs.sourceDirname }}/${{ inputs.targetDirname }}/gi")
-              if [ "$dir" != "$newdir" ]; then
-                echo "Renaming directory: $dir -> $newdir"
-                mv "$dir" "$newdir"
-              fi
-            done
-          ' bash {} +
-
-      # TODO move to actions
       # TODO why not delete tmp?
-      - name: Copy files from targe dir
-        run: |
-          rsync -a "$TARGET_TMP_DIR_PATH" .
+      - uses: rees46/workflow/.github/actions/utils/fs/sync-dirs@master
+        with:
+          targetDirectory: ${{ env.TARGET_TMP_DIR_PATH }}
+          sourceDirectory: .
 
       - uses: rees46/workflow/.github/actions/github/pull-request/get-last-author@master
         id: lastPrAuthorStep
