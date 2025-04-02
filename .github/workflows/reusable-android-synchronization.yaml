@@ -1,13 +1,13 @@
-name: Sync iOS Repositories
+name: Sync Android Repositories
 
 on:
   workflow_call:
-    secrets:
-      token:
-        required: true
     inputs:
       targetRepository:
         type: string
+        required: true
+    secrets:
+      token:
         required: true
 
 jobs:
@@ -22,10 +22,17 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.token }}
 
+      - name: Checkout remote repository
+        uses: actions/checkout@v4
+        with:
+          repository: ${{inputs.targetRepository}}
+          token: ${{ secrets.token }}
+          path: target
+
       - name: Get current version from source
         working-directory: source
         env:
-          FILE_PATH: 'version.properties'
+          FILE_PATH: "version.properties"
         id: version_source
         run: |
           current_version=$(awk -F"=" '/VERSION_NAME/ {print $2}' "$FILE_PATH")
@@ -40,13 +47,6 @@ jobs:
           echo "LAST_PR_AUTHOR=$LAST_PR_AUTHOR" >> $GITHUB_OUTPUT
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Check out remote repository
-        uses: actions/checkout@v4
-        with:
-          repository: ${{inputs.targetRepository}}
-          token: ${{ secrets.token }}
-          path: target
 
       - name: Clean target directory except excluded files
         run: |
