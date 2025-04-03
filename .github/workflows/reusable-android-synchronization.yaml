@@ -47,7 +47,7 @@ jobs:
           app-id: ${{ inputs.appId }}
           private-key: ${{ secrets.privateKey }}
           # TODO if need - provide it
-          # owner: PersonaClick
+          owner: PersonaClick
 
       - name: Checkout
         uses: actions/checkout@v4
