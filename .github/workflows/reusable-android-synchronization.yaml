@@ -44,8 +44,8 @@ jobs:
       - uses: actions/create-github-app-token@v1
         id: appTokenStep
         with:
-          app-id: ${{ vars.PERSONACLICK_COURIER_ID }}
-          private-key: ${{ secrets.PERSONACLICK_COURIER_SECRET }}
+          app-id: ${{ inputs.appId }}
+          private-key: ${{ secrets.privateKey }}
           # TODO if need - provide it
           # owner: PersonaClick
 
