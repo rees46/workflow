@@ -46,7 +46,7 @@ jobs:
         with:
           app-id: ${{ inputs.appId }}
           private-key: ${{ secrets.privateKey }}
-          # TODO if need - provide it
+          # TODO move it into inputs
           owner: PersonaClick
 
       - name: Checkout
@@ -124,7 +124,7 @@ jobs:
         with:
           branchName: ${{ steps.newBranchNameStep.outputs.branchName }}
           githubToken: ${{ steps.appTokenStep.outputs.token }}
-          targetRepository: ${{ env.TARGET_REPO }}
+          targetRepository: ${{ inputs.targetRepository }}
 
       # - uses: rees46/workflow/.github/actions/github/pull-request/create@master
       - uses: rees46/workflow/.github/actions/github/pull-request/create@refactor/reusable-android-synchronization
