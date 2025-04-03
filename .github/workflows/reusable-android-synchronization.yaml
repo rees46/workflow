@@ -85,7 +85,7 @@ jobs:
 
       # - uses: rees46/workflow/.github/actions/utils/fs/rename-dirs@master
       - uses: rees46/workflow/.github/actions/utils/fs/rename-dirs@refactor/reusable-android-synchronization
-        if: ${{ inputs.sourceDirname != '' && targetDirname != '' }}
+        if: ${{ inputs.sourceDirname != '' && inputs.targetDirname != '' }}
         with:
           targetDirectory: ${{ env.TARGET_TMP_DIR_PATH }}
           sourceDirname: ${{ inputs.sourceDirname }}
