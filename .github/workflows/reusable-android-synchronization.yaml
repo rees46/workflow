@@ -62,6 +62,10 @@ jobs:
           token: ${{ steps.appTokenStep.outputs.token }}
           repository: ${{inputs.targetRepository}}
 
+      - name: Debug fs
+        run: |
+          ls -a
+
       # - uses: rees46/workflow/.github/actions/utils/fs/clean-dir@master
       - uses: rees46/workflow/.github/actions/utils/fs/clean-dir@refactor/reusable-android-synchronization
         with:
