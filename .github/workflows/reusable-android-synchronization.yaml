@@ -98,37 +98,54 @@ jobs:
           targetDirectory: ${{ env.TARGET_TMP_DIR_PATH }}
           sourceDirectory: .
 
-      # - uses: rees46/workflow/.github/actions/github/pull-request/get-last-author@master
-      - uses: rees46/workflow/.github/actions/github/pull-request/get-last-author@refactor/reusable-android-synchronization
-        id: lastPrAuthorStep
-        with:
-          githubToken: ${{ steps.appTokenStep.outputs.token }}
+      - name: Debug fs
+        run: |
+          ls -a
 
-      # - uses: rees46/workflow/.github/actions/github/utils/get-new-branch-name@master
-      - uses: rees46/workflow/.github/actions/github/utils/get-new-branch-name@refactor/reusable-android-synchronization
-        id: newBranchNameStep
+      - name: Debug fs
+        run: |
+          ls -a -R
 
-      # - uses: rees46/workflow/.github/actions/github/checkout/new-branch@master
-      - uses: rees46/workflow/.github/actions/github/checkout/new-branch@refactor/reusable-android-synchronization
-        with:
-          branchName: ${{ steps.newBranchNameStep.outputs.branchName }}
+      - name: Debug git
+        run: |
+          git status
 
-      # - uses: rees46/workflow/.github/actions/github/push/create@master
-      - uses: rees46/workflow/.github/actions/github/push/create@refactor/reusable-android-synchronization
-        with:
-          branchName: ${{ steps.newBranchNameStep.outputs.branchName }}
-          githubToken: ${{ steps.appTokenStep.outputs.token }}
+      - name: Debug git
+        run: |
+          git diff
 
-      # - uses: rees46/workflow/.github/actions/github/commit/create@master
-      - uses: rees46/workflow/.github/actions/github/commit/create@refactor/reusable-android-synchronization
-        with:
-          branchName: ${{ steps.newBranchNameStep.outputs.branchName }}
-          githubToken: ${{ steps.appTokenStep.outputs.token }}
-          targetRepository: ${{ inputs.targetRepository }}
+      # # - uses: rees46/workflow/.github/actions/github/pull-request/get-last-author@master
+      # - uses: rees46/workflow/.github/actions/github/pull-request/get-last-author@refactor/reusable-android-synchronization
+      #   id: lastPrAuthorStep
+      #   with:
+      #     githubToken: ${{ steps.appTokenStep.outputs.token }}
+      #
+      # # - uses: rees46/workflow/.github/actions/github/utils/get-new-branch-name@master
+      # - uses: rees46/workflow/.github/actions/github/utils/get-new-branch-name@refactor/reusable-android-synchronization
+      #   id: newBranchNameStep
+      #
+      # # - uses: rees46/workflow/.github/actions/github/checkout/new-branch@master
+      # - uses: rees46/workflow/.github/actions/github/checkout/new-branch@refactor/reusable-android-synchronization
+      #   with:
+      #     branchName: ${{ steps.newBranchNameStep.outputs.branchName }}
 
-      # - uses: rees46/workflow/.github/actions/github/pull-request/create@master
-      - uses: rees46/workflow/.github/actions/github/pull-request/create@refactor/reusable-android-synchronization
-        with:
-          githubToken: ${{ steps.appTokenStep.outputs.token }}
-          lastPrAuthor: ${{ steps.lastPrAuthorStep.outputs.lastPrAuthor }}
-          branchName: ${{ steps.newBranchNameStep.outputs.branchName }}
+      # # - uses: rees46/workflow/.github/actions/github/commit/create@master
+      # - uses: rees46/workflow/.github/actions/github/commit/create@refactor/reusable-android-synchronization
+      #   with:
+      #     branchName: ${{ steps.newBranchNameStep.outputs.branchName }}
+      #     githubToken: ${{ steps.appTokenStep.outputs.token }}
+      #     targetRepository: ${{ inputs.targetRepository }}
+      #
+      # # - uses: rees46/workflow/.github/actions/github/push/create@master
+      # - uses: rees46/workflow/.github/actions/github/push/create@refactor/reusable-android-synchronization
+      #   with:
+      #     branchName: ${{ steps.newBranchNameStep.outputs.branchName }}
+      #     githubToken: ${{ steps.appTokenStep.outputs.token }}
+      #
+      #
+      # # - uses: rees46/workflow/.github/actions/github/pull-request/create@master
+      # - uses: rees46/workflow/.github/actions/github/pull-request/create@refactor/reusable-android-synchronization
+      #   with:
+      #     githubToken: ${{ steps.appTokenStep.outputs.token }}
+      #     lastPrAuthor: ${{ steps.lastPrAuthorStep.outputs.lastPrAuthor }}
+      #     branchName: ${{ steps.newBranchNameStep.outputs.branchName }}
