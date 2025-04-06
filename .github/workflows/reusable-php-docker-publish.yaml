@@ -71,7 +71,7 @@ jobs:
 
           for package in $MATCHED_FILES; do
 
-            package_dir=$(dirname "$dockerfile")
+            package_dir=$(dirname "$package")
             PACKAGE_NAME=$(basename "$package_dir")
 
             if [ "$PACKAGE_NAME" = "core" ]; then
