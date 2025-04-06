@@ -53,7 +53,7 @@ jobs:
           image_name_latest=ghcr.io/$REPOSITORY_OWNER/$PACKAGE_NAME:$TAG_SUFFIX
 
           echo "🏗🏗🏗️  Building core..."
-          docker build . -f packages/core/Dockerfile -t $image_name -t $image_name_latest
+          docker build . -f packages/core/Dockerfile -t $image_name -t $image_name_latest -q
 
           docker push $image_name --quiet
           echo "✅✅✅ Pushed successfully $image_name"
@@ -83,7 +83,7 @@ jobs:
             image_name=ghcr.io/$REPOSITORY_OWNER/$PACKAGE_NAME:${TAG_PREFIX}$(git rev-parse --short HEAD)-$(date +%s)
             image_name_latest=ghcr.io/$REPOSITORY_OWNER/$PACKAGE_NAME:$TAG_SUFFIX
 
-            docker build . -f $package -t $image_name -t $image_name_latest
+            docker build . -f $package -t $image_name -t $image_name_latest -q
 
             docker push $image_name --quiet
             echo "✅✅✅ Pushed successfully $image_name"
