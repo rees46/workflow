@@ -1,0 +1,93 @@
+name: Reusable PHP docker publish
+
+on:
+  workflow_call:
+    inputs:
+      branch:
+        description: 'Git branch name'
+        required: true
+        type: string
+
+jobs:
+  run:
+    name: Publish PHP docker images
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Login to container registry
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPOSITORY_OWNER: ${{ github.repository_owner }}
+        run: |
+          echo $GITHUB_TOKEN | docker login ghcr.io -u $REPOSITORY_OWNER --password-stdin
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.base_ref }}
+
+      - name: Set prefix and suffix for images
+        env:
+          BRANCH_NAME: ${{ inputs.branch }}
+        run: |
+          if [ "$BRANCH_NAME" = "master" ]; then
+            tag_prefix=""
+            tag_suffix="latest"
+          elif [ "$BRANCH_NAME" = "stage" ]; then
+            tag_prefix="stage-"
+            tag_suffix="stage"
+          else
+            echo "❌ Unsupported branch: $BRANCH_NAME" && exit 1
+          fi
+
+          echo "TAG_SUFFIX=$tag_suffix" >> $GITHUB_ENV
+          echo "TAG_PREFIX=$tag_prefix" >> $GITHUB_ENV
+
+      - name: Build and Push core images
+        env:
+          REPOSITORY_OWNER: ${{ github.repository_owner }}
+        run: |
+          PACKAGE_NAME=core
+
+          image_name=ghcr.io/$REPOSITORY_OWNER/$PACKAGE_NAME:${TAG_PREFIX}$(git rev-parse --short HEAD)-$(date +%s)
+          image_name_latest=ghcr.io/$REPOSITORY_OWNER/$PACKAGE_NAME:$TAG_SUFFIX
+
+          echo "🏗🏗🏗️  Building core..."
+          docker build . -f packages/core/Dockerfile -t $image_name -t $image_name_latest
+
+          docker push $image_name --quiet
+          echo "✅✅✅ Pushed successfully $image_name"
+          docker push $image_name_latest --quiet
+          echo "✅✅✅ Pushed successfully $image_name_latest"
+
+      - name: Build and Push Docker images
+        env:
+          REPOSITORY_OWNER: ${{ github.repository_owner }}
+          PATH: packages
+        if: steps.changed_packages.outputs.packages != ''
+        run: |
+          MATCHED_FILES=$(find $PATH -name "Dockerfile")
+
+          echo "Trying to build packages: $CHANGED_PACKAGES"
+
+          for package in $MATCHED_FILES; do
+
+            PACKAGE_NAME=$(dirname "$package")
+
+            if [ "$PACKAGE_NAME" = "core" ]; then
+              echo "⏭️  Skipping build for core package"
+              continue
+            fi
+
+            echo "🏗🏗🏗️  Building $PACKAGE_NAME..."
+
+            image_name=ghcr.io/$REPOSITORY_OWNER/$PACKAGE_NAME:${TAG_PREFIX}$(git rev-parse --short HEAD)-$(date +%s)
+            image_name_latest=ghcr.io/$REPOSITORY_OWNER/$PACKAGE_NAME:$TAG_SUFFIX
+
+            docker build . -f $package -t $image_name -t $image_name_latest
+
+            docker push $image_name --quiet
+            echo "✅✅✅ Pushed successfully $image_name"
+            docker push $image_name_latest --quiet
+            echo "✅✅✅ Pushed successfully $image_name_latest"
+          done
