@@ -63,9 +63,9 @@ jobs:
       - name: Build and Push Docker images
         env:
           REPOSITORY_OWNER: ${{ github.repository_owner }}
-          PATH: packages
+          SOURCE_PATH: packages
         run: |
-          MATCHED_FILES=$(find $PATH -name "Dockerfile")
+          MATCHED_FILES=$(find $SOURCE_PATH -name "Dockerfile")
 
           echo "Trying to build packages: $CHANGED_PACKAGES"
 
