@@ -71,7 +71,8 @@ jobs:
 
           for package in $MATCHED_FILES; do
 
-            PACKAGE_NAME=$(dirname "$package")
+            package_dir=$(dirname "$dockerfile")
+            PACKAGE_NAME=$(basename "$package_dir")
 
             if [ "$PACKAGE_NAME" = "core" ]; then
               echo "⏭️  Skipping build for core package"
