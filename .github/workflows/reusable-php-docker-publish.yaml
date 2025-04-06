@@ -64,7 +64,6 @@ jobs:
         env:
           REPOSITORY_OWNER: ${{ github.repository_owner }}
           PATH: packages
-        if: steps.changed_packages.outputs.packages != ''
         run: |
           MATCHED_FILES=$(find $PATH -name "Dockerfile")
 
