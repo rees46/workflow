@@ -48,22 +48,14 @@ jobs:
           echo $GITHUB_TOKEN | docker login ghcr.io -u $REPOSITORY_OWNER --password-stdin
           CHANGED_DOCKERFILES=$(echo "${{ steps.changed-files.outputs.all_changed_files }}" | tr -d '[]" ' | tr ',' '\n' | grep 'Dockerfile')
 
-          # Build and push Docker images for each directory containing Dockerfile
           for DOCKERFILE in $CHANGED_DOCKERFILES; do
             DIR=$(dirname $DOCKERFILE)
             IMAGE_NAME="ghcr.io/$REPOSITORY_OWNER/$(basename $DIR):latest"
             IMAGE_NAME_HASH=ghcr.io/$REPOSITORY_OWNER/$(basename $DIR):$(git rev-parse --short HEAD)-$(date +%s)
             echo "Building image $IMAGE_NAME"
 
-            if [[ $(basename $DIR) == 'terraform-agent' ]]; then
-             echo "Adding --build-arg for terraform-agent"
-             docker build -t $IMAGE_NAME -t $IMAGE_NAME_HASH --build-arg SSH_PRIVATE_KEY="$PRIVATE_KEY" $DIR 
-            else 
-             echo "Building without args"
-             docker build -t $IMAGE_NAME -t $IMAGE_NAME_HASH $DIR
-            fi
-            
-            # Push the Docker image to GitHub Container Registry
+            docker build -t $IMAGE_NAME -t $IMAGE_NAME_HASH --build-arg SSH_PRIVATE_KEY="$PRIVATE_KEY" $DIR 
+
             docker push $IMAGE_NAME
             docker push $IMAGE_NAME_HASH
           done
