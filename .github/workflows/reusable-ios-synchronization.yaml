@@ -93,11 +93,6 @@ jobs:
             echo "version=$current_version" >> $GITHUB_OUTPUT
           fi
 
-      - uses: rees46/workflow/.github/actions/github/pull-request/get-last-author@master
-        id: lastPrAuthorStep
-        with:
-          githubToken: ${{ steps.appTokenStep.outputs.token }}
-
       - uses: rees46/workflow/.github/actions/utils/fs/clean-dir@master
         with:
           targetDirectory: ${{ env.TARGET_TMP_DIR_PATH }}
