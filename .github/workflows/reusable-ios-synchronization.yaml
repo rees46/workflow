@@ -8,17 +8,41 @@ env:
 
 on:
   workflow_call:
-    secrets:
-      token:
-        required: true
     inputs:
-      targetRepository:
-        type: string
-        required: true
-        default: "Target repository"
       versionFilePath:
         type: string
         default: "version.properties"
+      appId:
+        type: string
+        required: true
+      targetRepository:
+        type: string
+        required: true
+      repositoryOwner:
+        type: string
+        required: true
+      sourceDirname:
+        type: string
+      targetDirname:
+        type: string
+      syncIgnore:
+        type: string
+        required: true
+        description: list of files to exclue, separated by ','
+        default: ".git,.idea,LICENSE,"
+      replacementExtentions:
+        type: string
+        required: true
+        description: list of extentions to replace, separated by ','
+        default: "*.ts,*.sh,*.yaml"
+      replacementContents:
+        type: string
+        required: true
+        description: list of contents to replace, separated by ',' and '|' - separate source target content\
+        default: "source:content:1|target:conten:1,source-content-1|target-content-1"
+    secrets:
+      privateKey:
+        required: true
 
 jobs:
   run:
