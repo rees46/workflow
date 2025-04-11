@@ -1,193 +1,150 @@
 name: Sync iOS Repositories
 
 env:
-  WORKFLOW_REPO: 'rees46/workflow'
+  WORKFLOW_REPO: "rees46/workflow"
+  WORKFLOW_REPO_TMP_PATH: tmp/workflow/
+  TARGET_TMP_DIR_PATH: tmp/target/
+  SOURCE_TMP_DIR_PATH: tmp/source/
 
 on:
   workflow_call:
-    secrets:
-      token:
-        required: true
     inputs:
+      versionFilePath:
+        type: string
+        default: "version.properties"
+      appId:
+        type: string
+        required: true
       targetRepository:
         type: string
         required: true
-        default: 'Target repository'
-      versionFilePath:
+      repositoryOwner:
         type: string
         required: true
-        default: 'version.properties'
+      sourceDirname:
+        type: string
+      targetDirname:
+        type: string
+      sourceFilename:
+        type: string
+      targetFilename:
+        type: string
+      syncIgnore:
+        type: string
+        required: true
+        description: list of files to exclue, separated by ','
+        default: ".git,.idea,LICENSE,"
+      replacementExtentions:
+        type: string
+        required: true
+        description: list of extentions to replace, separated by ','
+        default: "*.ts,*.sh,*.yaml"
+      replacementContents:
+        type: string
+        required: true
+        description: list of contents to replace, separated by ',' and '|' - separate source target content\
+        default: "source:content:1|target:conten:1,source-content-1|target-content-1"
+    secrets:
+      privateKey:
+        required: true
 
 jobs:
   run:
     name: Synchronization
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/create-github-app-token@v1
+        id: appTokenStep
+        with:
+          app-id: ${{ inputs.appId }}
+          private-key: ${{ secrets.privateKey }}
+          owner: ${{ inputs.repositoryOwner }}
+
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
-          path: source
-        env:
-          GITHUB_TOKEN: ${{ secrets.token }}
+          path: ${{ env.SOURCE_TMP_DIR_PATH }}
+          token: ${{ steps.appTokenStep.outputs.token }}
 
-      - name: Checckout target repository
+      - name: Checkout remote repository
         uses: actions/checkout@v4
         with:
+          path: ${{ env.TARGET_TMP_DIR_PATH }}
+          token: ${{ steps.appTokenStep.outputs.token }}
           repository: ${{inputs.targetRepository}}
-          token: ${{ secrets.token }}
-          path: target
 
       - name: Checkout Workflow Repo
         uses: actions/checkout@v4
         with:
           repository: ${{ env.WORKFLOW_REPO }}
-          path: workflow
+          path: ${{ env.WORKFLOW_REPO_TMP_PATH }}
           sparse-checkout: |
             scripts/multiplatform
 
-      - name: Get current version from source
-        working-directory: source
-        env:
-          FILE_PATH: ${{ inputs.versionFilePath }}
-        id: versionSource
+      - uses: rees46/workflow/.github/actions/utils/fs/clean-dir@master
+        with:
+          targetDirectory: ${{ env.TARGET_TMP_DIR_PATH }}
+          syncIgnore: ${{ inputs.syncIgnore }}
+
+      - uses: rees46/workflow/.github/actions/utils/fs/sync-dirs@master
+        with:
+          syncIgnore: ${{ inputs.syncIgnore }}
+          targetDirectory: ${{ env.TARGET_TMP_DIR_PATH }}
+          sourceDirectory: ${{ env.SOURCE_TMP_DIR_PATH }}
+
+      - uses: rees46/workflow/.github/actions/utils/fs/replace-file-content@master
+        with:
+          syncIgnore: ${{ inputs.syncIgnore }}
+          targetDirectory: ${{ env.TARGET_TMP_DIR_PATH }}
+          replacementExtentions: ${{ inputs.replacementExtentions }}
+          replacementContents: ${{ inputs.replacementContents }}
+
+      - uses: rees46/workflow/.github/actions/utils/fs/rename-dirs@master
+        if: ${{ inputs.sourceDirname != '' && inputs.targetDirname != '' }}
+        with:
+          targetDirectory: ${{ env.TARGET_TMP_DIR_PATH }}
+          sourceDirname: ${{ inputs.sourceDirname }}
+          targetDirname: ${{ inputs.targetDirname }}
+
+      # TODO uncomment
+      # - uses: rees46/workflow/.github/actions/utils/fs/rename-files@master
+      - uses: rees46/workflow/.github/actions/utils/fs/rename-files@refactor/reusable-ios-synchronization
+        if: ${{ inputs.sourceDirname != '' && inputs.targetDirname != '' }}
+        with:
+          targetDirectory: ${{ env.TARGET_TMP_DIR_PATH }}
+          sourceFilename: ${{ inputs.sourceFilename }}
+          targetFilename: ${{ inputs.targetFilename }}
+
+      - uses: rees46/workflow/.github/actions/utils/fs/sync-dirs@master
+        with:
+          targetDirectory: ${{ env.TARGET_TMP_DIR_PATH }}
+          sourceDirectory: .
+
+      - uses: rees46/workflow/.github/actions/github/pull-request/get-last-author@master
+        id: lastPrAuthorStep
+        with:
+          githubToken: ${{ steps.appTokenStep.outputs.token }}
+
+      - uses: rees46/workflow/.github/actions/github/utils/get-new-branch-name@master
+        id: newBranchNameStep
+
+      - uses: rees46/workflow/.github/actions/github/checkout/new-branch@master
+        with:
+          branchName: ${{ steps.newBranchNameStep.outputs.branchName }}
+
+      # TODO to action
+      - name: git add
         run: |
-          echo "Using source $FILE_PATH"
-          if [ "$FILE_PATH" = "version.properties" ]; then
-            version=$(../workflow/scripts/multiplatform/get-version-name.sh)
-            echo "version=$version" >> $GITHUB_OUTPUT
-          else
-            current_version=$(awk -F"'" '/s.version *=/ {print $2}' "$FILE_PATH")
-            echo "version=$current_version" >> $GITHUB_OUTPUT
-          fi
+          git add --all -- . ':!tmp/'
 
-      - name: Get last merged PR author login
-        working-directory: source
-        id: pr_author
-        run: |
-          PR_NUMBER=$(gh pr list --state merged --limit 1 --json number --jq '.[0].number')
-          LAST_PR_AUTHOR=$(gh pr view $PR_NUMBER --json author --jq '.author.login')
-          echo "LAST_PR_AUTHOR=$LAST_PR_AUTHOR" >> $GITHUB_OUTPUT
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - uses: rees46/workflow/.github/actions/github/commit/create@master
+        with:
+          branchName: ${{ steps.newBranchNameStep.outputs.branchName }}
+          githubToken: ${{ steps.appTokenStep.outputs.token }}
+          targetRepository: ${{ inputs.targetRepository }}
 
-      # - name: Rename sources folder
-      #   working-directory: source
-      #   run: |
-      #     mv REES46 PersonaClick
-
-      - name: Clean target directory except excluded files
-        working-directory: target
-        run: |
-          find . -mindepth 1 -maxdepth 1 \
-          ! -name ".git" \
-          ! -name ".idea" \
-          ! -name ".github" \
-          ! -name ".gitignore" \
-          ! -name "LICENSE" \
-          ! -name "README.md" \
-          ! -name 'Readme.md' \
-          ! -name 'DemoApp' \
-          ! -name 'REES46.podspec' \
-          ! -name "version.properties" \
-          -exec rm -rf {} +
-
-      - name: Sync files to remote repository
-        run: |
-          rsync -av --progress \
-            source/ target/ \
-            --exclude '.git' \
-            --exclude '.idea' \
-            --exclude '.github' \
-            --exclude '.gitignore' \
-            --exclude 'LICENSE' \
-            --exclude 'README.md' \
-            --exclude 'Readme.md' \
-            --exclude 'DemoApp' \
-            --exclude 'REES46.podspec' \
-            --exclude 'version.properties' \
-
-      - name: Apply changes to Swift files
-        working-directory: target
-        run: |
-          find . -type f \( -name '*.swift' \) -exec sed -i \
-            -e 's|https://api.rees46.com/|https://api.personaclick.com/|g' \
-            -e 's/api.rees46.com/api.personaclick.com/g' \
-            -e 's/rees46.com/personaclick.com/g' \
-            -e 's/rees46/personaClick/g' \
-            -e 's/REES46/PersonaClick/g' \
-            -e 's/Rees46/PersonaClick/g' {} +
-
-      - name: Apply changes to Podspec
-        env:
-          VERSION: ${{ steps.versionSource.outputs.version }}
-        working-directory: target
-        run: |
-          find . -type f \( -name '*.podspec' \) -exec sed -i \
-            -e "s/s.version *= *'.*'/s.version = '${VERSION}'/g" \
-            -e 's/REES46/PersonaClick/g' {} +
-
-      - name: Apply changes to XIB files
-        working-directory: target
-        run: |
-          find . -type f \( -name '*.xib' \) -exec sed -i \
-            -e 's/REES46/PersonaClick/g' \
-            -e 's/Rees46/PersonaClick/g' {} +
-
-      - name: Rename directories
-        working-directory: target
-        run: |
-          find . -depth -type d -iname '*rees46*' -exec bash -c '
-            for dir; do
-              newdir=$(echo "$dir" | sed -e "s/rees46/personaClick/gi")
-              if [ "$dir" != "$newdir" ]; then
-                echo "Renaming directory: $dir -> $newdir"
-                mv "$dir" "$newdir"
-              fi
-            done
-          ' bash {} +
-
-      - name: Debug commit
-        working-directory: target
-        run: |
-          echo "Changes to be committed:"
-          git diff --staged
-
-      - name: Create commit
-        working-directory: target
-        run: |
-          git config --global user.name Jade Smith
-          git config --global user.email github-bot@rees46.com
-          git add .
-          echo "Changes to be committed:"
-          git diff --staged
-          git commit -m "feat: release"
-        env:
-          GITHUB_TOKEN: ${{ secrets.token }}
-
-      - name: Set branch name
-        id: branch_name
-        run: echo "BRANCH_NAME=feat/new-release-$(date +%Y%m%d%H%M%S)" >> $GITHUB_OUTPUT
-
-      - name: Checkout new branch and push
-        working-directory: target
-        run: |
-          git checkout -b $BRANCH_NAME
-          git push --set-upstream origin $BRANCH_NAME
-        env:
-          GITHUB_TOKEN: ${{ secrets.token }}
-          BRANCH_NAME: ${{ steps.branch_name.outputs.BRANCH_NAME }}
-
-      - name: Create Pull Request
-        working-directory: target
-        run: |
-          PR_TITLE="Automated release"
-          PR_BODY="This is an automated pull request to update from branch $BRANCH_NAME"
-          echo "Assigning PR to LAST_PR_AUTHOR: $LAST_PR_AUTHOR"
-          echo "Adding MANAGER: $MANAGER as a reviewer"
-          gh pr create --title "$PR_TITLE" --body "$PR_BODY" --base master --head $BRANCH_NAME --assignee $LAST_PR_AUTHOR --reviewer $MANAGER
-        env:
-          GITHUB_TOKEN: ${{ secrets.token }}
-          BRANCH_NAME: ${{ steps.branch_name.outputs.BRANCH_NAME }}
-          LAST_PR_AUTHOR: ${{ steps.pr_author.outputs.LAST_PR_AUTHOR }}
-          MANAGER: TorinAsakura
+      - uses: rees46/workflow/.github/actions/github/pull-request/create@master
+        with:
+          githubToken: ${{ steps.appTokenStep.outputs.token }}
+          lastPrAuthor: ${{ steps.lastPrAuthorStep.outputs.lastPrAuthor }}
+          branchName: ${{ steps.newBranchNameStep.outputs.branchName }}
