@@ -25,6 +25,10 @@ on:
         type: string
       targetDirname:
         type: string
+      sourceFilename:
+        type: string
+      targetFilename:
+        type: string
       syncIgnore:
         type: string
         required: true
@@ -101,6 +105,13 @@ jobs:
           targetDirectory: ${{ env.TARGET_TMP_DIR_PATH }}
           sourceDirname: ${{ inputs.sourceDirname }}
           targetDirname: ${{ inputs.targetDirname }}
+
+      - uses: rees46/workflow/.github/actions/utils/fs/rename-files@master
+        if: ${{ inputs.sourceDirname != '' && inputs.targetDirname != '' }}
+        with:
+          targetDirectory: ${{ env.TARGET_TMP_DIR_PATH }}
+          sourceFilename: ${{ inputs.sourceFilename }}
+          targetFilename: ${{ inputs.targetFilename }}
 
       - uses: rees46/workflow/.github/actions/utils/fs/sync-dirs@master
         with:
