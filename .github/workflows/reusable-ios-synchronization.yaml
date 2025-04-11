@@ -77,22 +77,6 @@ jobs:
           sparse-checkout: |
             scripts/multiplatform
 
-      # TODO to action
-      - name: Get current version from source
-        working-directory: ${{ env.SOURCE_TMP_DIR_PATH }}
-        env:
-          FILE_PATH: ${{ inputs.versionFilePath }}
-        id: versionSource
-        run: |
-          echo "Using source $FILE_PATH"
-          if [ "$FILE_PATH" = "version.properties" ]; then
-            version=$(../workflow/scripts/multiplatform/get-version-name.sh)
-            echo "version=$version" >> $GITHUB_OUTPUT
-          else
-            current_version=$(awk -F"'" '/s.version *=/ {print $2}' "$FILE_PATH")
-            echo "version=$current_version" >> $GITHUB_OUTPUT
-          fi
-
       - uses: rees46/workflow/.github/actions/utils/fs/clean-dir@master
         with:
           targetDirectory: ${{ env.TARGET_TMP_DIR_PATH }}
