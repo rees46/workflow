@@ -79,7 +79,7 @@ jobs:
 
       # TODO to action
       - name: Get current version from source
-        working-directory: source
+        working-directory: ${{ env.SOURCE_TMP_DIR_PATH }}
         env:
           FILE_PATH: ${{ inputs.versionFilePath }}
         id: versionSource
