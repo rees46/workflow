@@ -106,7 +106,9 @@ jobs:
           sourceDirname: ${{ inputs.sourceDirname }}
           targetDirname: ${{ inputs.targetDirname }}
 
-      - uses: rees46/workflow/.github/actions/utils/fs/rename-files@master
+      # TODO uncomment
+      # - uses: rees46/workflow/.github/actions/utils/fs/rename-files@master
+      - uses: rees46/workflow/.github/actions/utils/fs/rename-files@refactor/reusable-ios-synchronization
         if: ${{ inputs.sourceDirname != '' && inputs.targetDirname != '' }}
         with:
           targetDirectory: ${{ env.TARGET_TMP_DIR_PATH }}
