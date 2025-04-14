@@ -78,6 +78,10 @@ jobs:
           # branch: master
           branch: test
 
+      - name: Git pull
+        run: |
+          git pull
+
       - name: Debug version
         run: |
           cat ./personalization-sdk/build.gradle
