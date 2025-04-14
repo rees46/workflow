@@ -77,10 +77,6 @@ jobs:
           ref: master
           fetch-depth: 0
 
-      - name: Debug version
-        run: |
-          cat ./personalization-sdk/build.gradle
-
       - name: Prepare Android Action
         uses: rees46/workflow/.github/actions/android/prepare@master
         with:
