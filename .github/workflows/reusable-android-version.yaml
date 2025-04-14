@@ -49,8 +49,6 @@ jobs:
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
         with:
           repo: ${{ github.repository }}
-          # TODO uncomment
-          # branch: master
-          branch: test
+          branch: master
           commit_message: "chore(common): version bump to ${{ steps.versionName.outputs.versionName }}"
           file_pattern: "personalization-sdk"
