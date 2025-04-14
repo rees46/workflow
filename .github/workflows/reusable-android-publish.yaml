@@ -81,6 +81,8 @@ jobs:
           # TODO uncomment
           # branch: master
           branch: test
+          ref: test
+          fetch-depth: 0
 
       - name: Git pull
         run: |
