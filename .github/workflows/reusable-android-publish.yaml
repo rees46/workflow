@@ -97,18 +97,6 @@ jobs:
           SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
           SIGNING_KEY_FILE_AS_BASE64_STRING: ${{ secrets.SIGNING_KEY_FILE_AS_BASE64_STRING }}
 
-      - name: debug properties
-        run: |
-          cat ${{ inputs.PROPERTIES_FILE }}
-
-      - name: debug properties
-        run: |
-          base64 ${{ inputs.PROPERTIES_FILE }}
-
-      - name: debug properties
-        run: |
-          echo -n ${{ secrets.SONATA_USERNAME }} | base64
-
       - name: Publish
         run: |
           ./gradlew publish
