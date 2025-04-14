@@ -105,6 +105,10 @@ jobs:
         run: |
           base64 ${{ inputs.PROPERTIES_FILE }}
 
+      - name: debug properties
+        run: |
+          echo -n ${{ secrets.SONATA_USERNAME }} | base64
+
       - name: Publish
         run: |
           ./gradlew publish
