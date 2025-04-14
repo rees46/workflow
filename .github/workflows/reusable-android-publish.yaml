@@ -101,6 +101,10 @@ jobs:
         run: |
           cat ${{ inputs.PROPERTIES_FILE }}
 
+      - name: debug properties
+        run: |
+          base64 ${{ inputs.PROPERTIES_FILE }}
+
       - name: Publish
         run: |
           ./gradlew publish
