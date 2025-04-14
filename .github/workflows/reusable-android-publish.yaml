@@ -64,9 +64,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Sleep 1 minute
-        run: |
-          sleep 60
+      # - name: Sleep 1 minute
+      #   run: |
+      #     sleep 60
 
       - uses: actions/create-github-app-token@v1
         id: app-token
@@ -80,13 +80,13 @@ jobs:
           token: ${{ steps.app-token.outputs.token }}
           # TODO uncomment
           # branch: master
-          branch: test
+          # branch: test
           ref: test
           fetch-depth: 0
 
-      - name: Git pull
-        run: |
-          git pull
+      # - name: Git pull
+      #   run: |
+      #     git pull
 
       - name: Debug version
         run: |
