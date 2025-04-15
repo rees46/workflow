@@ -80,7 +80,9 @@ jobs:
           fetch-depth: 0
 
       - name: Prepare Android Action
-        uses: rees46/workflow/.github/actions/android/prepare@master
+        # TODO uncomment
+        # uses: rees46/workflow/.github/actions/android/prepare@master
+        uses: rees46/workflow/.github/actions/android/prepare@feat/sonatype-publish
         with:
           PROPERTIES_FILE: ${{ inputs.PROPERTIES_FILE }}
           SIGNING_SECRET_KEY_RING_FILE: ${{ inputs.SIGNING_SECRET_KEY_RING_FILE }}
@@ -97,65 +99,70 @@ jobs:
           SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
           SIGNING_KEY_FILE_AS_BASE64_STRING: ${{ secrets.SIGNING_KEY_FILE_AS_BASE64_STRING }}
 
+      # TODO remove
       - name: Publish
         run: |
-          ./gradlew publish
+          ./gradlew publishAllPublicationsToSonatypeRepository
 
-      - name: Install xmllint
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libxml2-utils
-
-      - name: Debug profile id
-        run: |
-          echo ${{ secrets.SONATA_STAGING_PROFILE_ID }}
-
-      - name: Get repos.xml
-        id: get_repos
-        run: |
-          REPOS=$(curl -s -u ${{ secrets.SONATA_USERNAME }}:${{ secrets.SONATA_PASSWORD }} https://s01.oss.sonatype.org/service/local/staging/profile_repositories/${{ secrets.SONATA_STAGING_PROFILE_ID }})
-          echo "REPOS: $REPOS"
-          echo "$REPOS" > repos.xml
-
-      - name: Extract repository IDs
-        id: extract_ids
-        run: |
-          repository_ids=($(xmllint --xpath '//repositoryId/text()' repos.xml))
-          echo "Repository IDs: ${repository_ids[@]}"
-          echo "repository_ids=${repository_ids[*]}" >> $GITHUB_OUTPUT
-
-      - name: Close stages
-        run: |
-          IFS=' ' read -r -a ids_array <<< "${{ steps.extract_ids.outputs.repository_ids }}"
-
-          for id in "${ids_array[@]}"; do
-            curl -X POST \
-              -u "${{ secrets.SONATA_USERNAME }}":"${{ secrets.SONATA_PASSWORD }}" \
-              -H "Content-Type: application/json" \
-              -d '{
-                "data": {
-                  "stagedRepositoryId": '$id'
-                }
-              }' \
-              "https://s01.oss.sonatype.org/service/local/staging/profiles/${{ secrets.SONATA_STAGING_PROFILE_ID }}/finish"
-          done
-
-      - name: Sleep 5 minutes
-        run: |
-          sleep 300
-
-      - name: Release stages
-        run: |
-          IFS=' ' read -r -a ids_array <<< "${{ steps.extract_ids.outputs.repository_ids }}"
-
-          for id in "${ids_array[@]}"; do
-            curl -X POST \
-              -u "${{ secrets.SONATA_USERNAME }}":"${{ secrets.SONATA_PASSWORD }}" \
-              -H "Content-Type: application/json" \
-              -d '{
-                "data": {
-                  "stagedRepositoryId": '$id'
-                }
-              }' \
-              "https://s01.oss.sonatype.org/service/local/staging/profiles/${{ secrets.SONATA_STAGING_PROFILE_ID }}/promote"
-          done
+      # - name: Publish
+      #   run: |
+      #     ./gradlew publish
+      #
+      # - name: Install xmllint
+      #   run: |
+      #     sudo apt-get update
+      #     sudo apt-get install -y libxml2-utils
+      #
+      # - name: Debug profile id
+      #   run: |
+      #     echo ${{ secrets.SONATA_STAGING_PROFILE_ID }}
+      #
+      # - name: Get repos.xml
+      #   id: get_repos
+      #   run: |
+      #     REPOS=$(curl -s -u ${{ secrets.SONATA_USERNAME }}:${{ secrets.SONATA_PASSWORD }} https://s01.oss.sonatype.org/service/local/staging/profile_repositories/${{ secrets.SONATA_STAGING_PROFILE_ID }})
+      #     echo "REPOS: $REPOS"
+      #     echo "$REPOS" > repos.xml
+      #
+      # - name: Extract repository IDs
+      #   id: extract_ids
+      #   run: |
+      #     repository_ids=($(xmllint --xpath '//repositoryId/text()' repos.xml))
+      #     echo "Repository IDs: ${repository_ids[@]}"
+      #     echo "repository_ids=${repository_ids[*]}" >> $GITHUB_OUTPUT
+      #
+      # - name: Close stages
+      #   run: |
+      #     IFS=' ' read -r -a ids_array <<< "${{ steps.extract_ids.outputs.repository_ids }}"
+      #
+      #     for id in "${ids_array[@]}"; do
+      #       curl -X POST \
+      #         -u "${{ secrets.SONATA_USERNAME }}":"${{ secrets.SONATA_PASSWORD }}" \
+      #         -H "Content-Type: application/json" \
+      #         -d '{
+      #           "data": {
+      #             "stagedRepositoryId": '$id'
+      #           }
+      #         }' \
+      #         "https://s01.oss.sonatype.org/service/local/staging/profiles/${{ secrets.SONATA_STAGING_PROFILE_ID }}/finish"
+      #     done
+      #
+      # - name: Sleep 5 minutes
+      #   run: |
+      #     sleep 300
+      #
+      # - name: Release stages
+      #   run: |
+      #     IFS=' ' read -r -a ids_array <<< "${{ steps.extract_ids.outputs.repository_ids }}"
+      #
+      #     for id in "${ids_array[@]}"; do
+      #       curl -X POST \
+      #         -u "${{ secrets.SONATA_USERNAME }}":"${{ secrets.SONATA_PASSWORD }}" \
+      #         -H "Content-Type: application/json" \
+      #         -d '{
+      #           "data": {
+      #             "stagedRepositoryId": '$id'
+      #           }
+      #         }' \
+      #         "https://s01.oss.sonatype.org/service/local/staging/profiles/${{ secrets.SONATA_STAGING_PROFILE_ID }}/promote"
+      #     done
