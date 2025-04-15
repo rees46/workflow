@@ -34,15 +34,27 @@ jobs:
 
       - uses: swift-actions/setup-swift@v2
 
+      - name: Debug git branch
+        run: |
+          git branch
+
       - name: Publish to cocoapods.org
         env:
           COCOAPODS_TRUNK_TOKEN: ${{ secrets.cocoapodsToken }}
         run: |
           retry=0
           max_retries=5
+
           while [ $retry -lt $max_retries ]; do
-            pod trunk push --allow-warnings && break
+            if pod trunk push --allow-warnings; then
+              echo "Push succeeded!"
+              exit 0
+            fi
+
             retry=$((retry+1))
             echo "Push failed. Retrying in 30 seconds... ($retry/$max_retries)"
             sleep 30
           done
+
+          echo "All $max_retries attempts failed!"
+          exit 1
