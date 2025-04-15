@@ -130,10 +130,9 @@ jobs:
         with:
           branchName: ${{ steps.newBranchNameStep.outputs.branchName }}
 
-      # TODO to action
-      - name: git add
-        run: |
-          git add --all -- . ':!tmp/'
+      - uses: rees46/workflow/.github/actions/git/add@master
+        with:
+          excludeTmp: true
 
       - uses: rees46/workflow/.github/actions/github/commit/create@master
         with:
