@@ -30,6 +30,7 @@ jobs:
         with:
           token: ${{ steps.app-token.outputs.token }}
           ref: master
+          fetch-depth: 0
 
       - uses: swift-actions/setup-swift@v2
 
