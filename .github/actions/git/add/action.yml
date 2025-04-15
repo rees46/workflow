@@ -1,0 +1,24 @@
+name: Create commit
+description: create commit
+
+inputs:
+  excludeTmp:
+    description: Esclude tmp dir - boolean
+    required: false
+    default: ""
+
+runs:
+  using: composite
+
+  steps:
+    - name: git add
+      if: ${{ inputs.excludeTmp == '' }}
+      shell: bash
+      run: |
+        git add --all -- .
+
+    - name: git add
+      if: ${{ inputs.excludeTmp != '' }}
+      shell: bash
+      run: |
+        git add --all -- . ':!tmp/'

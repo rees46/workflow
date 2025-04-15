@@ -82,6 +82,7 @@ runs:
         VARIANT_NAME: ${{ inputs.VARIANT_NAME }}
         URL: ${{ inputs.URL }}
         PUBLISH_URL: ${{ inputs.MAVEN_REPOSITORY_URL }}
+        SIGNING_KEY_FILE_AS_BASE64_STRING: ${{ inputs.SIGNING_KEY_FILE_AS_BASE64_STRING }}
       run: |
         echo "ossrhUsername=$OSSRH_USERNAME" >> $PROPERTIES_FILE
         echo "ossrhPassword=$OSSRH_PASSWORD" >> $PROPERTIES_FILE
@@ -94,6 +95,10 @@ runs:
         echo "variantName=$VARIANT_NAME" >> $PROPERTIES_FILE
         echo "url=$URL" >> $PROPERTIES_FILE
         echo "publishUrl=$PUBLISH_URL" >> $PROPERTIES_FILE
+
+        ESCAPED_KEY=$(echo "$SIGNING_KEY_FILE_AS_BASE64_STRING" | awk '{printf "%s\\n", $0}' | tr -d '\n')
+        echo "signing_key=$ESCAPED_KEY" >> $PROPERTIES_FILE
+
         echo "Updated $PROPERTIES_FILE"
 
     - name: Decode signing key file
