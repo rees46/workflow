@@ -46,7 +46,7 @@ jobs:
           max_retries=5
 
           while [ $retry -lt $max_retries ]; do
-            if pod trunk push --allow-warnings; then
+            if pod trunk push --allow-warnings --branch=master; then
               echo "Push succeeded!"
               exit 0
             fi
