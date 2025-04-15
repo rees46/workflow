@@ -26,7 +26,8 @@ jobs:
         uses: actions/checkout@v4
         with:
           token: ${{ steps.app-token.outputs.token }}
-          branch: master
+          ref: master
+          fetch-depth: 0
 
       - name: Retrieve version
         id: versionName
