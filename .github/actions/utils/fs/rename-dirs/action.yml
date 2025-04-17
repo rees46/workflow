@@ -23,21 +23,19 @@ runs:
       run: |
         IFS=',' read -r -a replacement_dirnames <<< "$REPLACEMENT_DIRNAMES"
 
-        echo "replacement dirnames: $replacement_dirnames"
 
         for replacement_dirname in "${replacement_dirnames[@]}"; do
           IFS='|' read -r old_name new_name <<< "$replacement_dirname"
 
+          echo "replacement dirnames: $replacement_dirnames"
           echo "old name: $old_name"
           echo "new name: $new_name"
 
-          find . -depth -type d -iname '*$old_name*' -exec bash -c '
-            for dir; do
-              newdir=$(echo "$dir" | sed -e "s/$old_name/$new_name/gi")
-              if [ "$dir" != "$newdir" ]; then
-                echo "Renaming directory: $dir -> $newdir"
-                mv "$dir" "$newdir"
-              fi
-            done
-          ' bash {} +
+          find . -depth -type d -iname "*$old_name*" -print0 | while IFS= read -r -d '' dir; do
+            newdir=$(echo "$dir" | sed -e "s/$old_name/$new_name/gi")
+            if [ "$dir" != "$newdir" ]; then
+              echo "Renaming directory: $dir -> $newdir"
+              mv "$dir" "$newdir"
+            fi
+          done
         done
