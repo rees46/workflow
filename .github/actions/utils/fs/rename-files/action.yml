@@ -6,27 +6,33 @@ inputs:
     description: working directory
     default: tmp/target
     required: true
-  sourceFilename:
-    description: dirname to rename
-    required: true
-  targetFilename:
-    description: name to rename
+  replacementFilenames:
+    description: list of filenames to replace, separated by ',' and '|' - separate source target content\
+    default: "source:filename:1|target:filename:1,source-filename-2|target-filename-2"
     required: true
 
 runs:
   using: composite
 
   steps:
-    - name: Rename directories
+    - name: Rename filenames
       shell: bash
       working-directory: ${{ inputs.targetDirectory }}
+      env:
+        REPLACEMENT_FILENAMES: ${{ inputs.replacementFilenames }}
       run: |
-        find . -type f -iname "*${{ inputs.sourceFilename }}*" -print0 | while IFS= read -r -d '' file; do
-          dir=$(dirname "$file")
-          base=$(basename "$file")
-          newbase="${base//${{ inputs.sourceFilename }}/${{ inputs.targetFilename }}}"
-          if [ "$base" != "$newbase" ]; then
-            echo "Renaming: $file -> $dir/$newbase"
-            mv -- "$file" "$dir/$newbase"
-          fi
+        IFS=',' read -r -a replacement_filenames <<< "$REPLACEMENT_FILENAMES"
+
+        for replacement_filename in "${replacement_filenames[@]}"; do
+          IFS='|' read -r old_name new_name <<< "$replacement_filename"
+
+          find . -type f -iname "*$old_name*" -print0 | while IFS= read -r -d '' file; do
+            dir=$(dirname "$file")
+            base=$(basename "$file")
+            newbase="${base//$old_name/$new_name}"
+            if [ "$base" != "$newbase" ]; then
+              echo "Renaming: $file -> $dir/$newbase"
+              mv -- "$file" "$dir/$newbase"
+            fi
+          done
         done
