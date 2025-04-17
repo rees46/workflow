@@ -57,7 +57,7 @@ jobs:
       - uses: rees46/workflow/.github/actions/git/create-release-branch@feat/version-workflow
         id: createReleaseBranchStep
         with:
-          githubToken: ${{ steps.appTokenStep.outputs.token }}
+          releaseVersion: ${{ steps.semanticReleaseStep.outputs.release-version }}
 
       - uses: rees46/workflow/.github/actions/github/pull-request/get-last-author@master
         id: lastPrAuthorStep
