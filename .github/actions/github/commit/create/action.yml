@@ -4,7 +4,8 @@ description: create commit
 inputs:
   targetRepository:
     description: Target repository to commit
-    required: true
+    required: false
+    default: ${{ github.repository }}
   githubToken:
     description: GitHup token
     required: true
@@ -23,4 +24,4 @@ runs:
       with:
         repo: ${{ inputs.targetRepository }}
         branch: ${{ inputs.branchName }}
-        commit_message: 'feat: release'
+        commit_message: "feat: release"
