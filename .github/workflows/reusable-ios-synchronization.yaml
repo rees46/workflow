@@ -1,7 +1,7 @@
 name: Sync iOS Repositories
 
 env:
-  WORKFLOW_REPO: 'rees46/workflow'
+  WORKFLOW_REPO: "rees46/workflow"
   WORKFLOW_REPO_TMP_PATH: tmp/workflow/
   TARGET_TMP_DIR_PATH: tmp/target/
   SOURCE_TMP_DIR_PATH: tmp/source/
@@ -11,7 +11,7 @@ on:
     inputs:
       versionFilePath:
         type: string
-        default: 'version.properties'
+        default: "version.properties"
       appId:
         type: string
         required: true
@@ -33,17 +33,22 @@ on:
         type: string
         required: true
         description: list of files to exclue, separated by ','
-        default: '.git,.idea,LICENSE,'
+        default: ".git,.idea,LICENSE,"
       replacementExtentions:
         type: string
         required: true
         description: list of extentions to replace, separated by ','
-        default: '*.ts,*.sh,*.yaml'
+        default: "*.ts,*.sh,*.yaml"
       replacementContents:
         type: string
         required: true
         description: list of contents to replace, separated by ',' and '|' - separate source target content\
-        default: 'source:content:1|target:conten:1,source-content-1|target-content-1'
+        default: "source:content:1|target:conten:1,source-content-1|target-content-1"
+      reviewerUsername:
+        description: PullRequest reviewer username
+        type: string
+        required: false
+        default: TorinAsakura
     secrets:
       privateKey:
         required: true
@@ -142,6 +147,7 @@ jobs:
 
       - uses: rees46/workflow/.github/actions/github/pull-request/create@master
         with:
+          reviewerUsername: ${{ inputs.reviewerUsername }}
           githubToken: ${{ steps.appTokenStep.outputs.token }}
           lastPrAuthor: ${{ steps.lastPrAuthorStep.outputs.lastPrAuthor }}
           branchName: ${{ steps.newBranchNameStep.outputs.branchName }}
