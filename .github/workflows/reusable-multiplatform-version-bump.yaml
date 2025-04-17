@@ -62,16 +62,20 @@ jobs:
       - uses: rees46/workflow/.github/actions/github/pull-request/get-last-author@master
         id: lastPrAuthorStep
         with:
-          githubToken: ${{ steps.appTokenStep.outputs.token }}
+          sourceDirectory: .
+          githubToken: ${{ steps.app-token.outputs.token }}
 
       - uses: rees46/workflow/.github/actions/github/commit/create@master
         with:
           branchName: ${{ steps.createReleaseBranchStep.outputs.branchName }}
-          githubToken: ${{ steps.appTokenStep.outputs.token }}
+          githubToken: ${{ steps.app-token.outputs.token }}
+          targetRepository: ${{ github.repository }}
+          filePattern: version.properties
 
       - uses: rees46/workflow/.github/actions/github/pull-request/create@master
         with:
-          githubToken: ${{ steps.appTokenStep.outputs.token }}
+          targetDirectory: .
+          githubToken: ${{ steps.app-token.outputs.token }}
           lastPrAuthor: ${{ steps.lastPrAuthorStep.outputs.lastPrAuthor }}
           branchName: ${{ steps.newBranchNameStep.outputs.branchName }}
           reviewerUsername: ${{ inputs.reviewerUsername }}
