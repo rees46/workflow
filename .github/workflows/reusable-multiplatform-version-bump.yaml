@@ -1,0 +1,76 @@
+name: Reusable version bump
+
+on:
+  workflow_call:
+    inputs:
+      appId:
+        required: true
+        type: string
+        description: App token for committing changes
+      reviewerUsername:
+        required: false
+        type: string
+        description: Pull request reviewer
+        default: TorinAsakura
+
+    secrets:
+      appSecret:
+        description: App secret for committing changes
+        required: true
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/create-github-app-token@v1
+        id: app-token
+        with:
+          app-id: ${{ inputs.appId }}
+          private-key: ${{ inputs.appSecret }}
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+          # TODO uncomment
+          # ref: master
+          ref: feat/version-workflow
+
+      - uses: codfish/semantic-release-action@v3
+        id: semanticReleaseStep
+        with:
+          additional-packages: |
+            ['@semantic-release/git', '@semantic-release/exec']
+
+      - name: NEW_RELEASE_PUBLISHED check
+        shell: bash
+        run: |
+          if [ "${NEW_RELEASE_PUBLISHED}" != "true" ]; then
+            echo "New release not published, exit"
+            exit 1
+          fi
+
+      # TODO uncomment
+      # - uses: rees46/workflow/.github/actions/git/create-relese-branch@master
+      - uses: rees46/workflow/.github/actions/git/create-relese-branch@feat/version-workflow
+        id: createReleaseBranchStep
+        with:
+          githubToken: ${{ steps.appTokenStep.outputs.token }}
+
+      - uses: rees46/workflow/.github/actions/github/pull-request/get-last-author@master
+        id: lastPrAuthorStep
+        with:
+          githubToken: ${{ steps.appTokenStep.outputs.token }}
+
+      - uses: rees46/workflow/.github/actions/github/commit/create@master
+        with:
+          branchName: ${{ steps.createReleaseBranchStep.outputs.branchName }}
+          githubToken: ${{ steps.appTokenStep.outputs.token }}
+
+      - uses: rees46/workflow/.github/actions/github/pull-request/create@master
+        with:
+          githubToken: ${{ steps.appTokenStep.outputs.token }}
+          lastPrAuthor: ${{ steps.lastPrAuthorStep.outputs.lastPrAuthor }}
+          branchName: ${{ steps.newBranchNameStep.outputs.branchName }}
+          reviewerUsername: ${{ inputs.reviewerUsername }}
