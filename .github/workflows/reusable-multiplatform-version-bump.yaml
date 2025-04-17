@@ -66,7 +66,9 @@ jobs:
           sourceDirectory: .
           githubToken: ${{ steps.app-token.outputs.token }}
 
-      - uses: rees46/workflow/.github/actions/github/commit/create@master
+      # TODO uncomment
+      # - uses: rees46/workflow/.github/actions/github/commit/create@master
+      - uses: rees46/workflow/.github/actions/github/commit/create@feat/version-workflow
         with:
           branchName: ${{ steps.createReleaseBranchStep.outputs.branchName }}
           githubToken: ${{ steps.app-token.outputs.token }}
