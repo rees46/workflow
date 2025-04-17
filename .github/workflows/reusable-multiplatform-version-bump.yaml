@@ -40,6 +40,8 @@ jobs:
       - uses: codfish/semantic-release-action@v3
         id: semanticReleaseStep
         with:
+          # TODO remove
+          dry-run: true
           additional-packages: |
             ['@semantic-release/git', '@semantic-release/exec']
 
