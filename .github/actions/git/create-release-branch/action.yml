@@ -9,12 +9,18 @@ inputs:
     description: Release version
     required: true
 
+outputs:
+  branchName:
+    description: New branch name
+    value: ${{ steps.createReleaseBranchStep.outputs.branchName }}
+
 runs:
   using: composite
 
   steps:
     - name: Create new branch
       shell: bash
+      id: createReleaseBranchStep
       env:
         GITHUB_TOKEN: ${{ inputs.githubToken }}
       run: |
