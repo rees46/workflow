@@ -100,17 +100,13 @@ jobs:
           replacementExtentions: ${{ inputs.replacementExtentions }}
           replacementContents: ${{ inputs.replacementContents }}
 
-      - uses: rees46/workflow/.github/actions/utils/fs/rename-dirs@refactor/ios-sync-workflow
-        # TODO uncomment
-        # - uses: rees46/workflow/.github/actions/utils/fs/rename-dirs@master
+      - uses: rees46/workflow/.github/actions/utils/fs/rename-dirs@master
         if: ${{ inputs.replacementDirnames != '' }}
         with:
           targetDirectory: ${{ env.TARGET_TMP_DIR_PATH }}
           replacementDirnames: ${{ inputs.replacementDirnames }}
 
-      - uses: rees46/workflow/.github/actions/utils/fs/rename-files@refactor/ios-sync-workflow
-        # TODO uncomment
-        # - uses: rees46/workflow/.github/actions/utils/fs/rename-files@master
+      - uses: rees46/workflow/.github/actions/utils/fs/rename-files@master
         if: ${{ inputs.replacementFilenames != '' }}
         with:
           targetDirectory: ${{ env.TARGET_TMP_DIR_PATH }}
