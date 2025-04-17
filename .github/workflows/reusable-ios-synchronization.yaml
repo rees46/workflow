@@ -25,9 +25,7 @@ on:
         type: string
       targetDirname:
         type: string
-      sourceFilename:
-        type: string
-      targetFilename:
+      replacementFilenames:
         type: string
       syncIgnore:
         type: string
@@ -115,8 +113,7 @@ jobs:
         if: ${{ inputs.sourceDirname != '' && inputs.targetDirname != '' }}
         with:
           targetDirectory: ${{ env.TARGET_TMP_DIR_PATH }}
-          sourceFilename: ${{ inputs.sourceFilename }}
-          targetFilename: ${{ inputs.targetFilename }}
+          replacementFilenames: ${{ inputs.replacementFilenames }}
 
       - uses: rees46/workflow/.github/actions/utils/fs/sync-dirs@master
         with:
