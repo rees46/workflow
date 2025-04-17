@@ -79,4 +79,4 @@ jobs:
           githubToken: ${{ steps.app-token.outputs.token }}
           lastPrAuthor: ${{ steps.lastPrAuthorStep.outputs.lastPrAuthor }}
           branchName: ${{ steps.newBranchNameStep.outputs.branchName }}
-          reviewerUsername: ${{ inputs.reviewerUsername }}
+          # reviewerUsername: ${{ inputs.reviewerUsername }}
