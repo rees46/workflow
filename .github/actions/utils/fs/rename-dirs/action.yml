@@ -6,11 +6,9 @@ inputs:
     description: working directory
     default: tmp/target
     required: true
-  sourceDirname:
-    description: dirname to rename
-    required: true
-  targetDirname:
-    description: name to rename
+  replacementDirnames:
+    description: list of dirnames to replace, separated by ',' and '|' - separate source target content\
+    default: "source:dirname:1|target:dirname:1,source-dirname-2|target-dirname-2"
     required: true
 
 runs:
@@ -20,13 +18,21 @@ runs:
     - name: Rename directories
       shell: bash
       working-directory: ${{ inputs.targetDirectory }}
+      env:
+        REPLACEMENT_DIRNAMES: ${{ inputs.replacementDirnames }}
       run: |
-        find . -depth -type d -iname '*${{ inputs.sourceDirname }}*' -exec bash -c '
-          for dir; do
-            newdir=$(echo "$dir" | sed -e "s/${{ inputs.sourceDirname }}/${{ inputs.targetDirname }}/gi")
-            if [ "$dir" != "$newdir" ]; then
-              echo "Renaming directory: $dir -> $newdir"
-              mv "$dir" "$newdir"
-            fi
-          done
-        ' bash {} +
+        IFS=',' read -r -a replacement_dirnames <<< "$REPLACEMENT_DIRNAMES"
+
+        for replacement_dirname in "${replacement_dirnames[@]}"; do
+          IFS='|' read -r old_name new_name <<< "$replacement_dirname"
+
+          find . -depth -type d -iname '*$old_name*' -exec bash -c '
+            for dir; do
+              newdir=$(echo "$dir" | sed -e "s/$old_name/$new_name/gi")
+              if [ "$dir" != "$newdir" ]; then
+                echo "Renaming directory: $dir -> $newdir"
+                mv "$dir" "$newdir"
+              fi
+            done
+          ' bash {} +
+        done
