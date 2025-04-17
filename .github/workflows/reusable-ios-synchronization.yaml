@@ -18,9 +18,7 @@ on:
       repositoryOwner:
         type: string
         required: true
-      sourceDirname:
-        type: string
-      targetDirname:
+      replacementDirnames:
         type: string
       replacementFilenames:
         type: string
@@ -94,12 +92,13 @@ jobs:
           replacementExtentions: ${{ inputs.replacementExtentions }}
           replacementContents: ${{ inputs.replacementContents }}
 
-      - uses: rees46/workflow/.github/actions/utils/fs/rename-dirs@master
+      - uses: rees46/workflow/.github/actions/utils/fs/rename-dirs@refactor/ios-sync-workflow
+        # TODO uncomment
+        # - uses: rees46/workflow/.github/actions/utils/fs/rename-dirs@master
         if: ${{ inputs.sourceDirname != '' && inputs.targetDirname != '' }}
         with:
           targetDirectory: ${{ env.TARGET_TMP_DIR_PATH }}
-          sourceDirname: ${{ inputs.sourceDirname }}
-          targetDirname: ${{ inputs.targetDirname }}
+          replacementDirnames: ${{ inputs.replacementDirnames }}
 
       - uses: rees46/workflow/.github/actions/utils/fs/rename-files@refactor/ios-sync-workflow
         # TODO uncomment
