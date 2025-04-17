@@ -35,7 +35,7 @@ jobs:
           token: ${{ steps.app-token.outputs.token }}
           # TODO uncomment
           # ref: master
-          ref: feat/version-workflow
+          ref: feat/repo-sync
 
       - uses: codfish/semantic-release-action@v3
         id: semanticReleaseStep
