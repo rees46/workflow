@@ -73,10 +73,12 @@ jobs:
           targetRepository: ${{ github.repository }}
           filePattern: version.properties
 
-      - uses: rees46/workflow/.github/actions/github/pull-request/create@master
+      # TODO uncomment
+      # - uses: rees46/workflow/.github/actions/github/pull-request/create@master
+      - uses: rees46/workflow/.github/actions/github/pull-request/create@feat/version-workflow
         with:
           targetDirectory: .
           githubToken: ${{ steps.app-token.outputs.token }}
           lastPrAuthor: ${{ steps.lastPrAuthorStep.outputs.lastPrAuthor }}
           branchName: ${{ steps.newBranchNameStep.outputs.branchName }}
-          # reviewerUsername: ${{ inputs.reviewerUsername }}
+          reviewerUsername: ${{ inputs.reviewerUsername }}
