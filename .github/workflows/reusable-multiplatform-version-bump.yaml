@@ -53,7 +53,7 @@ jobs:
 
       # TODO uncomment
       # - uses: rees46/workflow/.github/actions/git/create-relese-branch@master
-      - uses: rees46/workflow/.github/actions/git/create-relese-branch@feat/version-workflow
+      - uses: rees46/workflow/.github/actions/git/create-release-branch@feat/version-workflow
         id: createReleaseBranchStep
         with:
           githubToken: ${{ steps.appTokenStep.outputs.token }}
