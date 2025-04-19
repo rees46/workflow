@@ -44,8 +44,7 @@ runs:
       run: |
         PR_TITLE="${{ inputs.prTitle }}"
         PR_BODY="${{ inputs.prBody }}"
-        # DEFAULT_BRANCH=$(gh repo view --json defaultBranchRef -q ".defaultBranchRef.name")
-        DEFAULT_BRANCH=debug
+        DEFAULT_BRANCH=$(gh repo view --json defaultBranchRef -q ".defaultBranchRef.name")
 
         echo "Assigning PR to LAST_PR_AUTHOR: $LAST_PR_AUTHOR"
         echo "Adding REVIEWER: $REVIEWER as a reviewer"

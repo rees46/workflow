@@ -34,9 +34,7 @@ jobs:
         with:
           token: ${{ steps.app-token.outputs.token }}
           fetch-depth: 0
-          # TODO uncomment
-          # ref: master
-          ref: debug
+          ref: master
 
       - uses: codfish/semantic-release-action@v3
         id: semanticReleaseStep
@@ -44,7 +42,7 @@ jobs:
           additional-packages: |
             ['@semantic-release/git', '@semantic-release/exec']
 
-      - name: NEW_RELEASE_PUBLISHED check
+      - name: Check release published
         shell: bash
         run: |
           if [ "${NEW_RELEASE_PUBLISHED}" != "true" ]; then
@@ -52,9 +50,7 @@ jobs:
             exit 1
           fi
 
-      # TODO uncomment
-      # - uses: rees46/workflow/.github/actions/git/create-relese-branch@master
-      - uses: rees46/workflow/.github/actions/git/create-release-branch@feat/version-workflow
+      - uses: rees46/workflow/.github/actions/git/create-relese-branch@master
         id: createReleaseBranchStep
         with:
           githubToken: ${{ steps.app-token.outputs.token }}
@@ -66,18 +62,14 @@ jobs:
           sourceDirectory: .
           githubToken: ${{ steps.app-token.outputs.token }}
 
-      # TODO uncomment
-      # - uses: rees46/workflow/.github/actions/github/commit/create@master
-      - uses: rees46/workflow/.github/actions/github/commit/create@feat/version-workflow
+      - uses: rees46/workflow/.github/actions/github/commit/create@master
         with:
           branchName: ${{ steps.createReleaseBranchStep.outputs.branchName }}
           githubToken: ${{ steps.app-token.outputs.token }}
           targetRepository: ${{ github.repository }}
           filePattern: version.properties
 
-      # TODO uncomment
-      # - uses: rees46/workflow/.github/actions/github/pull-request/create@master
-      - uses: rees46/workflow/.github/actions/github/pull-request/create@feat/version-workflow
+      - uses: rees46/workflow/.github/actions/github/pull-request/create@master
         with:
           targetDirectory: .
           githubToken: ${{ steps.app-token.outputs.token }}
