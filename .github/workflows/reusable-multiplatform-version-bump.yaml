@@ -82,5 +82,7 @@ jobs:
           targetDirectory: .
           githubToken: ${{ steps.app-token.outputs.token }}
           lastPrAuthor: ${{ steps.lastPrAuthorStep.outputs.lastPrAuthor }}
+          prTitle: "Bump version to ${{ steps.semanticReleaseStep.outputs.release-version }}"
+          prBody: "Automated version bump"
           branchName: ${{ steps.newBranchNameStep.outputs.branchName }}
           reviewerUsername: ${{ inputs.reviewerUsername }}
