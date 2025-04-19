@@ -1,0 +1,30 @@
+name: Create release branch
+description: create release branch
+
+inputs:
+  githubToken:
+    description: Github token
+    required: true
+  releaseVersion:
+    description: Release version
+    required: true
+
+outputs:
+  branchName:
+    description: New branch name
+    value: ${{ steps.createReleaseBranchStep.outputs.branchName }}
+
+runs:
+  using: composite
+
+  steps:
+    - name: Create new branch
+      shell: bash
+      id: createReleaseBranchStep
+      env:
+        GITHUB_TOKEN: ${{ inputs.githubToken }}
+      run: |
+        branch=release/${{ inputs.releaseVersion }}
+        echo "branchName=$branch" >> $GITHUB_OUTPUT
+        git checkout -b $branch
+        git push --set-upstream origin $branch

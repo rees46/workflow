@@ -9,9 +9,6 @@ env:
 on:
   workflow_call:
     inputs:
-      versionFilePath:
-        type: string
-        default: 'version.properties'
       appId:
         type: string
         required: true

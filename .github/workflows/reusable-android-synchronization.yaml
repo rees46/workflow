@@ -24,17 +24,17 @@ on:
         type: string
         required: true
         description: list of files to exclue, separated by ','
-        default: ".git,.idea,LICENSE,"
+        default: '.git,.idea,LICENSE,'
       replacementExtentions:
         type: string
         required: true
         description: list of extentions to replace, separated by ','
-        default: "*.ts,*.sh,*.yaml"
+        default: '*.ts,*.sh,*.yaml'
       replacementContents:
         type: string
         required: true
         description: list of contents to replace, separated by ',' and '|' - separate source target content\
-        default: "source:content:1|target:conten:1,source-content-1|target-content-1"
+        default: 'source:content:1|target:conten:1,source-content-1|target-content-1'
     secrets:
       privateKey:
         required: true

@@ -1,10 +1,10 @@
 name: PersonaClick Synchronization
 
 env:
-  TARGET_REPO: "PersonaClick/workflow"
-  SYNC_IGNORE: ".git,.idea,LICENSE,.github/workflows/synchronization.yaml"
-  REPLACMENT_EXTENTIONS: "*.ts,*.sh,*.yaml"
-  REPLACEMENT_CONTENTS: "https://api.rees46.com/|https://api.personaclick.com/,com.rees46:rees46-sdk|com.personaclick:personaclick-sdk,api.rees46.com|api.personaclick.com,rees46.com|personaclick.com,rees46|personaClick,REES46|PersonaClick,Rees46|PersonaClick"
+  TARGET_REPO: 'PersonaClick/workflow'
+  SYNC_IGNORE: '.git,.idea,LICENSE,.github/workflows/synchronization.yaml'
+  REPLACMENT_EXTENTIONS: '*.ts,*.sh,*.yaml'
+  REPLACEMENT_CONTENTS: 'https://api.rees46.com/|https://api.personaclick.com/,com.rees46:rees46-sdk|com.personaclick:personaclick-sdk,api.rees46.com|api.personaclick.com,rees46.com|personaclick.com,rees46|personaClick,REES46|PersonaClick,Rees46|PersonaClick'
 
 on:
   pull_request:
