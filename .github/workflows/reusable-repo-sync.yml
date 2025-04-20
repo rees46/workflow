@@ -76,7 +76,8 @@ jobs:
           # TODO to env
           path: tmp/workflow
 
-      - uses: rees46/workflow/.github/actions/js/start-js@master
+      # - uses: rees46/workflow/.github/actions/js/prepare-js@master
+      - uses: rees46/workflow/.github/actions/js/prepare-js@refactor/ios-sync-workflow
         with:
           appId: ${{ inputs.appId }}
           appSecret: ${{ secrets.appSecret }}
