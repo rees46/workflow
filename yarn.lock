@@ -1264,6 +1264,14 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@scripts/process-repo-replacement@workspace:scripts/process-repo-replacement":
+  version: 0.0.0-use.local
+  resolution: "@scripts/process-repo-replacement@workspace:scripts/process-repo-replacement"
+  dependencies:
+    "@global/github-client": "workspace:*"
+  languageName: unknown
+  linkType: soft
+
 "@scripts/project-field-getter@workspace:scripts/project-field-getter":
   version: 0.0.0-use.local
   resolution: "@scripts/project-field-getter@workspace:scripts/project-field-getter"

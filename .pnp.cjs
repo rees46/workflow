@@ -27,6 +27,10 @@ const RAW_RUNTIME_STATE =
       "reference": "workspace:scripts/issues-getter"\
     },\
     {\
+      "name": "@scripts/process-repo-replacement",\
+      "reference": "workspace:scripts/process-repo-replacement"\
+    },\
+    {\
       "name": "@scripts/project-field-getter",\
       "reference": "workspace:scripts/project-field-getter"\
     },\
@@ -45,6 +49,7 @@ const RAW_RUNTIME_STATE =
     ["@global/github-client", ["workspace:global/github-client"]],\
     ["@scripts/issue-status-updater", ["workspace:scripts/issue-status-updater"]],\
     ["@scripts/issues-getter", ["workspace:scripts/issues-getter"]],\
+    ["@scripts/process-repo-replacement", ["workspace:scripts/process-repo-replacement"]],\
     ["@scripts/project-field-getter", ["workspace:scripts/project-field-getter"]],\
     ["@scripts/project-getter", ["workspace:scripts/project-getter"]],\
     ["@scripts/project-issue-getter", ["workspace:scripts/project-issue-getter"]],\
@@ -1909,6 +1914,16 @@ const RAW_RUNTIME_STATE =
           ["@scripts/issues-getter", "workspace:scripts/issues-getter"],\
           ["@global/github-client", "workspace:global/github-client"],\
           ["octokit", "npm:4.0.2"]\
+        ],\
+        "linkType": "SOFT"\
+      }]\
+    ]],\
+    ["@scripts/process-repo-replacement", [\
+      ["workspace:scripts/process-repo-replacement", {\
+        "packageLocation": "./scripts/process-repo-replacement/",\
+        "packageDependencies": [\
+          ["@scripts/process-repo-replacement", "workspace:scripts/process-repo-replacement"],\
+          ["@global/github-client", "workspace:global/github-client"]\
         ],\
         "linkType": "SOFT"\
       }]\
