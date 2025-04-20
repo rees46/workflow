@@ -1,0 +1,171 @@
+name: Reusable repository synchronization
+
+# env:
+#   WORKFLOW_REPO: "rees46/workflow"
+#   WORKFLOW_REPO_TMP_PATH: tmp/workflow/
+#   TARGET_TMP_DIR_PATH: tmp/target/
+#   SOURCE_TMP_DIR_PATH: tmp/source/
+#
+on:
+  workflow_call:
+    inputs:
+      appId:
+        description: App ID for committing and pushing
+        required: true
+        type: string
+      appSecret:
+        description: App secret for committing changes
+        required: true
+        type: string
+      nodeVersion:
+        description: "Node version to run this workflow. Default: 22 as it is in action cache"
+        default: "22"
+        required: false
+        type: string
+      replacements:
+        description: Replacements
+        required: true
+        type: string
+#       appId:
+#         type: string
+#         required: true
+#       targetRepository:
+#         type: string
+#         required: true
+#       repositoryOwner:
+#         type: string
+#         required: true
+#       replacementDirnames:
+#         type: string
+#       replacementFilenames:
+#         type: string
+#       syncIgnore:
+#         type: string
+#         required: true
+#         description: list of files to exclue, separated by ','
+#         default: ".git,.idea,LICENSE,"
+#       replacementExtentions:
+#         type: string
+#         required: true
+#         description: list of extentions to replace, separated by ','
+#         default: "*.ts,*.sh,*.yaml"
+#       replacementContents:
+#         type: string
+#         required: true
+#         description: list of contents to replace, separated by ',' and '|' - separate source target content\
+#         default: "source:content:1|target:conten:1,source-content-1|target-content-1"
+#       reviewerUsername:
+#         description: PullRequest reviewer username
+#         type: string
+#         required: false
+#         default: TorinAsakura
+#     secrets:
+#       privateKey:
+#         required: true
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: rees46/workflow/.github/actions/js/start-js@master
+        with:
+          appId: ${{ inputs.appId }}
+          appSecret: ${{ inputs.appSecret }}
+          nodeVersion: ${{ inputs.nodeVersion }}
+
+      - name: Process replacements
+        run: yarn workspace @scripts/process-repo-replacement process ${{ inputs.replacements }}
+#     steps:
+#       - uses: actions/create-github-app-token@v1
+#         id: appTokenStep
+#         with:
+#           app-id: ${{ inputs.appId }}
+#           private-key: ${{ secrets.privateKey }}
+#           owner: ${{ inputs.repositoryOwner }}
+#
+#       - name: Checkout
+#         uses: actions/checkout@v4
+#         with:
+#           path: ${{ env.SOURCE_TMP_DIR_PATH }}
+#           token: ${{ steps.appTokenStep.outputs.token }}
+#
+#       - name: Checkout remote repository
+#         uses: actions/checkout@v4
+#         with:
+#           path: ${{ env.TARGET_TMP_DIR_PATH }}
+#           token: ${{ steps.appTokenStep.outputs.token }}
+#           repository: ${{inputs.targetRepository}}
+#
+#       - name: Checkout Workflow Repo
+#         uses: actions/checkout@v4
+#         with:
+#           repository: ${{ env.WORKFLOW_REPO }}
+#           path: ${{ env.WORKFLOW_REPO_TMP_PATH }}
+#           sparse-checkout: |
+#             scripts/multiplatform
+#
+#       - uses: rees46/workflow/.github/actions/utils/fs/clean-dir@master
+#         with:
+#           targetDirectory: ${{ env.TARGET_TMP_DIR_PATH }}
+#           syncIgnore: ${{ inputs.syncIgnore }}
+#
+#       - uses: rees46/workflow/.github/actions/utils/fs/sync-dirs@master
+#         with:
+#           syncIgnore: ${{ inputs.syncIgnore }}
+#           targetDirectory: ${{ env.TARGET_TMP_DIR_PATH }}
+#           sourceDirectory: ${{ env.SOURCE_TMP_DIR_PATH }}
+#
+#       - uses: rees46/workflow/.github/actions/utils/fs/replace-file-content@master
+#         with:
+#           syncIgnore: ${{ inputs.syncIgnore }}
+#           targetDirectory: ${{ env.TARGET_TMP_DIR_PATH }}
+#           replacementExtentions: ${{ inputs.replacementExtentions }}
+#           replacementContents: ${{ inputs.replacementContents }}
+#
+#       - uses: rees46/workflow/.github/actions/utils/fs/rename-dirs@master
+#         if: ${{ inputs.replacementDirnames != '' }}
+#         with:
+#           targetDirectory: ${{ env.TARGET_TMP_DIR_PATH }}
+#           replacementDirnames: ${{ inputs.replacementDirnames }}
+#
+#       - uses: rees46/workflow/.github/actions/utils/fs/rename-files@master
+#         if: ${{ inputs.replacementFilenames != '' }}
+#         with:
+#           targetDirectory: ${{ env.TARGET_TMP_DIR_PATH }}
+#           replacementFilenames: ${{ inputs.replacementFilenames }}
+#
+#       - uses: rees46/workflow/.github/actions/utils/fs/sync-dirs@master
+#         with:
+#           targetDirectory: ${{ env.TARGET_TMP_DIR_PATH }}
+#           sourceDirectory: .
+#
+#       - uses: rees46/workflow/.github/actions/github/pull-request/get-last-author@master
+#         id: lastPrAuthorStep
+#         with:
+#           githubToken: ${{ steps.appTokenStep.outputs.token }}
+#
+#       - uses: rees46/workflow/.github/actions/github/utils/get-new-branch-name@master
+#         id: newBranchNameStep
+#
+#       - uses: rees46/workflow/.github/actions/github/checkout/new-branch@master
+#         with:
+#           branchName: ${{ steps.newBranchNameStep.outputs.branchName }}
+#
+#       - uses: rees46/workflow/.github/actions/git/add@master
+#         with:
+#           excludeTmp: true
+#
+#       - uses: rees46/workflow/.github/actions/github/commit/create@master
+#         with:
+#           branchName: ${{ steps.newBranchNameStep.outputs.branchName }}
+#           githubToken: ${{ steps.appTokenStep.outputs.token }}
+#           targetRepository: ${{ inputs.targetRepository }}
+#
+#       - uses: rees46/workflow/.github/actions/github/pull-request/create@master
+#         with:
+#           reviewerUsername: ${{ inputs.reviewerUsername }}
+#           githubToken: ${{ steps.appTokenStep.outputs.token }}
+#           lastPrAuthor: ${{ steps.lastPrAuthorStep.outputs.lastPrAuthor }}
+#           branchName: ${{ steps.newBranchNameStep.outputs.branchName }}
