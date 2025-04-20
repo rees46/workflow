@@ -8,13 +8,13 @@ name: Reusable repository synchronization
 #
 on:
   workflow_call:
+    secrets:
+      appSecret:
+        description: App secret for committing changes
+        required: true
     inputs:
       appId:
         description: App ID for committing and pushing
-        required: true
-        type: string
-      appSecret:
-        description: App secret for committing changes
         required: true
         type: string
       nodeVersion:
@@ -67,16 +67,25 @@ jobs:
   run:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout workflow repo
+        uses: actions/checkout@v4
+        with:
+          # TODO to env
+          repository: rees46/workflow
+          ref: refactor/ios-sync-workflow
+          # TODO to env
+          path: tmp/workflow
 
       - uses: rees46/workflow/.github/actions/js/start-js@master
         with:
           appId: ${{ inputs.appId }}
-          appSecret: ${{ inputs.appSecret }}
+          appSecret: ${{ secrets.appSecret }}
           nodeVersion: ${{ inputs.nodeVersion }}
+          workingDirectory: tmp/workflow
 
       - name: Process replacements
-        run: yarn workspace @scripts/process-repo-replacement process ${{ inputs.replacements }}
+        working-directory: tmp/workflow
+        run: yarn workspace @scripts/process-repo-replacement process '${{ inputs.replacements }}'
 #     steps:
 #       - uses: actions/create-github-app-token@v1
 #         id: appTokenStep
