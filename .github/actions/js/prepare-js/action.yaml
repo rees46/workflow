@@ -1,0 +1,49 @@
+name: Composite start JS action
+description: Prepare JS action - checkout, generate App token, yarn install
+
+inputs:
+  nodeVersion:
+    description: Node version to run this workflow. Default 18 as it is in action cache
+    default: "18"
+    required: false
+  appId:
+    description: App ID for committing and pushing
+    required: true
+  appSecret:
+    description: App secret for committing changes
+    required: true
+  workingDirectory:
+    required: false
+    default: ./
+    description: Where the script runs
+outputs:
+  token:
+    description: App token
+    value: ${{ steps.app-token.outputs.token }}
+
+runs:
+  using: composite
+
+  steps:
+    - name: Setup Node
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ inputs.nodeVersion }}
+
+    - name: Yarn cache directory
+      id: yarn-cache-dir-path
+      run: echo "dir=$(yarn config get cacheFolder)" >> $GITHUB_OUTPUT
+      shell: bash
+
+    - uses: actions/cache@v4
+      id: yarn-cache
+      with:
+        path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+        key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-yarn-
+
+    - name: Install
+      working-directory: ${{ inputs.workingDirectory }}
+      run: yarn install --inline-builds
+      shell: bash

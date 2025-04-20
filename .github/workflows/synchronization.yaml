@@ -52,7 +52,6 @@ jobs:
 
           eval find . -mindepth 1 -maxdepth 1 $exclude_conditions -exec rm -rf {} +
 
-      # TODO need to separete .github/workflows/synchronization.yaml into personal directory
       - name: Sync files to remote repository
         run: |
           IFS=',' read -r -a ignored_files <<< "$SYNC_IGNORE"
