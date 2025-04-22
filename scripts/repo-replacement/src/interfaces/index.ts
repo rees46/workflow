@@ -5,5 +5,5 @@ export * from "./directory-replacements-processor.interface.js";
 export * from "./escape-reg-exp-util.interface.js";
 export * from "./file-content-replacement-processor.interface.js";
 export * from "./check-arguments-util.interface.js";
-export * from "./main.inteface.js";
 export * from "./check-directory-exist.interface.js";
+export * from "./delete-replacement-processor.interface.js";
