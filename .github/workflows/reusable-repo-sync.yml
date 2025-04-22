@@ -43,37 +43,10 @@ jobs:
           targetRepository: ${{ inputs.targetRepository }}
 
       # Process
-      - name: Clean target directory
-        working-directory: ${{ env.WORKFLOW_TMP_PATH }}
-        run: |
-          TARGET_TMP_ABS_PATH="$GITHUB_WORKSPACE/${{ env.TARGET_TMP_PATH }}"
-          yarn workspace @scripts/clean-directory process '${{ inputs.replacements }}' "$TARGET_TMP_ABS_PATH"
-
-      - name: Debug tmp absolute
-        run: |
-          ABSOLUTE_PATH="$GITHUB_WORKSPACE/$TARGET_TMP_PATH"
-          cd "$ABSOLUTE_PATH" && ls -a
-
-      # - uses: rees46/workflow/.github/actions/utils/fs/sync-dirs@master
-      - uses: rees46/workflow/.github/actions/utils/fs/sync-dirs@refactor/ios-sync-workflow
+      # - uses: rees46/workflow/.github/actions/sync/process@master
+      - uses: rees46/workflow/.github/actions/sync/process@refactor/ios-sync-workflow
         with:
-          targetDirectory: ${{ env.TARGET_TMP_PATH }}
-          sourceDirectory: ${{ env.SOURCE_TMP_PATH }}
-
-      - name: Process replacements
-        working-directory: tmp/workflow
-        run: |
-          # TODO to prepare sync
-          ABSOLUTE_PATH="$GITHUB_WORKSPACE/${{ env.TARGET_TMP_PATH }}"
-          yarn workspace @scripts/repo-replacement process '${{ inputs.replacements }}' "$ABSOLUTE_PATH"
-
-      - name: Debug
-        working-directory: ${{ env.TARGET_TMP_PATH }}
-        run: git status
-
-      - name: Debug
-        working-directory: ${{ env.TARGET_TMP_PATH }}
-        run: git diff
+          replacements: ${{ inputs.replacements }}
 
       # Prepare pull request
       # # TODO prepare pull-request action
