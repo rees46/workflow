@@ -139,31 +139,34 @@ jobs:
       - name: Debug
         working-directory: ${{ env.TARGET_TMP_PATH }}
         run: git diff
-#       - uses: rees46/workflow/.github/actions/github/pull-request/get-last-author@master
-#         id: lastPrAuthorStep
-#         with:
-#           githubToken: ${{ steps.appTokenStep.outputs.token }}
-#
-#       - uses: rees46/workflow/.github/actions/github/utils/get-new-branch-name@master
-#         id: newBranchNameStep
-#
-#       - uses: rees46/workflow/.github/actions/github/checkout/new-branch@master
-#         with:
-#           branchName: ${{ steps.newBranchNameStep.outputs.branchName }}
-#
-#       - uses: rees46/workflow/.github/actions/git/add@master
-#         with:
-#           excludeTmp: true
-#
-#       - uses: rees46/workflow/.github/actions/github/commit/create@master
-#         with:
-#           branchName: ${{ steps.newBranchNameStep.outputs.branchName }}
-#           githubToken: ${{ steps.appTokenStep.outputs.token }}
-#           targetRepository: ${{ inputs.targetRepository }}
-#
-#       - uses: rees46/workflow/.github/actions/github/pull-request/create@master
-#         with:
-#           reviewerUsername: ${{ inputs.reviewerUsername }}
-#           githubToken: ${{ steps.appTokenStep.outputs.token }}
-#           lastPrAuthor: ${{ steps.lastPrAuthorStep.outputs.lastPrAuthor }}
-#           branchName: ${{ steps.newBranchNameStep.outputs.branchName }}
+
+      # TODO prepare pull-request action
+      - uses: rees46/workflow/.github/actions/github/pull-request/get-last-author@master
+        id: lastPrAuthorStep
+        with:
+          githubToken: ${{ steps.appTokenStep.outputs.token }}
+
+      - uses: rees46/workflow/.github/actions/github/utils/get-new-branch-name@master
+        id: newBranchNameStep
+
+      - uses: rees46/workflow/.github/actions/github/checkout/new-branch@master
+        with:
+          branchName: ${{ steps.newBranchNameStep.outputs.branchName }}
+
+      - uses: rees46/workflow/.github/actions/git/add@master
+        with:
+          excludeTmp: true
+
+      - uses: rees46/workflow/.github/actions/github/commit/create@master
+        with:
+          branchName: ${{ steps.newBranchNameStep.outputs.branchName }}
+          githubToken: ${{ steps.appTokenStep.outputs.token }}
+          targetRepository: ${{ inputs.targetRepository }}
+
+      - uses: rees46/workflow/.github/actions/github/pull-request/create@master
+        with:
+          # reviewerUsername: ${{ inputs.reviewerUsername }}
+          reviewerUsername: iwwwanow
+          githubToken: ${{ steps.appTokenStep.outputs.token }}
+          lastPrAuthor: ${{ steps.lastPrAuthorStep.outputs.lastPrAuthor }}
+          branchName: ${{ steps.newBranchNameStep.outputs.branchName }}
