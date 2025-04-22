@@ -19,6 +19,11 @@ inputs:
     required: false
     default: ""
 
+outputs:
+  appTokenStep:
+    description: Github app token
+    value: ${{ steps.appTokenStep.outputs.token }}
+
 runs:
   using: composite
 
