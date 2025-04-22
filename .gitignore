@@ -50,4 +50,7 @@ dist
 
 # Env
 .env
+
 tmp/
+.local
+.vim

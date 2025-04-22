@@ -19,6 +19,10 @@ const RAW_RUNTIME_STATE =
       "reference": "workspace:global/github-client"\
     },\
     {\
+      "name": "@scripts/clean-directory",\
+      "reference": "workspace:scripts/clean-directory"\
+    },\
+    {\
       "name": "@scripts/issue-status-updater",\
       "reference": "workspace:scripts/issue-status-updater"\
     },\
@@ -37,17 +41,23 @@ const RAW_RUNTIME_STATE =
     {\
       "name": "@scripts/project-issue-getter",\
       "reference": "workspace:scripts/project-issue-getter"\
+    },\
+    {\
+      "name": "@scripts/repo-replacement",\
+      "reference": "workspace:scripts/repo-replacement"\
     }\
   ],\
   "enableTopLevelFallback": true,\
   "ignorePatternData": "(^(?:\\\\.yarn\\\\/sdks(?:\\\\/(?!\\\\.{1,2}(?:\\\\/|$))(?:(?:(?!(?:^|\\\\/)\\\\.{1,2}(?:\\\\/|$)).)*?)|$))$)",\
   "fallbackExclusionList": [\
     ["@global/github-client", ["workspace:global/github-client"]],\
+    ["@scripts/clean-directory", ["workspace:scripts/clean-directory"]],\
     ["@scripts/issue-status-updater", ["workspace:scripts/issue-status-updater"]],\
     ["@scripts/issues-getter", ["workspace:scripts/issues-getter"]],\
     ["@scripts/project-field-getter", ["workspace:scripts/project-field-getter"]],\
     ["@scripts/project-getter", ["workspace:scripts/project-getter"]],\
     ["@scripts/project-issue-getter", ["workspace:scripts/project-issue-getter"]],\
+    ["@scripts/repo-replacement", ["workspace:scripts/repo-replacement"]],\
     ["workflow", ["workspace:."]]\
   ],\
   "fallbackPool": [\
@@ -1892,6 +1902,16 @@ const RAW_RUNTIME_STATE =
         "linkType": "HARD"\
       }]\
     ]],\
+    ["@scripts/clean-directory", [\
+      ["workspace:scripts/clean-directory", {\
+        "packageLocation": "./scripts/clean-directory/",\
+        "packageDependencies": [\
+          ["@scripts/clean-directory", "workspace:scripts/clean-directory"],\
+          ["@global/github-client", "workspace:global/github-client"]\
+        ],\
+        "linkType": "SOFT"\
+      }]\
+    ]],\
     ["@scripts/issue-status-updater", [\
       ["workspace:scripts/issue-status-updater", {\
         "packageLocation": "./scripts/issue-status-updater/",\
@@ -1938,6 +1958,16 @@ const RAW_RUNTIME_STATE =
         "packageLocation": "./scripts/project-issue-getter/",\
         "packageDependencies": [\
           ["@scripts/project-issue-getter", "workspace:scripts/project-issue-getter"],\
+          ["@global/github-client", "workspace:global/github-client"]\
+        ],\
+        "linkType": "SOFT"\
+      }]\
+    ]],\
+    ["@scripts/repo-replacement", [\
+      ["workspace:scripts/repo-replacement", {\
+        "packageLocation": "./scripts/repo-replacement/",\
+        "packageDependencies": [\
+          ["@scripts/repo-replacement", "workspace:scripts/repo-replacement"],\
           ["@global/github-client", "workspace:global/github-client"]\
         ],\
         "linkType": "SOFT"\

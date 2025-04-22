@@ -2,6 +2,10 @@ name: Create commit
 description: create commit
 
 inputs:
+  workingDirectory:
+    description: Target directory with .git
+    required: false
+    default: .
   targetRepository:
     description: Target repository to commit
     required: true
@@ -16,6 +20,11 @@ runs:
   using: composite
 
   steps:
+    - name: Move working directory to root
+      shell: bash
+      if: ${{ inputs.excludeTmp != '.' }}
+      run: rsync -a ${{ inputs.workingDirectory }} .
+
     - name: Commit changes
       uses: planetscale/ghcommit-action@v0.2.0
       env:
@@ -23,4 +32,4 @@ runs:
       with:
         repo: ${{ inputs.targetRepository }}
         branch: ${{ inputs.branchName }}
-        commit_message: 'feat: release'
+        commit_message: "feat: release"

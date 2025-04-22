@@ -1247,6 +1247,14 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@scripts/clean-directory@workspace:scripts/clean-directory":
+  version: 0.0.0-use.local
+  resolution: "@scripts/clean-directory@workspace:scripts/clean-directory"
+  dependencies:
+    "@global/github-client": "workspace:*"
+  languageName: unknown
+  linkType: soft
+
 "@scripts/issue-status-updater@workspace:scripts/issue-status-updater":
   version: 0.0.0-use.local
   resolution: "@scripts/issue-status-updater@workspace:scripts/issue-status-updater"
@@ -1283,6 +1291,14 @@ __metadata:
 "@scripts/project-issue-getter@workspace:scripts/project-issue-getter":
   version: 0.0.0-use.local
   resolution: "@scripts/project-issue-getter@workspace:scripts/project-issue-getter"
+  dependencies:
+    "@global/github-client": "workspace:*"
+  languageName: unknown
+  linkType: soft
+
+"@scripts/repo-replacement@workspace:scripts/repo-replacement":
+  version: 0.0.0-use.local
+  resolution: "@scripts/repo-replacement@workspace:scripts/repo-replacement"
   dependencies:
     "@global/github-client": "workspace:*"
   languageName: unknown
