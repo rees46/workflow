@@ -1,4 +1,3 @@
-import type { Replacement } from "../interfaces/index.js";
 import type { ApplyReplacementProcessorProps } from "../interfaces/index.js";
 import type { ApplyReplacementProcessorReturn } from "../interfaces/index.js";
 
