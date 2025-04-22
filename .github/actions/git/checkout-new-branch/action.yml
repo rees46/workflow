@@ -2,7 +2,7 @@ name: Checkout new branch
 description: checkout new branch
 
 inputs:
-  targetDirectory:
+  workingDirectory:
     description: working directory
     default: tmp/target
     required: true
