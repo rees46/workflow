@@ -133,9 +133,11 @@ jobs:
           yarn workspace @scripts/repo-replacement process '${{ inputs.replacements }}' "$ABSOLUTE_PATH"
 
       - name: Debug
+        working-directory: ${{ env.TARGET_TMP_PATH }}
         run: git status
 
       - name: Debug
+        working-directory: ${{ env.TARGET_TMP_PATH }}
         run: git diff
 #       - uses: rees46/workflow/.github/actions/github/pull-request/get-last-author@master
 #         id: lastPrAuthorStep
