@@ -25,13 +25,13 @@ on:
         description: Target repository to sync
         required: true
         type: string
+      repositoryOwner:
+        type: string
+        required: true
 #       appId:
 #         type: string
 #         required: true
 #       targetRepository:
-#         type: string
-#         required: true
-#       repositoryOwner:
 #         type: string
 #         required: true
 #       replacementDirnames:
@@ -72,7 +72,7 @@ jobs:
         with:
           app-id: ${{ inputs.appId }}
           private-key: ${{ secrets.appSecret }}
-          # owner: ${{ inputs.repositoryOwner }}
+          owner: ${{ inputs.repositoryOwner }}
 
       - name: Checkout source repository
         uses: actions/checkout@v4
