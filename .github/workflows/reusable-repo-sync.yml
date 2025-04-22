@@ -173,9 +173,10 @@ jobs:
       # - uses: rees46/workflow/.github/actions/github/pull-request/create@master
       - uses: rees46/workflow/.github/actions/github/pull-request/create@refactor/ios-sync-workflow
         with:
+          # TODO pass from upper
           # reviewerUsername: ${{ inputs.reviewerUsername }}
-          targetDirectory: ${{ env.TARGET_TMP_PATH }}
           reviewerUsername: iwwwanow
+          targetDirectory: ${{ env.TARGET_TMP_PATH }}
           githubToken: ${{ steps.appTokenStep.outputs.token }}
           lastPrAuthor: ${{ steps.lastPrAuthorStep.outputs.lastPrAuthor }}
           branchName: ${{ steps.newBranchNameStep.outputs.branchName }}
