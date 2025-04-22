@@ -10,6 +10,10 @@ inputs:
     description: todo
     required: false
     default: ""
+  targetRepository:
+    description: todo
+    required: false
+    default: ""
 
 runs:
   using: composite
