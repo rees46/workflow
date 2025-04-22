@@ -86,7 +86,7 @@ jobs:
 
       - name: Process replacements
         working-directory: tmp/workflow
-        run: yarn workspace @scripts/process-repo-replacement process '${{ inputs.replacements }}'
+        run: yarn workspace @scripts/repo-replacement process '${{ inputs.replacements }}'
 #     steps:
 #       - uses: actions/create-github-app-token@v1
 #         id: appTokenStep
