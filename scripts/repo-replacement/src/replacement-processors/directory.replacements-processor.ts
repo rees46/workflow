@@ -17,6 +17,7 @@ export const direcotryReplacementProcessor = async ({
 
   if (newDirectoryName !== directory) {
     fs.renameSync(directory, newDirectoryName);
+    console.info(`Direcotry renamed: from ${directory} to ${newDirectoryName}`);
     directory = newDirectoryName;
   }
 
@@ -34,6 +35,7 @@ export const direcotryReplacementProcessor = async ({
       if (newName !== item.name) {
         const newPath = path.join(directory, newName);
         fs.renameSync(fullPath, newPath);
+        console.info(`Direcotry renamed: from ${fullPath} to ${newPath}`);
         await direcotryReplacementProcessor({
           directory: newPath,
           config,
@@ -54,6 +56,7 @@ export const direcotryReplacementProcessor = async ({
       if (newName !== item.name) {
         const newPath = path.join(directory, newName);
         fs.renameSync(fullPath, newPath);
+        console.info(`File renamed: from ${directory} to ${newDirectoryName}`);
         fullPath = newPath;
       }
 
