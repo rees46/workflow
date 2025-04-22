@@ -23,7 +23,7 @@ runs:
     - name: Move working directory to root
       shell: bash
       if: ${{ inputs.excludeTmp != '.' }}
-      run: mv -R ${{ inputs.workingDirectory }}/* .
+      run: rsync -a ${{ inputs.workingDirectory }} .
 
     - name: Commit changes
       uses: planetscale/ghcommit-action@v0.2.0
