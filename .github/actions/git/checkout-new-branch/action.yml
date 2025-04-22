@@ -14,14 +14,20 @@ runs:
   using: composite
 
   steps:
+    - name: Debug working directory
+      shell: bash
+      working-directory: ${{ inputs.workingDirectory }}
+      run: |
+        ls -a
+
     - name: Checkout new branch
       shell: bash
-      working-directory: ${{ inputs.targetDirectory }}
+      working-directory: ${{ inputs.workingDirectory }}
       run: |
         git checkout -b ${{ inputs.branchName }}
 
     - name: Push new branch
       shell: bash
-      working-directory: ${{ inputs.targetDirectory }}
+      working-directory: ${{ inputs.workingDirectory }}
       run: |
         git push --set-upstream origin ${{ inputs.branchName }}
