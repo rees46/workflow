@@ -156,7 +156,8 @@ jobs:
           workingDirectory: ${{ env.TARGET_TMP_PATH }}
           branchName: ${{ steps.newBranchNameStep.outputs.branchName }}
 
-      - uses: rees46/workflow/.github/actions/git/add@master
+      # - uses: rees46/workflow/.github/actions/git/add@master
+      - uses: rees46/workflow/.github/actions/git/add@refactor/ios-sync-workflow
         with:
           workingDirectory: ${{ env.TARGET_TMP_PATH }}
           excludeTmp: true
