@@ -107,7 +107,10 @@ jobs:
 
       - name: Clean directory
         working-directory: tmp/workflow
-        run: yarn workspace @scripts/clean-directory '${{ inputs.replacements }}' ${{ env.TARGET_TMP_PATH }}
+        run: |
+          # TODO to prepare sync
+          ABSOLUTE_PATH="$GITHUB_WORKSPACE/${{ env.TARGET_TMP_PATH }}"
+          yarn workspace @scripts/clean-directory '${{ inputs.replacements }}' "$ABSOLUTE_PATH"
 
       # - uses: rees46/workflow/.github/actions/utils/fs/sync-dirs@master
       - uses: rees46/workflow/.github/actions/utils/fs/sync-dirs@refactor/ios-sync-workflow
@@ -117,7 +120,10 @@ jobs:
 
       - name: Process replacements
         working-directory: tmp/workflow
-        run: yarn workspace @scripts/repo-replacement process '${{ inputs.replacements }}' ${{ env.TARGET_TMP_PATH }}
+        run: |
+          # TODO to prepare sync
+          ABSOLUTE_PATH="$GITHUB_WORKSPACE/${{ env.TARGET_TMP_PATH }}"
+          yarn workspace @scripts/repo-replacement process '${{ inputs.replacements }}' "$ABSOLUTE_PATH"
 
       - name: Debug
         run: git status
