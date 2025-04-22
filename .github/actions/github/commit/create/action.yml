@@ -4,7 +4,8 @@ description: create commit
 inputs:
   workingDirectory:
     description: Target directory with .git
-    required: true
+    required: false
+    default: .
   targetRepository:
     description: Target repository to commit
     required: false
@@ -28,9 +29,13 @@ runs:
   using: composite
 
   steps:
+    - name: Move working directory to root
+      shell: bash
+      if: ${{ inputs.excludeTmp != '.' }}
+      run: mv -R ${{ inputs.workingDirectory }}/* .
+
     - name: Commit changes
       uses: planetscale/ghcommit-action@v0.2.0
-      working-directory: ${{ inputs.workingDirectory }}
       env:
         GITHUB_TOKEN: ${{ inputs.githubToken }}
       with:
