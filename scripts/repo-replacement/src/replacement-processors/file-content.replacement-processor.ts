@@ -12,7 +12,11 @@ export const fileContentReplacementProcessor: FileContentReplacementProcessorTyp
           new RegExp(escapeRegExpUtil(from), "g"),
           to,
         );
+
         if (newContent !== content) {
+          console.info(
+            `Content on ${filePath} replaced: from ${from} to ${to}`,
+          );
           content = newContent;
           modified = true;
         }
