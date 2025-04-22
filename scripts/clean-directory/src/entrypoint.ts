@@ -28,4 +28,6 @@ function safeDelete(targetDir: string, config: Config) {
 
 const [configString, targetDir] = process.argv.slice(2);
 const config = JSON.parse(configString);
+console.log("Starting delete process...");
 safeDelete(targetDir, config);
+console.log("Delete completed successfully!");

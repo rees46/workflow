@@ -23,6 +23,7 @@ export const main = async () => {
       targetDir,
       deletions: config.deletions,
     });
+    console.log("Delete completed successfully!");
 
     console.log("Starting replacement process...");
     await direcotryReplacementProcessor({
