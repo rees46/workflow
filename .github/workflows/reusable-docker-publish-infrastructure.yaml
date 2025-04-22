@@ -18,7 +18,7 @@ jobs:
         id: changed-files
         uses: tj-actions/changed-files@v45
         with:
-          json: 'true'
+          json: "true"
 
       - name: Output changed files
         run: |
@@ -28,13 +28,21 @@ jobs:
         id: dockerfile-check
         run: |
           CHANGED_FILES="${{ steps.changed-files.outputs.all_changed_files }}"
-          echo "Changed files: $CHANGED_FILES"
+          echo "Changed files raw: $CHANGED_FILES"
 
-          if echo "$CHANGED_FILES" | grep -q 'Dockerfile'; then
-            echo "Dockerfile has changed."
+          ALL_FILES=$(echo "$CHANGED_FILES" | tr -d '[]" ' | tr ',' '\n')
+
+          CHANGED_DOCKERFILES=$(echo "$ALL_FILES" \
+            | grep 'Dockerfile' \
+            | grep -Ev '(^|/)\.' \
+          )
+
+          if [ -n "$CHANGED_DOCKERFILES" ]; then
+            echo "Valid Dockerfile changes detected:"
+            echo "$CHANGED_DOCKERFILES"
             echo "DOCKERFILE_CHANGED=true" >> $GITHUB_ENV
           else
-            echo "No Dockerfile changes detected."
+            echo "No non-dot-folder Dockerfile changes."
             echo "DOCKERFILE_CHANGED=false" >> $GITHUB_ENV
           fi
 
@@ -46,16 +54,21 @@ jobs:
           PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         run: |
           echo $GITHUB_TOKEN | docker login ghcr.io -u $REPOSITORY_OWNER --password-stdin
-          CHANGED_DOCKERFILES=$(echo "${{ steps.changed-files.outputs.all_changed_files }}" | tr -d '[]" ' | tr ',' '\n' | grep 'Dockerfile')
+          CHANGED_DOCKERFILES=$(echo "${{ steps.changed-files.outputs.all_changed_files }}" \
+            | tr -d '[]" ' \
+            | tr ',' '\n' \
+            | grep 'Dockerfile' \
+            | grep -Ev '(^|/)\.' \
+          )
 
           for DOCKERFILE in $CHANGED_DOCKERFILES; do
-            DIR=$(dirname $DOCKERFILE)
-            IMAGE_NAME="ghcr.io/$REPOSITORY_OWNER/$(basename $DIR):latest"
-            IMAGE_NAME_HASH=ghcr.io/$REPOSITORY_OWNER/$(basename $DIR):$(git rev-parse --short HEAD)-$(date +%s)
+            DIR=$(dirname "$DOCKERFILE")
+            IMAGE_NAME="ghcr.io/$REPOSITORY_OWNER/$(basename "$DIR"):latest"
+            IMAGE_NAME_HASH=ghcr.io/$REPOSITORY_OWNER/$(basename "$DIR"):$(git rev-parse --short HEAD)-$(date +%s)
             echo "Building image $IMAGE_NAME"
 
-            docker build -t $IMAGE_NAME -t $IMAGE_NAME_HASH --build-arg SSH_PRIVATE_KEY="$PRIVATE_KEY" $DIR 
+            docker build -t "$IMAGE_NAME" -t "$IMAGE_NAME_HASH" --build-arg SSH_PRIVATE_KEY="$PRIVATE_KEY" "$DIR"
 
-            docker push $IMAGE_NAME
-            docker push $IMAGE_NAME_HASH
+            docker push "$IMAGE_NAME"
+            docker push "$IMAGE_NAME_HASH"
           done
