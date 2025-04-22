@@ -1,5 +1,5 @@
 name: Composite prepare JS action
-description: Prepare JS action - checkout, yarn install; checkout must be in advance
+description: setup node, setup yarn cache, install node-deps
 
 inputs:
   nodeVersion:
