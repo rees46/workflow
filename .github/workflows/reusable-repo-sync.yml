@@ -65,7 +65,13 @@ jobs:
         run: |
           yarn workspace @scripts/repo-replacement process '${{ inputs.replacements }}' "$TARGET_TMP_ABS_PATH"
 
-      - name: Debug changes
+      - name: Check for changes
+        working-directory: ${{ env.TARGET_TMP_PATH }}
+        run: |
+          git diff --quiet && echo "No changes foud" && exit 0
+          echo "Changes found"
+
+      - name: Log changes
         working-directory: ${{ env.TARGET_TMP_PATH }}
         run: git diff
 
