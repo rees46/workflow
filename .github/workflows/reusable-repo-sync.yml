@@ -112,9 +112,8 @@ jobs:
         working-directory: ${{ env.WORKFLOW_TMP_PATH }}
         run: |
           # TODO to prepare sync
-          # TARGET_TMP_ABS_PATH="$GITHUB_WORKSPACE/${{ env.TARGET_TMP_PATH }}"
-          # yarn --cwd "$GITHUB_WORKSPACE/tmp/workflow" workspace @scripts/clean-directory '${{ inputs.replacements }}' "$TARGET_TMP_ABS_PATH"
-          yarn workspace @scripts/clean-directory '${{ inputs.replacements }}' ../../../target
+          TARGET_TMP_ABS_PATH="$GITHUB_WORKSPACE/${{ env.TARGET_TMP_PATH }}"
+          yarn workspace @scripts/clean-directory process '${{ inputs.replacements }}' "$TARGET_TMP_ABS_PATH"
 
       - name: Debug tmp absolute
         run: |
