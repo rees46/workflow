@@ -17,14 +17,14 @@ runs:
   steps:
     - name: git add
       if: ${{ inputs.excludeTmp == '' }}
-      working-directory: ${{ input.workingDirectory }}
+      working-directory: ${{ inputs.workingDirectory }}
       shell: bash
       run: |
         git add --all -- .
 
     - name: git add
       if: ${{ inputs.excludeTmp != '' }}
-      working-directory: ${{ input.workingDirectory }}
+      working-directory: ${{ inputs.workingDirectory }}
       shell: bash
       run: |
         git add --all -- . ':!tmp/'
