@@ -1,10 +1,10 @@
 name: Reusable repository synchronization
 
-# env:
-#   WORKFLOW_REPO: "rees46/workflow"
-#   WORKFLOW_REPO_TMP_PATH: tmp/workflow/
-#   TARGET_TMP_DIR_PATH: tmp/target/
-#   SOURCE_TMP_DIR_PATH: tmp/source/
+env:
+  WORKFLOW_REPO: "rees46/workflow"
+  WORKFLOW_TMP_PATH: tmp/workflow/
+  TARGET_TMP_PATH: tmp/target/
+  SOURCE_TMP_PATH: tmp/source/
 #
 on:
   workflow_call:
@@ -67,15 +67,36 @@ jobs:
   run:
     runs-on: ubuntu-latest
     steps:
+      # TODO to prepare sync action
+      - uses: actions/create-github-app-token@v1
+        id: appTokenStep
+        with:
+          app-id: ${{ inputs.appId }}
+          private-key: ${{ secrets.privateKey }}
+          owner: ${{ inputs.repositoryOwner }}
+
+      - name: Checkout source repository
+        uses: actions/checkout@v4
+        with:
+          path: ${{ env.SOURCE_TMP_PATH }}
+          token: ${{ steps.appTokenStep.outputs.token }}
+
+      - name: Checkout target repository
+        uses: actions/checkout@v4
+        with:
+          path: ${{ env.TARGET_TMP_PATH }}
+          token: ${{ steps.appTokenStep.outputs.token }}
+          repository: ${{inputs.targetRepository}}
+
       - name: Checkout workflow repo
         uses: actions/checkout@v4
         with:
-          # TODO to env
-          repository: rees46/workflow
+          repository: ${{ env.WORKFLOW_REPO }}
+          path: ${{ env.WORKFLOW_TMP_PATH }}
+          # TODO rm
           ref: refactor/ios-sync-workflow
-          # TODO to env
-          path: tmp/workflow
 
+      # TODO uncomment
       # - uses: rees46/workflow/.github/actions/js/prepare-js@master
       - uses: rees46/workflow/.github/actions/js/prepare-js@refactor/ios-sync-workflow
         with:
@@ -84,73 +105,25 @@ jobs:
           nodeVersion: ${{ inputs.nodeVersion }}
           workingDirectory: tmp/workflow
 
+      - name: Clean directory
+        working-directory: tmp/workflow
+        run: yarn workspace @scripts/clean-directory '${{ inputs.replacements }}' ${{ env.TARGET_TMP_PATH }}
+
+      # - uses: rees46/workflow/.github/actions/utils/fs/sync-dirs@master
+      - uses: rees46/workflow/.github/actions/utils/fs/sync-dirs@refactor/ios-sync-workflow
+        with:
+          targetDirectory: ${{ env.TARGET_TMP_DIR_PATH }}
+          sourceDirectory: ${{ env.SOURCE_TMP_DIR_PATH }}
+
       - name: Process replacements
         working-directory: tmp/workflow
         run: yarn workspace @scripts/repo-replacement process '${{ inputs.replacements }}'
-#     steps:
-#       - uses: actions/create-github-app-token@v1
-#         id: appTokenStep
-#         with:
-#           app-id: ${{ inputs.appId }}
-#           private-key: ${{ secrets.privateKey }}
-#           owner: ${{ inputs.repositoryOwner }}
-#
-#       - name: Checkout
-#         uses: actions/checkout@v4
-#         with:
-#           path: ${{ env.SOURCE_TMP_DIR_PATH }}
-#           token: ${{ steps.appTokenStep.outputs.token }}
-#
-#       - name: Checkout remote repository
-#         uses: actions/checkout@v4
-#         with:
-#           path: ${{ env.TARGET_TMP_DIR_PATH }}
-#           token: ${{ steps.appTokenStep.outputs.token }}
-#           repository: ${{inputs.targetRepository}}
-#
-#       - name: Checkout Workflow Repo
-#         uses: actions/checkout@v4
-#         with:
-#           repository: ${{ env.WORKFLOW_REPO }}
-#           path: ${{ env.WORKFLOW_REPO_TMP_PATH }}
-#           sparse-checkout: |
-#             scripts/multiplatform
-#
-#       - uses: rees46/workflow/.github/actions/utils/fs/clean-dir@master
-#         with:
-#           targetDirectory: ${{ env.TARGET_TMP_DIR_PATH }}
-#           syncIgnore: ${{ inputs.syncIgnore }}
-#
-#       - uses: rees46/workflow/.github/actions/utils/fs/sync-dirs@master
-#         with:
-#           syncIgnore: ${{ inputs.syncIgnore }}
-#           targetDirectory: ${{ env.TARGET_TMP_DIR_PATH }}
-#           sourceDirectory: ${{ env.SOURCE_TMP_DIR_PATH }}
-#
-#       - uses: rees46/workflow/.github/actions/utils/fs/replace-file-content@master
-#         with:
-#           syncIgnore: ${{ inputs.syncIgnore }}
-#           targetDirectory: ${{ env.TARGET_TMP_DIR_PATH }}
-#           replacementExtentions: ${{ inputs.replacementExtentions }}
-#           replacementContents: ${{ inputs.replacementContents }}
-#
-#       - uses: rees46/workflow/.github/actions/utils/fs/rename-dirs@master
-#         if: ${{ inputs.replacementDirnames != '' }}
-#         with:
-#           targetDirectory: ${{ env.TARGET_TMP_DIR_PATH }}
-#           replacementDirnames: ${{ inputs.replacementDirnames }}
-#
-#       - uses: rees46/workflow/.github/actions/utils/fs/rename-files@master
-#         if: ${{ inputs.replacementFilenames != '' }}
-#         with:
-#           targetDirectory: ${{ env.TARGET_TMP_DIR_PATH }}
-#           replacementFilenames: ${{ inputs.replacementFilenames }}
-#
-#       - uses: rees46/workflow/.github/actions/utils/fs/sync-dirs@master
-#         with:
-#           targetDirectory: ${{ env.TARGET_TMP_DIR_PATH }}
-#           sourceDirectory: .
-#
+
+      - name: Debug
+        run: git status
+
+      - name: Debug
+        run: git diff
 #       - uses: rees46/workflow/.github/actions/github/pull-request/get-last-author@master
 #         id: lastPrAuthorStep
 #         with:
