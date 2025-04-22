@@ -72,8 +72,8 @@ jobs:
         id: appTokenStep
         with:
           app-id: ${{ inputs.appId }}
-          private-key: ${{ secrets.privateKey }}
-          owner: ${{ inputs.repositoryOwner }}
+          private-key: ${{ secrets.appSecret }}
+          # owner: ${{ inputs.repositoryOwner }}
 
       - name: Checkout source repository
         uses: actions/checkout@v4
@@ -112,12 +112,12 @@ jobs:
       # - uses: rees46/workflow/.github/actions/utils/fs/sync-dirs@master
       - uses: rees46/workflow/.github/actions/utils/fs/sync-dirs@refactor/ios-sync-workflow
         with:
-          targetDirectory: ${{ env.TARGET_TMP_DIR_PATH }}
-          sourceDirectory: ${{ env.SOURCE_TMP_DIR_PATH }}
+          targetDirectory: ${{ env.TARGET_TMP_PATH }}
+          sourceDirectory: ${{ env.SOURCE_TMP_PATH }}
 
       - name: Process replacements
         working-directory: tmp/workflow
-        run: yarn workspace @scripts/repo-replacement process '${{ inputs.replacements }}'
+        run: yarn workspace @scripts/repo-replacement process '${{ inputs.replacements }}' ${{ env.TARGET_TMP_PATH }}
 
       - name: Debug
         run: git status
