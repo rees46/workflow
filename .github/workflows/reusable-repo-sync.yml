@@ -144,28 +144,36 @@ jobs:
       - uses: rees46/workflow/.github/actions/github/pull-request/get-last-author@master
         id: lastPrAuthorStep
         with:
+          sourceDirectory: ${{ env.SOURCE_TMP_PATH }}
           githubToken: ${{ steps.appTokenStep.outputs.token }}
 
       - uses: rees46/workflow/.github/actions/github/utils/get-new-branch-name@master
         id: newBranchNameStep
 
-      - uses: rees46/workflow/.github/actions/github/checkout/new-branch@master
+      # - uses: rees46/workflow/.github/actions/git/checkout-new-branch@master
+      - uses: rees46/workflow/.github/actions/git/checkout-new-branch@refactor/ios-sync-workflow
         with:
+          workingDirectory: ${{ env.TARGET_TMP_PATH }}
           branchName: ${{ steps.newBranchNameStep.outputs.branchName }}
 
       - uses: rees46/workflow/.github/actions/git/add@master
         with:
+          workingDirectory: ${{ env.TARGET_TMP_PATH }}
           excludeTmp: true
 
-      - uses: rees46/workflow/.github/actions/github/commit/create@master
+      # - uses: rees46/workflow/.github/actions/github/commit/create@master
+      - uses: rees46/workflow/.github/actions/github/commit/create@refactor/ios-sync-workflow
         with:
+          workingDirectory: ${{ env.TARGET_TMP_PATH }}
           branchName: ${{ steps.newBranchNameStep.outputs.branchName }}
           githubToken: ${{ steps.appTokenStep.outputs.token }}
           targetRepository: ${{ inputs.targetRepository }}
 
-      - uses: rees46/workflow/.github/actions/github/pull-request/create@master
+      # - uses: rees46/workflow/.github/actions/github/pull-request/create@master
+      - uses: rees46/workflow/.github/actions/github/pull-request/create@refactor/ios-sync-workflow
         with:
           # reviewerUsername: ${{ inputs.reviewerUsername }}
+          targetDirectory: ${{ env.TARGET_TMP_PATH }}
           reviewerUsername: iwwwanow
           githubToken: ${{ steps.appTokenStep.outputs.token }}
           lastPrAuthor: ${{ steps.lastPrAuthorStep.outputs.lastPrAuthor }}
