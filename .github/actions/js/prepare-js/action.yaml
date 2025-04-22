@@ -1,25 +1,15 @@
-name: Composite start JS action
-description: Prepare JS action - checkout, generate App token, yarn install
+name: Composite prepare JS action
+description: Prepare JS action - checkout, yarn install; checkout must be in advance
 
 inputs:
   nodeVersion:
-    description: Node version to run this workflow. Default 18 as it is in action cache
-    default: "18"
+    description: Node version to run this workflow. Default 22 as it is in action cache
+    default: "22"
     required: false
-  appId:
-    description: App ID for committing and pushing
-    required: true
-  appSecret:
-    description: App secret for committing changes
-    required: true
   workingDirectory:
     required: false
     default: ./
     description: Where the script runs
-outputs:
-  token:
-    description: App token
-    value: ${{ steps.app-token.outputs.token }}
 
 runs:
   using: composite
