@@ -17,13 +17,12 @@ on:
         description: App ID for committing and pushing
         required: true
         type: string
-      nodeVersion:
-        description: "Node version to run this workflow. Default: 22 as it is in action cache"
-        default: "22"
-        required: false
-        type: string
       replacements:
         description: Replacements
+        required: true
+        type: string
+      targetRepository:
+        description: Target repository to sync
         required: true
         type: string
 #       appId:
@@ -92,6 +91,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: ${{ env.WORKFLOW_REPO }}
+          # path: ${{ env.WORKFLOW_TMP_PATH }}
           path: ${{ env.WORKFLOW_TMP_PATH }}
           # TODO rm
           ref: refactor/ios-sync-workflow
@@ -100,36 +100,46 @@ jobs:
       # - uses: rees46/workflow/.github/actions/js/prepare-js@master
       - uses: rees46/workflow/.github/actions/js/prepare-js@refactor/ios-sync-workflow
         with:
-          appId: ${{ inputs.appId }}
-          appSecret: ${{ secrets.appSecret }}
-          nodeVersion: ${{ inputs.nodeVersion }}
-          workingDirectory: tmp/workflow
+          nodeVersion: 22
+          workingDirectory: ${{ env.WORKFLOW_TMP_PATH }}
 
-      - name: Clean directory
-        working-directory: tmp/workflow
+      - name: Debug tmp absolute
+        run: |
+          ABSOLUTE_PATH="$GITHUB_WORKSPACE/$TARGET_TMP_PATH"
+          cd "$ABSOLUTE_PATH" && ls -a
+
+      - name: Clean target directory
+        working-directory: ${{ env.WORKFLOW_TMP_PATH }}
         run: |
           # TODO to prepare sync
-          ABSOLUTE_PATH="$GITHUB_WORKSPACE/${{ env.TARGET_TMP_PATH }}"
-          yarn workspace @scripts/clean-directory '${{ inputs.replacements }}' "$ABSOLUTE_PATH"
+          # TARGET_TMP_ABS_PATH="$GITHUB_WORKSPACE/${{ env.TARGET_TMP_PATH }}"
+          # yarn --cwd "$GITHUB_WORKSPACE/tmp/workflow" workspace @scripts/clean-directory '${{ inputs.replacements }}' "$TARGET_TMP_ABS_PATH"
+          yarn workspace @scripts/clean-directory '${{ inputs.replacements }}' ../../../target
 
-      # - uses: rees46/workflow/.github/actions/utils/fs/sync-dirs@master
-      - uses: rees46/workflow/.github/actions/utils/fs/sync-dirs@refactor/ios-sync-workflow
-        with:
-          targetDirectory: ${{ env.TARGET_TMP_PATH }}
-          sourceDirectory: ${{ env.SOURCE_TMP_PATH }}
-
-      - name: Process replacements
-        working-directory: tmp/workflow
+      - name: Debug tmp absolute
         run: |
-          # TODO to prepare sync
-          ABSOLUTE_PATH="$GITHUB_WORKSPACE/${{ env.TARGET_TMP_PATH }}"
-          yarn workspace @scripts/repo-replacement process '${{ inputs.replacements }}' "$ABSOLUTE_PATH"
+          ABSOLUTE_PATH="$GITHUB_WORKSPACE/$TARGET_TMP_PATH"
+          cd "$ABSOLUTE_PATH" && ls -a
 
-      - name: Debug
-        run: git status
+      # # - uses: rees46/workflow/.github/actions/utils/fs/sync-dirs@master
+      # - uses: rees46/workflow/.github/actions/utils/fs/sync-dirs@refactor/ios-sync-workflow
+      #   with:
+      #     targetDirectory: ${{ env.TARGET_TMP_PATH }}
+      #     sourceDirectory: ${{ env.SOURCE_TMP_PATH }}
+      #
+      # - name: Process replacements
+      #   working-directory: tmp/workflow
+      #   run: |
+      #     # TODO to prepare sync
+      #     ABSOLUTE_PATH="$GITHUB_WORKSPACE/${{ env.TARGET_TMP_PATH }}"
+      #     yarn workspace @scripts/repo-replacement process '${{ inputs.replacements }}' "$ABSOLUTE_PATH"
+      #
+      # - name: Debug
+      #   run: git status
+      #
+      # - name: Debug
+      #   run: git diff
 
-      - name: Debug
-        run: git diff
 #       - uses: rees46/workflow/.github/actions/github/pull-request/get-last-author@master
 #         id: lastPrAuthorStep
 #         with:
