@@ -1,0 +1,56 @@
+name: todo
+description: todo
+
+inputs:
+  appToken:
+    description: todo
+    required: false
+    default: ""
+  reviewerUsername:
+    description: todo
+    required: false
+    default: ""
+
+runs:
+  using: composite
+
+  steps:
+    # TODO prepare pull-request action
+    - uses: rees46/workflow/.github/actions/github/pull-request/get-last-author@master
+      id: lastPrAuthorStep
+      with:
+        sourceDirectory: ${{ env.SOURCE_TMP_PATH }}
+        githubToken: ${{ inputs.appToken }}
+
+    - uses: rees46/workflow/.github/actions/github/utils/get-new-branch-name@master
+      id: newBranchNameStep
+
+    # - uses: rees46/workflow/.github/actions/git/checkout-new-branch@master
+    - uses: rees46/workflow/.github/actions/git/checkout-new-branch@refactor/ios-sync-workflow
+      with:
+        workingDirectory: ${{ env.TARGET_TMP_PATH }}
+        branchName: ${{ steps.newBranchNameStep.outputs.branchName }}
+
+    # - uses: rees46/workflow/.github/actions/git/add@master
+    - uses: rees46/workflow/.github/actions/git/add@refactor/ios-sync-workflow
+      with:
+        workingDirectory: ${{ env.TARGET_TMP_PATH }}
+        excludeTmp: true
+
+    # - uses: rees46/workflow/.github/actions/github/commit/create@master
+    - uses: rees46/workflow/.github/actions/github/commit/create@refactor/ios-sync-workflow
+      with:
+        workingDirectory: ${{ env.TARGET_TMP_PATH }}
+        branchName: ${{ steps.newBranchNameStep.outputs.branchName }}
+        githubToken: ${{ inputs.appToken }}
+        targetRepository: ${{ inputs.targetRepository }}
+
+    # - uses: rees46/workflow/.github/actions/github/pull-request/create@master
+    - uses: rees46/workflow/.github/actions/github/pull-request/create@refactor/ios-sync-workflow
+      with:
+        # TODO pass from upper
+        reviewerUsername: ${{ inputs.reviewerUsername }}
+        targetDirectory: ${{ env.TARGET_TMP_PATH }}
+        githubToken: ${{ inputs.appToken }}
+        lastPrAuthor: ${{ steps.lastPrAuthorStep.outputs.lastPrAuthor }}
+        branchName: ${{ steps.newBranchNameStep.outputs.branchName }}
