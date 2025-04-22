@@ -28,86 +28,21 @@ on:
       repositoryOwner:
         type: string
         required: true
-#       appId:
-#         type: string
-#         required: true
-#       targetRepository:
-#         type: string
-#         required: true
-#       replacementDirnames:
-#         type: string
-#       replacementFilenames:
-#         type: string
-#       syncIgnore:
-#         type: string
-#         required: true
-#         description: list of files to exclue, separated by ','
-#         default: ".git,.idea,LICENSE,"
-#       replacementExtentions:
-#         type: string
-#         required: true
-#         description: list of extentions to replace, separated by ','
-#         default: "*.ts,*.sh,*.yaml"
-#       replacementContents:
-#         type: string
-#         required: true
-#         description: list of contents to replace, separated by ',' and '|' - separate source target content\
-#         default: "source:content:1|target:conten:1,source-content-1|target-content-1"
-#       reviewerUsername:
-#         description: PullRequest reviewer username
-#         type: string
-#         required: false
-#         default: TorinAsakura
-#     secrets:
-#       privateKey:
-#         required: true
 
 jobs:
-  run:
+  prepareSync:
     runs-on: ubuntu-latest
     steps:
-      # TODO to prepare sync action
-      - uses: actions/create-github-app-token@v1
-        id: appTokenStep
+      # Prepare
+      # - uses: rees46/workflow/.github/actions/sync/prepare@master
+      - uses: rees46/workflow/.github/actions/sync/prepare@refactor/ios-sync-workflow
         with:
-          app-id: ${{ inputs.appId }}
-          private-key: ${{ secrets.appSecret }}
-          owner: ${{ inputs.repositoryOwner }}
+          appId: ${{ inputs.appId }}
+          appSecret: ${{ secrets.appSecret }}
+          repositoryOwner: ${{ inputs.repositoryOwner }}
+          targetRepository: ${{ inputs.targetRepository }}
 
-      - name: Checkout source repository
-        uses: actions/checkout@v4
-        with:
-          path: ${{ env.SOURCE_TMP_PATH }}
-          token: ${{ steps.appTokenStep.outputs.token }}
-
-      - name: Checkout target repository
-        uses: actions/checkout@v4
-        with:
-          path: ${{ env.TARGET_TMP_PATH }}
-          token: ${{ steps.appTokenStep.outputs.token }}
-          repository: ${{inputs.targetRepository}}
-
-      - name: Checkout workflow repo
-        uses: actions/checkout@v4
-        with:
-          repository: ${{ env.WORKFLOW_REPO }}
-          # path: ${{ env.WORKFLOW_TMP_PATH }}
-          path: ${{ env.WORKFLOW_TMP_PATH }}
-          # TODO rm
-          ref: refactor/ios-sync-workflow
-
-      # TODO uncomment
-      # - uses: rees46/workflow/.github/actions/js/prepare-js@master
-      - uses: rees46/workflow/.github/actions/js/prepare-js@refactor/ios-sync-workflow
-        with:
-          nodeVersion: 22
-          workingDirectory: ${{ env.WORKFLOW_TMP_PATH }}
-
-      - name: Debug tmp absolute
-        run: |
-          ABSOLUTE_PATH="$GITHUB_WORKSPACE/$TARGET_TMP_PATH"
-          cd "$ABSOLUTE_PATH" && ls -a
-
+      # Process
       - name: Clean target directory
         working-directory: ${{ env.WORKFLOW_TMP_PATH }}
         run: |
@@ -140,43 +75,44 @@ jobs:
         working-directory: ${{ env.TARGET_TMP_PATH }}
         run: git diff
 
-      # TODO prepare pull-request action
-      - uses: rees46/workflow/.github/actions/github/pull-request/get-last-author@master
-        id: lastPrAuthorStep
-        with:
-          sourceDirectory: ${{ env.SOURCE_TMP_PATH }}
-          githubToken: ${{ steps.appTokenStep.outputs.token }}
-
-      - uses: rees46/workflow/.github/actions/github/utils/get-new-branch-name@master
-        id: newBranchNameStep
-
-      # - uses: rees46/workflow/.github/actions/git/checkout-new-branch@master
-      - uses: rees46/workflow/.github/actions/git/checkout-new-branch@refactor/ios-sync-workflow
-        with:
-          workingDirectory: ${{ env.TARGET_TMP_PATH }}
-          branchName: ${{ steps.newBranchNameStep.outputs.branchName }}
-
-      # - uses: rees46/workflow/.github/actions/git/add@master
-      - uses: rees46/workflow/.github/actions/git/add@refactor/ios-sync-workflow
-        with:
-          workingDirectory: ${{ env.TARGET_TMP_PATH }}
-          excludeTmp: true
-
-      # - uses: rees46/workflow/.github/actions/github/commit/create@master
-      - uses: rees46/workflow/.github/actions/github/commit/create@refactor/ios-sync-workflow
-        with:
-          workingDirectory: ${{ env.TARGET_TMP_PATH }}
-          branchName: ${{ steps.newBranchNameStep.outputs.branchName }}
-          githubToken: ${{ steps.appTokenStep.outputs.token }}
-          targetRepository: ${{ inputs.targetRepository }}
-
-      # - uses: rees46/workflow/.github/actions/github/pull-request/create@master
-      - uses: rees46/workflow/.github/actions/github/pull-request/create@refactor/ios-sync-workflow
-        with:
-          # TODO pass from upper
-          # reviewerUsername: ${{ inputs.reviewerUsername }}
-          reviewerUsername: iwwwanow
-          targetDirectory: ${{ env.TARGET_TMP_PATH }}
-          githubToken: ${{ steps.appTokenStep.outputs.token }}
-          lastPrAuthor: ${{ steps.lastPrAuthorStep.outputs.lastPrAuthor }}
-          branchName: ${{ steps.newBranchNameStep.outputs.branchName }}
+      # Prepare pull request
+      # # TODO prepare pull-request action
+      # - uses: rees46/workflow/.github/actions/github/pull-request/get-last-author@master
+      #   id: lastPrAuthorStep
+      #   with:
+      #     sourceDirectory: ${{ env.SOURCE_TMP_PATH }}
+      #     githubToken: ${{ steps.appTokenStep.outputs.token }}
+      #
+      # - uses: rees46/workflow/.github/actions/github/utils/get-new-branch-name@master
+      #   id: newBranchNameStep
+      #
+      # # - uses: rees46/workflow/.github/actions/git/checkout-new-branch@master
+      # - uses: rees46/workflow/.github/actions/git/checkout-new-branch@refactor/ios-sync-workflow
+      #   with:
+      #     workingDirectory: ${{ env.TARGET_TMP_PATH }}
+      #     branchName: ${{ steps.newBranchNameStep.outputs.branchName }}
+      #
+      # # - uses: rees46/workflow/.github/actions/git/add@master
+      # - uses: rees46/workflow/.github/actions/git/add@refactor/ios-sync-workflow
+      #   with:
+      #     workingDirectory: ${{ env.TARGET_TMP_PATH }}
+      #     excludeTmp: true
+      #
+      # # - uses: rees46/workflow/.github/actions/github/commit/create@master
+      # - uses: rees46/workflow/.github/actions/github/commit/create@refactor/ios-sync-workflow
+      #   with:
+      #     workingDirectory: ${{ env.TARGET_TMP_PATH }}
+      #     branchName: ${{ steps.newBranchNameStep.outputs.branchName }}
+      #     githubToken: ${{ steps.appTokenStep.outputs.token }}
+      #     targetRepository: ${{ inputs.targetRepository }}
+      #
+      # # - uses: rees46/workflow/.github/actions/github/pull-request/create@master
+      # - uses: rees46/workflow/.github/actions/github/pull-request/create@refactor/ios-sync-workflow
+      #   with:
+      #     # TODO pass from upper
+      #     # reviewerUsername: ${{ inputs.reviewerUsername }}
+      #     reviewerUsername: iwwwanow
+      #     targetDirectory: ${{ env.TARGET_TMP_PATH }}
+      #     githubToken: ${{ steps.appTokenStep.outputs.token }}
+      #     lastPrAuthor: ${{ steps.lastPrAuthorStep.outputs.lastPrAuthor }}
+      #     branchName: ${{ steps.newBranchNameStep.outputs.branchName }}

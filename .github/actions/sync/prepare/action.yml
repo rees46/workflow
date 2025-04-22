@@ -1,0 +1,59 @@
+name: todo
+description: todo
+
+inputs:
+  appId:
+    description: todo
+    required: false
+    default: ""
+  appSecret:
+    description: todo
+    required: false
+    default: ""
+  repositoryOwner:
+    description: todo
+    required: false
+    default: ""
+  targetRepository:
+    description: todo
+    required: false
+    default: ""
+
+runs:
+  using: composite
+
+  steps:
+    - uses: actions/create-github-app-token@v1
+      id: appTokenStep
+      with:
+        app-id: ${{ inputs.appId }}
+        private-key: ${{ inputs.appSecret }}
+        owner: ${{ inputs.repositoryOwner }}
+
+    - name: Checkout source repository
+      uses: actions/checkout@v4
+      with:
+        path: ${{ env.SOURCE_TMP_PATH }}
+        token: ${{ steps.appTokenStep.outputs.token }}
+
+    - name: Checkout target repository
+      uses: actions/checkout@v4
+      with:
+        path: ${{ env.TARGET_TMP_PATH }}
+        token: ${{ steps.appTokenStep.outputs.token }}
+        repository: ${{inputs.targetRepository}}
+
+    - name: Checkout workflow repo
+      uses: actions/checkout@v4
+      with:
+        repository: ${{ env.WORKFLOW_REPO }}
+        path: ${{ env.WORKFLOW_TMP_PATH }}
+        # TODO rm
+        ref: refactor/ios-sync-workflow
+
+    # TODO uncomment
+    # - uses: rees46/workflow/.github/actions/js/prepare-js@master
+    - uses: rees46/workflow/.github/actions/js/prepare-js@refactor/ios-sync-workflow
+      with:
+        nodeVersion: 22
+        workingDirectory: ${{ env.WORKFLOW_TMP_PATH }}
