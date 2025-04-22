@@ -1,21 +1,21 @@
-name: todo
-description: todo
+name: reusable repo sync workflow prepare enveronment
+description: checout to source, target and workflow repo, prepare nodejs enveronment and install dependencies; github app token on output
 
 inputs:
   appId:
-    description: todo
+    description: github app id
     required: false
     default: ""
   appSecret:
-    description: todo
+    description: github app secret
     required: false
     default: ""
   repositoryOwner:
-    description: todo
+    description: repo owner to sync
     required: false
     default: ""
   targetRepository:
-    description: todo
+    description: target repo to sync
     required: false
     default: ""
 
@@ -26,7 +26,6 @@ outputs:
 
 runs:
   using: composite
-
   steps:
     - uses: actions/create-github-app-token@v1
       id: appTokenStep
@@ -56,7 +55,6 @@ runs:
         # TODO rm
         ref: refactor/ios-sync-workflow
 
-    # TODO uncomment
     # - uses: rees46/workflow/.github/actions/js/prepare-js@master
     - uses: rees46/workflow/.github/actions/js/prepare-js@refactor/ios-sync-workflow
       with:
