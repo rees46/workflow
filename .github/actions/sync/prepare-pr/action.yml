@@ -1,17 +1,17 @@
-name: todo
-description: todo
+name: reusable repo sync workflow prepare pull request action
+description: get commit author; get new branch name; checkout and push new empty branch; git add; git commit; create pull request with inputs.reviewer
 
 inputs:
   appToken:
-    description: todo
+    description: github app token
     required: false
     default: ""
   reviewerUsername:
-    description: todo
+    description: pull request reviewer username
     required: false
     default: ""
   targetRepository:
-    description: todo
+    description: target repository to commit
     required: false
     default: ""
 
@@ -19,7 +19,6 @@ runs:
   using: composite
 
   steps:
-    # TODO prepare pull-request action
     - uses: rees46/workflow/.github/actions/github/pull-request/get-last-author@master
       id: lastPrAuthorStep
       with:
@@ -52,7 +51,6 @@ runs:
     # - uses: rees46/workflow/.github/actions/github/pull-request/create@master
     - uses: rees46/workflow/.github/actions/github/pull-request/create@refactor/ios-sync-workflow
       with:
-        # TODO pass from upper
         reviewerUsername: ${{ inputs.reviewerUsername }}
         targetDirectory: ${{ env.TARGET_TMP_PATH }}
         githubToken: ${{ inputs.appToken }}
