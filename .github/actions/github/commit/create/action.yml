@@ -19,7 +19,7 @@ inputs:
   commitMessage:
     default: "feat: release"
     description: commit message
-    required: true
+    required: false
   filePattern:
     description: File pattern used for `git add`. For example `src/*.js`
     required: false
