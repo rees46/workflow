@@ -1,3 +1,5 @@
+# action uses codfish/semantic-release-action and for correct work needs .releaserc.yml in project root with @semantic-release/exec + prepareCmd on config for correct bump work.
+
 name: Reusable version bump
 
 on:
@@ -34,7 +36,6 @@ jobs:
         with:
           token: ${{ steps.app-token.outputs.token }}
           fetch-depth: 0
-          ref: master
 
       - uses: codfish/semantic-release-action@v3
         id: semanticReleaseStep
@@ -50,31 +51,8 @@ jobs:
             exit 1
           fi
 
-      - uses: rees46/workflow/.github/actions/git/create-relese-branch@master
-        id: createReleaseBranchStep
+      - uses: rees46/workflow/.github/actions/release/prepare-pr@master
         with:
+          reviewerUsername: ${{ inputs.reviewerUsername }}
           githubToken: ${{ steps.app-token.outputs.token }}
           releaseVersion: ${{ steps.semanticReleaseStep.outputs.release-version }}
-
-      - uses: rees46/workflow/.github/actions/github/pull-request/get-last-author@master
-        id: lastPrAuthorStep
-        with:
-          sourceDirectory: .
-          githubToken: ${{ steps.app-token.outputs.token }}
-
-      - uses: rees46/workflow/.github/actions/github/commit/create@master
-        with:
-          branchName: ${{ steps.createReleaseBranchStep.outputs.branchName }}
-          githubToken: ${{ steps.app-token.outputs.token }}
-          targetRepository: ${{ github.repository }}
-          filePattern: version.properties
-
-      - uses: rees46/workflow/.github/actions/github/pull-request/create@master
-        with:
-          targetDirectory: .
-          githubToken: ${{ steps.app-token.outputs.token }}
-          lastPrAuthor: ${{ steps.lastPrAuthorStep.outputs.lastPrAuthor }}
-          prTitle: 'Bump version to ${{ steps.semanticReleaseStep.outputs.release-version }}'
-          prBody: 'Automated version bump'
-          branchName: ${{ steps.newBranchNameStep.outputs.branchName }}
-          reviewerUsername: ${{ inputs.reviewerUsername }}
