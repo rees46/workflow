@@ -50,19 +50,36 @@ jobs:
     runs-on: macos-latest
 
     steps:
+      - name: Checkout workflow repo
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.WORKFLOW_REPO }}
+          path: ${{ env.WORKFLOW_TMP_PATH }}
+          # TODO remove
+          ref: feat/version-workflow
+
+      - uses: rees46/workflow/.github/actions/js/prepare-js@master
+        with:
+          nodeVersion: 22
+          workingDirectory: ${{ env.WORKFLOW_TMP_PATH }}
+
       - name: Check workflow variables
         # uses: rees46/workflow/.github/actions/ios/check-vars@feat/version-workflow
         run: |
           echo '${{ toJson(secrets) }}' | jq .
 
       - name: Check workflow variables
+        working-directory: ${{ env.WORKFLOW_TMP_PATH }}
         # uses: rees46/workflow/.github/actions/ios/check-vars@feat/version-workflow
         env:
           JSON_DOC: ${{ toJSON(inputs) }}
         run: |
           printf '%s\n' "$JSON_DOC" > temp.json
-          cat temp.json
-          rm temp.json
+
+          VARS=$(cat temp.json)
+          REQUIRED_FIELDS='xcworkspace,scheme'
+
+          yarn workspace @scripts/check-vars process "$VARS" "$REQUIRED_FIELDS"
 
       # - name: Checkout repository
       #   uses: actions/checkout@v4
