@@ -46,19 +46,23 @@ on:
         description: base64 string
 
 jobs:
-  publish_and_version_bump:
+  prepare_build_upload:
     runs-on: macos-latest
 
     steps:
       - name: Check workflow variables
         # uses: rees46/workflow/.github/actions/ios/check-vars@feat/version-workflow
         run: |
-          echo ${{ toJson(secrets) }}
+          echo '${{ toJson(secrets) }}' | jq .
 
       - name: Check workflow variables
         # uses: rees46/workflow/.github/actions/ios/check-vars@feat/version-workflow
+        env:
+          JSON_DOC: ${{ toJSON(inputs) }}
         run: |
-          echo ${{ toJson(inputs) }}
+          printf '%s\n' "$JSON_DOC" > temp.json
+          cat temp.json
+          rm temp.json
 
       # - name: Checkout repository
       #   uses: actions/checkout@v4
