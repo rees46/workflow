@@ -25,7 +25,7 @@ runs:
     - name: Checkout workflow repo
       uses: actions/checkout@v4
       with:
-        repository: ${{ inputes.workflowRepo }}
+        repository: ${{ inputs.workflowRepo }}
         path: ${{ inputs.workflowTmpPath }}
         # TODO remove
         ref: feat/version-workflow
