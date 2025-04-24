@@ -3,7 +3,7 @@ name: Reusable iOS TestFlight Publish
 env:
   WORKFLOW_TMP_PATH: tmp/workflow
   WORKFLOW_REPO: "rees46/workflow"
-  ARCHIVE_EXPORT_PATH: "./build/exported-app"
+  ARCHIVE_EXPORT_PATH: build/exported-app
   EXPORT_OPTIONS_PLIST_PATH: "./ExportOptions.plist"
   PROPERTIES_FILE: "version.properties"
   ARCHIVE_PATH: build/demo-store-ios.xcarchive

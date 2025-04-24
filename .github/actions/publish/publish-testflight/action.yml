@@ -21,6 +21,10 @@ inputs:
 runs:
   using: composite
   steps:
+    - name: debug fs
+      shell: bash
+      run: ls ${{ inputs.archiveExportPath }}
+
     - name: Upload to TestFlight
       uses: Apple-Actions/upload-testflight-build@master
       with:
