@@ -5,12 +5,12 @@ inputs:
   replacementsPath:
     description: path to replacements.yml
     default: .github/workflows/constants/replacements.yml
-    required: true
+    required: false
 
 outputs:
   replacements:
     description: replacements in compact json format in string
-    value: ${{ steps.getReplacementsStep.replacements }}
+    value: ${{ steps.getReplacementsStep.outputs.replacements }}
 
 runs:
   using: composite
