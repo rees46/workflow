@@ -104,17 +104,11 @@ jobs:
 
       - name: Archive ios
         # TODO to master
-        # uses: rees46/workflow/.github/actions/ios/archive@master
-        uses: rees46/workflow/.github/actions/ios/archive@feat/version-workflow
+        # uses: rees46/workflow/.github/actions/publish/publish-testflight@master
+        uses: rees46/workflow/.github/actions/publish/publish-testflight@feat/version-workflow
         with:
-          archivePath: ${{ env.ARCHIVE_PATH }}
-          exportOptionsPlistPath: ${{ env.EXPORT_OPTIONS_PLIST_PATH }}
           archiveExportPath: ${{ env.ARCHIVE_EXPORT_PATH }}
-
-      # - name: Upload to TestFlight
-      #   uses: Apple-Actions/upload-testflight-build@master
-      #   with:
-      #     app-path: "${{ env.ARCHIVE_EXPORT_PATH }}/${{ inputs.scheme }}.ipa"
-      #     issuer-id: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
-      #     api-key-id: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
-      #     api-private-key: ${{ secrets.APP_STORE_CONNECT_API_KEY }}
+          appStoreConnectIssuerId: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          appStoreConnectApiKeyId: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+          appStoreConnectApiKey: ${{ secrets.APP_STORE_CONNECT_API_KEY }}
+          scheme: ${{ inputs.scheme }}
