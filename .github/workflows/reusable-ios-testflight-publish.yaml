@@ -71,20 +71,10 @@ jobs:
       - name: Check workflow variables
         # TODO to master
         # uses: rees46/workflow/.github/actions/utils/check-vars@master
-        uses: rees46/workflow/.github/actions/utils/check-vars@feat/version-workflow
+        uses: rees46/workflow/.github/actions/publish/prepare-testflight@feat/version-workflow
         with:
-          workflowDirectory: ${{ env.WORKFLOW_TMP_PATH }}
-          varsJson: ${{ toJSON(secrets) }}
-          requiredVars:
-            "GITHUB_APP_ID,GITHUB_APP_PRIVATE_KEY,APP_STORE_CONNECT_API_KEY_ID,APP_STORE_CONNECT_ISSUER_ID,APP_STORE_CONNECT_API_KEY,IOS_CERTIFICATE_P12,IOS_CERTIFICATE_PASSWORD,IOS_PROVISIONING_PROFILE"
+          secretsJson: ${{ toJSON(secrets) }}
 
-            # TODO rm tmp directory
-
-      # - name: Checkout repository
-      #   uses: actions/checkout@v4
-      #   with:
-      #     fetch-depth: 0
-      #
       # - name: Install the Apple certificate & provisioning profile & P8
       #   env:
       #     BUILD_CERTIFICATE_BASE64: ${{ secrets.IOS_CERTIFICATE_P12 }}
