@@ -1,0 +1,27 @@
+name: ios archive
+description: archive ios package
+
+inputs:
+  archivePath:
+    description: string
+    required: true
+  exportOptionsPlistPath:
+    description: string
+    required: true
+  archiveExportPath:
+    description: string
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Build and Archive
+      shell: bash
+      env:
+        ARCHIVE_PATH: ${{ inputs.archivePath }}
+      run: |
+        xcrun xcodebuild \
+          -exportArchive \
+          -archivePath "$ARCHIVE_PATH" \
+          -exportOptionsPlist "${{ inputs.exportOptionsPlistPath }}" \
+          -exportPath "${{ inputs.archiveExportPath }}" \
