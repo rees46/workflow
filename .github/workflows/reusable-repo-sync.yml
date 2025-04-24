@@ -37,7 +37,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       # Prepare
-      - uses: rees46/workflow/.github/actions/sync/prepare@master
+      # - uses: rees46/workflow/.github/actions/sync/prepare@master
+      - uses: rees46/workflow/.github/actions/sync/prepare@fix/sync
         id: prepareSyncStep
         with:
           appId: ${{ inputs.appId }}
