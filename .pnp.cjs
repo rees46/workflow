@@ -19,6 +19,10 @@ const RAW_RUNTIME_STATE =
       "reference": "workspace:global/github-client"\
     },\
     {\
+      "name": "@scripts/check-vars",\
+      "reference": "workspace:scripts/check-vars"\
+    },\
+    {\
       "name": "@scripts/clean-directory",\
       "reference": "workspace:scripts/clean-directory"\
     },\
@@ -51,6 +55,7 @@ const RAW_RUNTIME_STATE =
   "ignorePatternData": "(^(?:\\\\.yarn\\\\/sdks(?:\\\\/(?!\\\\.{1,2}(?:\\\\/|$))(?:(?:(?!(?:^|\\\\/)\\\\.{1,2}(?:\\\\/|$)).)*?)|$))$)",\
   "fallbackExclusionList": [\
     ["@global/github-client", ["workspace:global/github-client"]],\
+    ["@scripts/check-vars", ["workspace:scripts/check-vars"]],\
     ["@scripts/clean-directory", ["workspace:scripts/clean-directory"]],\
     ["@scripts/issue-status-updater", ["workspace:scripts/issue-status-updater"]],\
     ["@scripts/issues-getter", ["workspace:scripts/issues-getter"]],\
@@ -1900,6 +1905,16 @@ const RAW_RUNTIME_STATE =
           ["@pkgjs/parseargs", "npm:0.11.0"]\
         ],\
         "linkType": "HARD"\
+      }]\
+    ]],\
+    ["@scripts/check-vars", [\
+      ["workspace:scripts/check-vars", {\
+        "packageLocation": "./scripts/check-vars/",\
+        "packageDependencies": [\
+          ["@scripts/check-vars", "workspace:scripts/check-vars"],\
+          ["@global/github-client", "workspace:global/github-client"]\
+        ],\
+        "linkType": "SOFT"\
       }]\
     ]],\
     ["@scripts/clean-directory", [\

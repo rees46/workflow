@@ -1,0 +1,54 @@
+name: ios build
+description: build ios package
+
+inputs:
+  archivePath:
+    description: string
+    required: true
+  appStoreConnectApiKeyId:
+    description: string
+    required: true
+  appStoreConnectIssuerId:
+    description: string
+    required: true
+  xcworkspace:
+    description: string
+    required: true
+  scheme:
+    description: string
+    required: true
+  codeSignIdentity:
+    description: string
+    required: true
+  developmentTeam:
+    description: string
+    required: true
+  provisioningProfileSpecifier:
+    description: string
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Build and Archive
+      shell: bash
+      env:
+        API_KEY_ID: ${{ inputs.appStoreConnectApiKeyId }}
+        ISSUER_ID: ${{ inputs.appStoreConnectIssuerId }}
+        ARCHIVE_PATH: ${{ inputs.archivePath }}
+      run: |
+        xcrun xcodebuild \
+          -workspace "${{ inputs.xcworkspace }}" \
+          -scheme "${{ inputs.scheme }}" \
+          -configuration AppStoreDistribution \
+          -sdk iphoneos \
+          -parallelizeTargets \
+          -showBuildTimingSummary \
+          -disableAutomaticPackageResolution \
+          -archivePath "$ARCHIVE_PATH" \
+          archive \
+          CODE_SIGN_STYLE=Manual \
+          CODE_SIGN_IDENTITY="${{ inputs.codeSignIdentity }}" \
+          DEVELOPMENT_TEAM="${{ inputs.developmentTeam }}" \
+          PROVISIONING_PROFILE_SPECIFIER="${{ inputs.provisioningProfileSpecifier }}" \
+          OTHER_CODE_SIGN_FLAGS="--deep"

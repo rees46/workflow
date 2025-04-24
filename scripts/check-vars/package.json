@@ -1,0 +1,15 @@
+{
+  "name": "@scripts/check-vars",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "process": "yarn library build && yarn node ./dist/index.js"
+  },
+  "dependencies": {
+    "@global/github-client": "workspace:*"
+  }
+}

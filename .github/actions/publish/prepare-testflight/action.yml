@@ -1,0 +1,50 @@
+name: prepare testflight publish action
+description: checout to source, target and workflow repo, prepare nodejs enveronment and install dependencies; github app token on output
+
+inputs:
+  workflowRepo:
+    description: workflow repository
+    default: rees46/workflow
+    required: false
+  workflowTmpPath:
+    description: workflow repository
+    default: tmp/workflow
+    required: false
+  secretsJson:
+    description: secrets in json format
+    required: true
+
+outputs:
+  appTokenStep:
+    description: Github app token
+    value: ${{ steps.appTokenStep.outputs.token }}
+
+runs:
+  using: composite
+  steps:
+    - name: Checkout workflow repo
+      uses: actions/checkout@v4
+      with:
+        repository: ${{ inputs.workflowRepo }}
+        path: ${{ inputs.workflowTmpPath }}
+
+    - uses: rees46/workflow/.github/actions/js/prepare-js@master
+      with:
+        nodeVersion: 22
+        workingDirectory: ${{ inputs.workflowTmpPath }}
+
+    - name: Check workflow variables
+      uses: rees46/workflow/.github/actions/utils/check-vars@master
+      with:
+        workflowDirectory: ${{ inputs.workflowTmpPath }}
+        varsJson: ${{ inputs.secretsJson }}
+        requiredVars: "GITHUB_APP_ID,GITHUB_APP_PRIVATE_KEY,APP_STORE_CONNECT_API_KEY_ID,APP_STORE_CONNECT_ISSUER_ID,APP_STORE_CONNECT_API_KEY,IOS_CERTIFICATE_P12,IOS_CERTIFICATE_PASSWORD,IOS_PROVISIONING_PROFILE"
+
+    - name: Remove tmp dir
+      shell: bash
+      run: rm -rf tmp
+
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0

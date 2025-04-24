@@ -1,0 +1,34 @@
+name: publish testflight
+description: publish ios application to testflight
+
+inputs:
+  archiveExportPath:
+    description: string
+    required: true
+  appStoreConnectIssuerId:
+    description: string
+    required: true
+  appStoreConnectApiKeyId:
+    description: string
+    required: true
+  appStoreConnectApiKey:
+    description: string
+    required: true
+  scheme:
+    description: string
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: debug fs
+      shell: bash
+      run: ls ${{ inputs.archiveExportPath }}
+
+    - name: Upload to TestFlight
+      uses: Apple-Actions/upload-testflight-build@master
+      with:
+        app-path: "${{ inputs.archiveExportPath }}/${{ inputs.scheme }}.ipa"
+        issuer-id: ${{ inputs.appStoreConnectIssuerId }}
+        api-key-id: ${{ inputs.appStoreConnectApiKeyId }}
+        api-private-key: ${{ inputs.appStoreConnectApiKey }}

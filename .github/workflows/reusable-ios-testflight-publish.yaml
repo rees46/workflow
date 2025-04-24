@@ -1,10 +1,12 @@
 name: Reusable iOS TestFlight Publish
 
 env:
-  WORKFLOW_REPO: 'rees46/workflow'
-  ARCHIVE_EXPORT_PATH: './build/exported-app'
-  EXPORT_OPTIONS_PLIST_PATH: './ExportOptions.plist'
-  PROPERTIES_FILE: 'version.properties'
+  WORKFLOW_TMP_PATH: tmp/workflow
+  WORKFLOW_REPO: "rees46/workflow"
+  ARCHIVE_EXPORT_PATH: "./build/exported-app"
+  EXPORT_OPTIONS_PLIST_PATH: "./ExportOptions.plist"
+  PROPERTIES_FILE: "version.properties"
+  ARCHIVE_PATH: build/demo-store-ios.xcarchive
 
 on:
   workflow_call:
@@ -46,105 +48,64 @@ on:
         description: base64 string
 
 jobs:
-  publish_and_version_bump:
+  prepare_build_upload:
     runs-on: macos-latest
+    concurrency:
+      group: ios-publish-${{ github.ref }}
+      cancel-in-progress: true
+    timeout-minutes: 20
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Checkout Workflow Repo
+      - name: Checkout workflow repo
         uses: actions/checkout@v4
         with:
           repository: ${{ env.WORKFLOW_REPO }}
-          path: workflow
-          sparse-checkout: |
-            scripts/multiplatform
+          path: ${{ env.WORKFLOW_TMP_PATH }}
 
-      - name: Increment vesion manually
-        run: |
-          ./workflow/scripts/multiplatform/increment-patch-version.sh
-          VERSION=$(./workflow/scripts/multiplatform/get-version-code.sh)
-          agvtool new-version -all $VERSION
-
-      - name: Install the Apple certificate & provisioning profile & P8
-        env:
-          BUILD_CERTIFICATE_BASE64: ${{ secrets.IOS_CERTIFICATE_P12 }}
-          P12_PASSWORD: ${{ secrets.IOS_CERTIFICATE_PASSWORD }}
-          BUILD_PROVISION_PROFILE_BASE64: ${{ secrets.IOS_PROVISIONING_PROFILE }}
-          KEYCHAIN_PASSWORD: ${{ secrets.IOS_CERTIFICATE_PASSWORD }}
-          APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
-          APP_STORE_CONNECT_API_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY }}
-        run: |
-          # prepare dirs
-          mkdir -p private_keys
-
-          # create variables
-          CERTIFICATE_PATH=$RUNNER_TEMP/build_certificate.p12
-          PP_PATH=$RUNNER_TEMP/build_pp.mobileprovision
-          KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
-          AUTH_KEY_PATH="private_keys/AuthKey_${APP_STORE_CONNECT_API_KEY_ID}.p8"
-
-          # apply auth key
-          echo -n "$APP_STORE_CONNECT_API_KEY" | base64 --decode -o $AUTH_KEY_PATH
-
-          # import certificate and provisioning profile from secrets
-          echo -n "$BUILD_CERTIFICATE_BASE64" | base64 --decode -o $CERTIFICATE_PATH
-          echo -n "$BUILD_PROVISION_PROFILE_BASE64" | base64 --decode -o $PP_PATH
-
-          # create temporary keychain
-          security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
-          security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
-          security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
-
-          # import certificate to keychain
-          security import $CERTIFICATE_PATH -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
-          security set-key-partition-list -S apple-tool:,apple: -k "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
-          security list-keychain -d user -s $KEYCHAIN_PATH
-
-          # apply provisioning profile
-          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
-          cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles
-
-      - name: Pod install
-        run: |
-          pod install
-
-      - name: Build and Archive
-        env:
-          API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
-          ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
-        run: |
-          ARCHIVE_PATH=$PWD/build/demo-store-ios.xcarchive
-
-          xcrun xcodebuild \
-            -workspace "${{ inputs.xcworkspace }}" \
-            -scheme "${{ inputs.scheme }}" \
-            -configuration AppStoreDistribution \
-            -sdk iphoneos \
-            -parallelizeTargets \
-            -showBuildTimingSummary \
-            -disableAutomaticPackageResolution \
-            -archivePath "$ARCHIVE_PATH" \
-            archive \
-            CODE_SIGN_STYLE=Manual \
-            CODE_SIGN_IDENTITY="${{ inputs.codeSignIdentity }}" \
-            DEVELOPMENT_TEAM="${{ inputs.developmentTeam }}" \
-            PROVISIONING_PROFILE_SPECIFIER="${{ inputs.provisioningProfileSpecifier }}" \
-            OTHER_CODE_SIGN_FLAGS="--deep"
-
-          xcrun xcodebuild \
-            -exportArchive \
-            -archivePath "$ARCHIVE_PATH" \
-            -exportOptionsPlist "${{ env.EXPORT_OPTIONS_PLIST_PATH }}" \
-            -exportPath "${{ env.ARCHIVE_EXPORT_PATH }}" \
-
-      - name: Upload to TestFlight
-        uses: Apple-Actions/upload-testflight-build@master
+      - uses: rees46/workflow/.github/actions/js/prepare-js@master
         with:
-          app-path: '${{ env.ARCHIVE_EXPORT_PATH }}/${{ inputs.scheme }}.ipa'
-          issuer-id: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
-          api-key-id: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
-          api-private-key: ${{ secrets.APP_STORE_CONNECT_API_KEY }}
+          nodeVersion: 22
+          workingDirectory: ${{ env.WORKFLOW_TMP_PATH }}
+
+      - name: Check workflow variables
+        uses: rees46/workflow/.github/actions/publish/prepare-testflight@master
+        with:
+          secretsJson: ${{ toJSON(secrets) }}
+
+      - name: Prepare ios enveronment
+        uses: rees46/workflow/.github/actions/ios/prepare-publish@master
+        with:
+          iosCertificateP12Base64: ${{ secrets.IOS_CERTIFICATE_P12 }}
+          p12Password: ${{ secrets.IOS_CERTIFICATE_PASSWORD }}
+          provisioningProfileBase64: ${{ secrets.IOS_PROVISIONING_PROFILE }}
+          certificatePassword: ${{ secrets.IOS_CERTIFICATE_PASSWORD }}
+          appStoreConnectApiKeyId: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+          appStoreConnectApiKey: ${{ secrets.APP_STORE_CONNECT_API_KEY }}
+
+      - name: Build ios
+        uses: rees46/workflow/.github/actions/ios/build@master
+        with:
+          appStoreConnectApiKeyId: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+          appStoreConnectIssuerId: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          archivePath: ${{ env.ARCHIVE_PATH }}
+          xcworkspace: ${{ inputs.xcworkspace }}
+          scheme: ${{ inputs.scheme }}
+          codeSignIdentity: ${{ inputs.codeSignIdentity }}
+          developmentTeam: ${{ inputs.developmentTeam }}
+          provisioningProfileSpecifier: ${{ inputs.provisioningProfileSpecifier }}
+
+      - name: Archive ios
+        uses: rees46/workflow/.github/actions/ios/archive@master
+        with:
+          archivePath: ${{ env.ARCHIVE_PATH }}
+          exportOptionsPlistPath: ${{ env.EXPORT_OPTIONS_PLIST_PATH }}
+          archiveExportPath: ${{ env.ARCHIVE_EXPORT_PATH }}
+
+      - name: Upload to testflight
+        uses: rees46/workflow/.github/actions/publish/publish-testflight@master
+        with:
+          archiveExportPath: ${{ env.ARCHIVE_EXPORT_PATH }}
+          appStoreConnectIssuerId: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          appStoreConnectApiKeyId: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+          appStoreConnectApiKey: ${{ secrets.APP_STORE_CONNECT_API_KEY }}
+          scheme: ${{ inputs.scheme }}

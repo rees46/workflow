@@ -1247,6 +1247,14 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@scripts/check-vars@workspace:scripts/check-vars":
+  version: 0.0.0-use.local
+  resolution: "@scripts/check-vars@workspace:scripts/check-vars"
+  dependencies:
+    "@global/github-client": "workspace:*"
+  languageName: unknown
+  linkType: soft
+
 "@scripts/clean-directory@workspace:scripts/clean-directory":
   version: 0.0.0-use.local
   resolution: "@scripts/clean-directory@workspace:scripts/clean-directory"
