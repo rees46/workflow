@@ -45,20 +45,36 @@ jobs:
           repositoryOwner: ${{ inputs.repositoryOwner }}
           targetRepository: ${{ inputs.targetRepository }}
 
+      - name: Log changes
+        working-directory: ${{ env.TARGET_TMP_PATH }}
+        run: git diff
+
       # Process
       - name: Write absolute path to tmp dir to env
         run: |
           echo "TARGET_TMP_ABS_PATH=$GITHUB_WORKSPACE/${{ env.TARGET_TMP_PATH }}" >> $GITHUB_ENV
+
+      - name: Log changes
+        working-directory: ${{ env.TARGET_TMP_PATH }}
+        run: git diff
 
       - name: Clean target directory
         working-directory: ${{ env.WORKFLOW_TMP_PATH }}
         run: |
           yarn workspace @scripts/clean-directory process '${{ inputs.replacements }}' "$TARGET_TMP_ABS_PATH"
 
+      - name: Log changes
+        working-directory: ${{ env.TARGET_TMP_PATH }}
+        run: git diff
+
       - uses: rees46/workflow/.github/actions/utils/fs/sync-dirs@master
         with:
           targetDirectory: ${{ env.TARGET_TMP_PATH }}
           sourceDirectory: ${{ env.SOURCE_TMP_PATH }}
+
+      - name: Log changes
+        working-directory: ${{ env.TARGET_TMP_PATH }}
+        run: git diff
 
       - name: Process replacements
         working-directory: tmp/workflow
