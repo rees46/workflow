@@ -48,6 +48,10 @@ on:
 jobs:
   prepare_build_upload:
     runs-on: macos-latest
+    concurrency:
+      group: ios-publish-${{ github.ref }}
+      cancel-in-progress: true
+    timeout-minutes: 20
 
     steps:
       - name: Checkout workflow repo
@@ -64,20 +68,14 @@ jobs:
           workingDirectory: ${{ env.WORKFLOW_TMP_PATH }}
 
       - name: Check workflow variables
-        # uses: rees46/workflow/.github/actions/ios/check-vars@feat/version-workflow
-        run: |
-          echo '${{ toJson(secrets) }}' | jq .
-
-      - name: Check workflow variables
         working-directory: ${{ env.WORKFLOW_TMP_PATH }}
         # uses: rees46/workflow/.github/actions/ios/check-vars@feat/version-workflow
         env:
-          JSON_DOC: ${{ toJSON(inputs) }}
+          JSON_DOC: ${{ toJSON(secrets) }}
         run: |
           printf '%s\n' "$JSON_DOC" > temp.json
-
           VARS=$(cat temp.json)
-          REQUIRED_FIELDS='xcworkspace,scheme'
+          REQUIRED_FIELDS='GITHUB_APP_ID,GITHUB_APP_PRIVATE_KEY,APP_STORE_CONNECT_API_KEY_ID,APP_STORE_CONNECT_ISSUER_ID,APP_STORE_CONNECT_API_KEY,IOS_CERTIFICATE_P12,IOS_CERTIFICATE_PASSWORD,IOS_PROVISIONING_PROFILE'
 
           yarn workspace @scripts/check-vars process "$VARS" "$REQUIRED_FIELDS"
 
