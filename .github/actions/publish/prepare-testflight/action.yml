@@ -27,8 +27,6 @@ runs:
       with:
         repository: ${{ inputs.workflowRepo }}
         path: ${{ inputs.workflowTmpPath }}
-        # TODO remove
-        ref: feat/version-workflow
 
     - uses: rees46/workflow/.github/actions/js/prepare-js@master
       with:
@@ -36,9 +34,7 @@ runs:
         workingDirectory: ${{ inputs.workflowTmpPath }}
 
     - name: Check workflow variables
-      # TODO to master
-      # uses: rees46/workflow/.github/actions/utils/check-vars@master
-      uses: rees46/workflow/.github/actions/utils/check-vars@feat/version-workflow
+      uses: rees46/workflow/.github/actions/utils/check-vars@master
       with:
         workflowDirectory: ${{ inputs.workflowTmpPath }}
         varsJson: ${{ inputs.secretsJson }}
