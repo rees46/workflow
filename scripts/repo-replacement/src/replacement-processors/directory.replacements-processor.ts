@@ -15,6 +15,11 @@ export const direcotryReplacementProcessor = async ({
     escapeRegExpUtil,
   });
 
+  if (path.basename(directory) === ".git") {
+    console.log(`Skipping .git directory: ${directory}`);
+    return;
+  }
+
   if (newDirectoryName !== directory) {
     fs.renameSync(directory, newDirectoryName);
     console.info(`Direcotry renamed: from ${directory} to ${newDirectoryName}`);
