@@ -52,8 +52,6 @@ runs:
       with:
         repository: ${{ env.WORKFLOW_REPO }}
         path: ${{ env.WORKFLOW_TMP_PATH }}
-        # TODO remove
-        ref: fix/sync
 
     - uses: rees46/workflow/.github/actions/js/prepare-js@master
       with:
