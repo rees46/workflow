@@ -1,6 +1,7 @@
 name: Reusable iOS TestFlight Publish
 
 env:
+  WORKFLOW_TMP_PATH: tmp/workflow
   WORKFLOW_REPO: "rees46/workflow"
   ARCHIVE_EXPORT_PATH: "./build/exported-app"
   EXPORT_OPTIONS_PLIST_PATH: "./ExportOptions.plist"
@@ -68,16 +69,16 @@ jobs:
           workingDirectory: ${{ env.WORKFLOW_TMP_PATH }}
 
       - name: Check workflow variables
-        working-directory: ${{ env.WORKFLOW_TMP_PATH }}
-        # uses: rees46/workflow/.github/actions/ios/check-vars@feat/version-workflow
-        env:
-          JSON_DOC: ${{ toJSON(secrets) }}
-        run: |
-          printf '%s\n' "$JSON_DOC" > temp.json
-          VARS=$(cat temp.json)
-          REQUIRED_FIELDS='GITHUB_APP_ID,GITHUB_APP_PRIVATE_KEY,APP_STORE_CONNECT_API_KEY_ID,APP_STORE_CONNECT_ISSUER_ID,APP_STORE_CONNECT_API_KEY,IOS_CERTIFICATE_P12,SOMEBLA,IOS_CERTIFICATE_PASSWORD,IOS_PROVISIONING_PROFILE'
+        # TODO to master
+        # uses: rees46/workflow/.github/actions/utils/check-vars@master
+        uses: rees46/workflow/.github/actions/utils/check-vars@feat/version-workflow
+        with:
+          workflowDirectory: ${{ env.WORKFLOW_TMP_PATH }}
+          varsJson: ${{ toJSON(secrets) }}
+          requiredVars:
+            "GITHUB_APP_ID,GITHUB_APP_PRIVATE_KEY,APP_STORE_CONNECT_API_KEY_ID,APP_STORE_CONNECT_ISSUER_ID,APP_STORE_CONNECT_API_KEY,IOS_CERTIFICATE_P12,SOMEBLA,IOS_CERTIFICATE_PASSWORD,IOS_PROVISIONING_PROFILE"
 
-          yarn workspace @scripts/check-vars process "$VARS" "$REQUIRED_FIELDS"
+            # TODO rm tmp directory
 
       # - name: Checkout repository
       #   uses: actions/checkout@v4
