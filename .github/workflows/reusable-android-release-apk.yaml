@@ -45,19 +45,19 @@ jobs:
 
       - name: Decode and create google-services.json
         env:
-          GOOGLE_SERVICES_JSON: ${{ inputs.googleServicesFileAsBase64 }}
+          GOOGLE_SERVICES_JSON: ${{ secrets.googleServicesFileAsBase64 }}
         run: |
           mkdir -p app/src/prod/release
           echo "$GOOGLE_SERVICES_JSON" | base64 -d > app/src/prod/release/google-services.json
 
       - name: Debug google-services
-        run: echo "${{ inputs.googleServicesFileAsBase64 }}" | base64 -d
+        run: echo "${{ secrets.googleServicesFileAsBase64 }}" | base64 -d
 
       - name: Decode Keystore
         run: |
           echo "$KEYSTORE_AS_BASE64" | base64 --decode > app/keystore.jks
         env:
-          KEYSTORE_AS_BASE64: ${{ inputs.googlePlaySigningKeyFileAsBase64 }}
+          KEYSTORE_AS_BASE64: ${{ secrets.googlePlaySigningKeyFileAsBase64 }}
 
       - name: Set up JDK 20
         uses: actions/setup-java@v4
