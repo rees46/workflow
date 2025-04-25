@@ -16,7 +16,7 @@ runs:
   using: composite
 
   steps:
-    - uses: rees46/workflow/.github/actions/git/create-relese-branch@master
+    - uses: rees46/workflow/.github/actions/git/create-release-branch@master
       id: createReleaseBranchStep
       with:
         githubToken: ${{ inputs.githubToken }}

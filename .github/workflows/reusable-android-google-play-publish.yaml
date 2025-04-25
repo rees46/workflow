@@ -67,8 +67,8 @@ jobs:
       - name: Set up JDK 20
         uses: actions/setup-java@v4
         with:
-          java-version: '20'
-          distribution: 'zulu'
+          java-version: "20"
+          distribution: "zulu"
 
       # Building release bundle
       - name: Build Release AAB
@@ -86,34 +86,5 @@ jobs:
           serviceAccountJson: google-play-service-account.json
           packageName: ${{ inputs.packageName }}
           releaseFiles: ${{ inputs.aabReleasePath }}
-          track: 'internal'
-
-      # Increment version
-      - name: Bump version
-        run: ./gradlew incrementVersion
-        env:
-          PROPERTIES_FILE: ${{ inputs.propertiesFilePath }}
-          SIGNING_STORE_FILE: ${{ github.workspace }}/app/keystore.jks
-          SIGNING_STORE_PASSWORD: ${{ secrets.RELEASE_STORE_PASSWORD }}
-          SIGNING_KEY_ALIAS: ${{ secrets.RELEASE_KEY_ALIAS }}
-          SIGNING_KEY_PASSWORD: ${{ secrets.RELEASE_KEY_PASSWORD }}
-
-      # Getting new version
-      - name: Retrieve new version
-        id: versionName
-        run: |
-          version=$(grep "VERSION_NAME=" ${{ inputs.propertiesFilePath }} | cut -d'=' -f2)
-          echo "versionName=$version" >> $GITHUB_ENV
-          echo "versionName=$version" >> $GITHUB_OUTPUT
-
-      # Commit changes
-      - name: Commit changes
-        id: committer
-        uses: planetscale/ghcommit-action@v0.1.44
-        env:
-          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
-        with:
-          repo: ${{ github.repository }}
-          branch: master
-          commit_message: 'chore: bump version to ${{ steps.versionName.outputs.versionName }}'
-          file_pattern: ${{ inputs.propertiesFilePath }}
+          track: "internal"
+          changesNotSentForReview: true
