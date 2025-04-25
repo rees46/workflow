@@ -33,7 +33,7 @@ runs:
           --json assignees --jq '.[0].assignees[0].login // ""')
 
         if [ -z "$ASSIGNEE" ]; then
-          ASSIGNEE=${{ reviewerUsername }}
+          ASSIGNEE=${{ inputs.reviewerUsername }}
         fi
 
         echo "assignee=$ASSIGNEE" >> $GITHUB_OUTPUT
