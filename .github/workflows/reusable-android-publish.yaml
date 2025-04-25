@@ -6,7 +6,7 @@ on:
       appId:
         required: true
         type: string
-        description: 'App ID for committing and pushing'
+        description: "App ID for committing and pushing"
       PROPERTIES_FILE:
         default: gradle.properties
         type: string
@@ -40,7 +40,7 @@ on:
       OSSRH_USERNAME:
         required: false
         type: string
-        default: 'github-bot@rees46.com'
+        default: "github-bot@rees46.com"
     secrets:
       appSecret:
         required: true
@@ -97,7 +97,8 @@ jobs:
 
       - name: Publish
         run: |
-          ./gradlew publish
+          # ./gradlew publish
+          ./gradlew publishAllPublicationsToSonatypeRepository
 
       - name: Install xmllint
         run: |
