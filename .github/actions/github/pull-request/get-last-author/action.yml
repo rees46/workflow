@@ -9,6 +9,9 @@ inputs:
   githubToken:
     description: GitHup token
     required: true
+  reviewerUsername:
+    description: github pull request reviewer username
+    required: true
 
 outputs:
   lastPrAuthor:
@@ -26,6 +29,11 @@ runs:
       env:
         GH_TOKEN: ${{ inputs.githubToken }}
       run: |
-        PR_NUMBER=$(gh pr list --state merged --limit 1 --json number --jq '.[0].number')
-        LAST_PR_AUTHOR=$(gh pr view $PR_NUMBER --json author --jq '.author.login')
-        echo "lastPrAuthor=$LAST_PR_AUTHOR" >> $GITHUB_OUTPUT
+        ASSIGNEE=$(gh pr list --state merged --limit 1 \
+          --json assignees --jq '.[0].assignees[0].login // ""')
+
+        if [ -z "$ASSIGNEE" ]; then
+          ASSIGNEE=${{ reviewerUsername }}
+        fi
+
+        echo "assignee=$ASSIGNEE" >> $GITHUB_OUTPUT
