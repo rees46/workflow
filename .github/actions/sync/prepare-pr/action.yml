@@ -19,7 +19,8 @@ runs:
   using: composite
 
   steps:
-    - uses: rees46/workflow/.github/actions/github/pull-request/get-last-author@master
+    # - uses: rees46/workflow/.github/actions/github/pull-request/get-last-author@master
+    - uses: rees46/workflow/.github/actions/github/pull-request/get-last-author@fix/action
       id: lastPrAuthorStep
       with:
         sourceDirectory: ${{ env.SOURCE_TMP_PATH }}
