@@ -87,3 +87,4 @@ jobs:
           packageName: ${{ inputs.packageName }}
           releaseFiles: ${{ inputs.aabReleasePath }}
           track: "internal"
+          changesNotSentForReview: true
