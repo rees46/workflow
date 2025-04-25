@@ -51,9 +51,7 @@ jobs:
             exit 1
           fi
 
-      # TODO uncomment
-      # - uses: rees46/workflow/.github/actions/release/prepare-pr@master
-      - uses: rees46/workflow/.github/actions/release/prepare-pr@refactor/google-play-publish
+      - uses: rees46/workflow/.github/actions/release/prepare-pr@master
         with:
           reviewerUsername: ${{ inputs.reviewerUsername }}
           githubToken: ${{ steps.app-token.outputs.token }}
