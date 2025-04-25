@@ -14,6 +14,12 @@ on:
         required: true
       googlePlaySigningKeyFileAsBase64:
         required: true
+      releaseStorePassword:
+        required: true
+      releaseKeyAlias:
+        required: true
+      releaseKeyPassword:
+        required: true
 
 jobs:
   run:
@@ -24,7 +30,7 @@ jobs:
         id: app-token
         with:
           app-id: ${{ inputs.appId }}
-          private-key: ${{ inputs.appSecret }}
+          private-key: ${{ secrets.appSecret }}
 
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -60,9 +66,9 @@ jobs:
         run: ./gradlew assembleProdRelease
         env:
           SIGNING_STORE_FILE: ${{ github.workspace }}/app/keystore.jks
-          SIGNING_STORE_PASSWORD: ${{ secrets.RELEASE_STORE_PASSWORD }}
-          SIGNING_KEY_ALIAS: ${{ secrets.RELEASE_KEY_ALIAS }}
-          SIGNING_KEY_PASSWORD: ${{ secrets.RELEASE_KEY_PASSWORD }}
+          SIGNING_STORE_PASSWORD: ${{ secrets.releaseStorePassword }}
+          SIGNING_KEY_ALIAS: ${{ secrets.releaseKeyAlias }}
+          SIGNING_KEY_PASSWORD: ${{ secrets.releaseKeyPassword }}
 
       - name: Prepare release directory
         run: |
