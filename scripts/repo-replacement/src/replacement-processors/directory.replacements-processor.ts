@@ -15,6 +15,16 @@ export const direcotryReplacementProcessor = async ({
     escapeRegExpUtil,
   });
 
+  const shouldIgnore = config.ignore?.some(
+    (ignorePath) =>
+      directory.includes(ignorePath) || path.basename(directory) === ignorePath,
+  );
+
+  if (shouldIgnore) {
+    console.log(`Skipping ignored directory: ${directory}`);
+    return;
+  }
+
   if (path.basename(directory) === ".git") {
     console.log(`Skipping .git directory: ${directory}`);
     return;
