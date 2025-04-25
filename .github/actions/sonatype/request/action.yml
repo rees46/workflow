@@ -1,0 +1,57 @@
+name: Request sonatype package
+description: tested close staged repo and release closed repo package only
+
+inputs:
+  repositoryIds:
+    description: sonatype staging repository ids array, separated by ' '
+    required: true
+  requestEndpoint:
+    description: tested only "finish" and "promote" endpoints
+    required: true
+  sonataUsername:
+    description: sonatype username
+    required: true
+  sonataPassword:
+    description: sonatype password
+    required: true
+  sonataStagingProfileId:
+    description: sonatype password
+    required: true
+
+runs:
+  using: composite
+
+  steps:
+    - name: Process request
+      shell: bash
+      run: |
+        IFS=' ' read -r -a ids_array <<< "${{ inputs.repositoryIds }}"
+
+        for id in "${ids_array[@]}"; do
+          echo "Closing staging repository ID: $id"
+
+          response=$(curl -s -w "\nHTTP_STATUS:%{http_code}" \
+            -X POST \
+            -u "${{ inputs.sonataUsername }}":"${{ inputs.sonataPassword }}" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "data": {
+                "stagedRepositoryId": '$id'
+              }
+            }' \
+            "https://s01.oss.sonatype.org/service/local/staging/profiles/${{ inputs.sonataStagingProfileId }}/${{ inputs.requestEndpoint }}")
+
+          http_status=$(echo "$response" | grep "HTTP_STATUS:" | cut -d':' -f2)
+          response_body=$(echo "$response" | sed '/HTTP_STATUS:/d')
+
+          echo "Response for $id:"
+          echo "HTTP Status: $http_status"
+          echo "Response Body: $response_body"
+
+          if [ "$http_status" -ge 200 ] && [ "$http_status" -lt 300 ]; then
+            echo "Successfully closed repository $id"
+          else
+            echo "Failed to close repository $id (Status: $http_status)"
+            echo "::warning::Failed to close repository $id"
+          fi
+        done
