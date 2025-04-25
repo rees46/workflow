@@ -128,7 +128,10 @@ jobs:
           IFS=' ' read -r -a ids_array <<< "${{ steps.extract_ids.outputs.repository_ids }}"
 
           for id in "${ids_array[@]}"; do
-            curl -X POST \
+            echo "Closing staging repository ID: $id"
+
+            response=$(curl -s -w "\nHTTP_STATUS:%{http_code}" \
+              -X POST \
               -u "${{ secrets.SONATA_USERNAME }}":"${{ secrets.SONATA_PASSWORD }}" \
               -H "Content-Type: application/json" \
               -d '{
@@ -136,7 +139,21 @@ jobs:
                   "stagedRepositoryId": '$id'
                 }
               }' \
-              "https://s01.oss.sonatype.org/service/local/staging/profiles/${{ secrets.SONATA_STAGING_PROFILE_ID }}/finish"
+              "https://s01.oss.sonatype.org/service/local/staging/profiles/${{ secrets.SONATA_STAGING_PROFILE_ID }}/finish")
+
+            http_status=$(echo "$response" | grep "HTTP_STATUS:" | cut -d':' -f2)
+            response_body=$(echo "$response" | sed '/HTTP_STATUS:/d')
+
+            echo "Response for $id:"
+            echo "HTTP Status: $http_status"
+            echo "Response Body: $response_body"
+
+            if [ "$http_status" -ge 200 ] && [ "$http_status" -lt 300 ]; then
+              echo "✅ Successfully closed repository $id"
+            else
+              echo "❌ Failed to close repository $id (Status: $http_status)"
+              echo "::warning::Failed to close repository $id"
+            fi
           done
 
       - name: Sleep 5 minutes
@@ -148,7 +165,10 @@ jobs:
           IFS=' ' read -r -a ids_array <<< "${{ steps.extract_ids.outputs.repository_ids }}"
 
           for id in "${ids_array[@]}"; do
-            curl -X POST \
+            echo "Closing staging repository ID: $id"
+
+            response=$(curl -s -w "\nHTTP_STATUS:%{http_code}" \
+              -X POST \
               -u "${{ secrets.SONATA_USERNAME }}":"${{ secrets.SONATA_PASSWORD }}" \
               -H "Content-Type: application/json" \
               -d '{
@@ -156,5 +176,19 @@ jobs:
                   "stagedRepositoryId": '$id'
                 }
               }' \
-              "https://s01.oss.sonatype.org/service/local/staging/profiles/${{ secrets.SONATA_STAGING_PROFILE_ID }}/promote"
+              "https://s01.oss.sonatype.org/service/local/staging/profiles/${{ secrets.SONATA_STAGING_PROFILE_ID }}/promote")
+
+            http_status=$(echo "$response" | grep "HTTP_STATUS:" | cut -d':' -f2)
+            response_body=$(echo "$response" | sed '/HTTP_STATUS:/d')
+
+            echo "Response for $id:"
+            echo "HTTP Status: $http_status"
+            echo "Response Body: $response_body"
+
+            if [ "$http_status" -ge 200 ] && [ "$http_status" -lt 300 ]; then
+              echo "✅ Successfully closed repository $id"
+            else
+              echo "❌ Failed to close repository $id (Status: $http_status)"
+              echo "::warning::Failed to close repository $id"
+            fi
           done
