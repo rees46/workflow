@@ -22,8 +22,8 @@ runs:
     - uses: rees46/workflow/.github/actions/github/pull-request/get-last-author@master
       id: lastPrAuthorStep
       with:
-        sourceDirectory: ${{ env.SOURCE_TMP_PATH }}
         githubToken: ${{ inputs.appToken }}
+        reviewerUsername: ${{ inputs.reviewerUsername }}
 
     - uses: rees46/workflow/.github/actions/github/utils/get-new-branch-name@master
       id: newBranchNameStep
