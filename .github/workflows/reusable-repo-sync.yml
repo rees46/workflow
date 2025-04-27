@@ -76,8 +76,7 @@ jobs:
         run: git diff
 
       # Prepare pull request
-      # TODO master
-      - uses: rees46/workflow/.github/actions/sync/prepare-pr@fix/action
+      - uses: rees46/workflow/.github/actions/sync/prepare-pr@master
         with:
           appToken: ${{ steps.prepareSyncStep.outputs.appTokenStep }}
           reviewerUsername: ${{ inputs.reviewerUsername }}

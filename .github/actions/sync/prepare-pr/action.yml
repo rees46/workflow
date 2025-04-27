@@ -19,11 +19,9 @@ runs:
   using: composite
 
   steps:
-    # TODO master
-    - uses: rees46/workflow/.github/actions/github/pull-request/get-last-author@fix/action
+    - uses: rees46/workflow/.github/actions/github/pull-request/get-last-author@master
       id: lastPrAuthorStep
       with:
-        sourceDirectory: ${{ env.SOURCE_TMP_PATH }}
         githubToken: ${{ inputs.appToken }}
         reviewerUsername: ${{ inputs.reviewerUsername }}
 

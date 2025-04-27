@@ -2,11 +2,6 @@ name: Get last merget PullRequest author
 description: get last merget pull request author
 
 inputs:
-  # TODO rm
-  # sourceDirectory:
-  #   default: tmp/source
-  #   description: Commit author GitGup token
-  #   required: true
   githubToken:
     description: GitHup token
     required: true

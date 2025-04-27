@@ -25,7 +25,6 @@ runs:
     - uses: rees46/workflow/.github/actions/github/pull-request/get-last-author@master
       id: lastPrAuthorStep
       with:
-        sourceDirectory: .
         githubToken: ${{ inputs.githubToken }}
 
     - uses: rees46/workflow/.github/actions/github/commit/create@master
