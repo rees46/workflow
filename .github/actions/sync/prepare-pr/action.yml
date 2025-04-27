@@ -19,6 +19,7 @@ runs:
   using: composite
 
   steps:
+    # TODO master
     - uses: rees46/workflow/.github/actions/github/pull-request/get-last-author@fix/action
       id: lastPrAuthorStep
       with:
