@@ -37,5 +37,5 @@ runs:
             per_page: 1
           });
           const lastPr = prs.find(pr => pr.merged_at !== null);
-          const assignees = lastPr.assignees?.map(a => a.login) || [];
+          const assignees = lastPr?.assignees?.map(a => a.login) || [];
           core.setOutput('lastPrAuthor', assignees.join(', '));
