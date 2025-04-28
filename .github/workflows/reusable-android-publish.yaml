@@ -100,65 +100,69 @@ jobs:
           ./gradlew publish
           ./gradlew publishAllPublicationsToSonatypeRepository
 
-      - name: Install xmllint
+      # - name: Install xmllint
+      #   run: |
+      #     sudo apt-get update
+      #     sudo apt-get install -y libxml2-utils
+
+      # - name: Debug profile id
+      #   run: |
+      #     echo ${{ secrets.SONATA_STAGING_PROFILE_ID }}
+
+      - name: Get repository ids
+        id: getRepoIdsStep
         run: |
-          sudo apt-get update
-          sudo apt-get install -y libxml2-utils
+          response=$(curl -s \
+            -u "${{ secrets.SONATA_USERNAME }}":"${{ secrets.SONATA_PASSWORD }}" \
+            -H "Accept: application/json" \
+            "https://s01.oss.sonatype.org/service/local/staging/profile_repositories/${{ secrets.SONATA_STAGING_PROFILE_ID }})"
 
-      - name: Debug profile id
-        run: |
-          echo ${{ secrets.SONATA_STAGING_PROFILE_ID }}
+          response_json=$(echo "$response_body" | jq .)
+          echo "$response_json"
 
-      - name: Get repos.xml
-        id: get_repos
-        run: |
-          REPOS=$(curl -s -u ${{ secrets.SONATA_USERNAME }}:${{ secrets.SONATA_PASSWORD }} https://s01.oss.sonatype.org/service/local/staging/profile_repositories/${{ secrets.SONATA_STAGING_PROFILE_ID }})
-          echo "REPOS: $REPOS"
-          echo "$REPOS" > repos.xml
-
-      - name: Extract repository IDs
-        id: extract_ids
-        run: |
-          repository_ids=($(xmllint --xpath '//repositoryId/text()' repos.xml))
-          echo "Repository IDs: ${repository_ids[@]}"
-          echo "repository_ids=${repository_ids[*]}" >> $GITHUB_OUTPUT
-
-      - name: Close stages
-        uses: rees46/workflow/.github/actions/sonatype/request@master
-        with:
-          requestEndpoint: finish
-          repositoryIds: ${{ steps.extract_ids.outputs.repository_ids }}
-          sonataUsername: ${{ secrets.SONATA_USERNAME }}
-          sonataPassword: ${{ secrets.SONATA_PASSWORD }}
-          sonataStagingProfileId: ${{ secrets.SONATA_STAGING_PROFILE_ID }}
-
-      - name: Sleep 2 minutes
-        run: |
-          sleep 120
-
-      - name: Check sonatype repositories
-        uses: rees46/workflow/.github/actions/sonatype/check-repos@master
-        with:
-          repositoryIds: ${{ steps.extract_ids.outputs.repository_ids }}
-          sonataUsername: ${{ secrets.SONATA_USERNAME }}
-          sonataPassword: ${{ secrets.SONATA_PASSWORD }}
-
-      - name: Release stages
-        uses: rees46/workflow/.github/actions/sonatype/request@master
-        with:
-          requestEndpoint: promote
-          repositoryIds: ${{ steps.extract_ids.outputs.repository_ids }}
-          sonataUsername: ${{ secrets.SONATA_USERNAME }}
-          sonataPassword: ${{ secrets.SONATA_PASSWORD }}
-          sonataStagingProfileId: ${{ secrets.SONATA_STAGING_PROFILE_ID }}
-
-      - name: Sleep 2 minutes
-        run: |
-          sleep 120
-
-      - name: Check sonatype repositories
-        uses: rees46/workflow/.github/actions/sonatype/check-repos@master
-        with:
-          repositoryIds: ${{ steps.extract_ids.outputs.repository_ids }}
-          sonataUsername: ${{ secrets.SONATA_USERNAME }}
-          sonataPassword: ${{ secrets.SONATA_PASSWORD }}
+      # - name: Extract repository IDs
+      #   id: extract_ids
+      #   run: |
+      #     repository_ids=($(xmllint --xpath '//repositoryId/text()' repos.xml))
+      #     echo "Repository IDs: ${repository_ids[@]}"
+      #     echo "repository_ids=${repository_ids[*]}" >> $GITHUB_OUTPUT
+      #
+      # - name: Close stages
+      #   uses: rees46/workflow/.github/actions/sonatype/request@master
+      #   with:
+      #     requestEndpoint: finish
+      #     repositoryIds: ${{ steps.extract_ids.outputs.repository_ids }}
+      #     sonataUsername: ${{ secrets.SONATA_USERNAME }}
+      #     sonataPassword: ${{ secrets.SONATA_PASSWORD }}
+      #     sonataStagingProfileId: ${{ secrets.SONATA_STAGING_PROFILE_ID }}
+      #
+      # - name: Sleep 2 minutes
+      #   run: |
+      #     sleep 120
+      #
+      # - name: Check sonatype repositories
+      #   uses: rees46/workflow/.github/actions/sonatype/check-repos@master
+      #   with:
+      #     repositoryIds: ${{ steps.extract_ids.outputs.repository_ids }}
+      #     sonataUsername: ${{ secrets.SONATA_USERNAME }}
+      #     sonataPassword: ${{ secrets.SONATA_PASSWORD }}
+      #
+      # - name: Release stages
+      #   uses: rees46/workflow/.github/actions/sonatype/request@master
+      #   with:
+      #     requestEndpoint: promote
+      #     repositoryIds: ${{ steps.extract_ids.outputs.repository_ids }}
+      #     sonataUsername: ${{ secrets.SONATA_USERNAME }}
+      #     sonataPassword: ${{ secrets.SONATA_PASSWORD }}
+      #     sonataStagingProfileId: ${{ secrets.SONATA_STAGING_PROFILE_ID }}
+      #
+      # - name: Sleep 2 minutes
+      #   run: |
+      #     sleep 120
+      #
+      # - name: Check sonatype repositories
+      #   uses: rees46/workflow/.github/actions/sonatype/check-repos@master
+      #   with:
+      #     repositoryIds: ${{ steps.extract_ids.outputs.repository_ids }}
+      #     sonataUsername: ${{ secrets.SONATA_USERNAME }}
+      #     sonataPassword: ${{ secrets.SONATA_PASSWORD }}
