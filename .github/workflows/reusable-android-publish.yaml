@@ -134,9 +134,19 @@ jobs:
           sonataPassword: ${{ secrets.SONATA_PASSWORD }}
           sonataStagingProfileId: ${{ secrets.SONATA_STAGING_PROFILE_ID }}
 
-      - name: Sleep 5 minutes
+      - name: Sleep 2 minutes
         run: |
-          sleep 300
+          sleep 120
+
+          # TODO check close stages
+
+      - name: Check sonatype repositories
+        # TODO master
+        uses: rees46/workflow/.github/actions/sonatype/check-repos@fix/publish-android
+        with:
+          repositoryIds: ${{ steps.extract_ids.outputs.repository_ids }}
+          sonataUsername: ${{ secrets.SONATA_USERNAME }}
+          sonataPassword: ${{ secrets.SONATA_PASSWORD }}
 
       - name: Release stages
         # TODO master
@@ -147,3 +157,17 @@ jobs:
           sonataUsername: ${{ secrets.SONATA_USERNAME }}
           sonataPassword: ${{ secrets.SONATA_PASSWORD }}
           sonataStagingProfileId: ${{ secrets.SONATA_STAGING_PROFILE_ID }}
+
+          # TODO check release stages
+
+      - name: Sleep 2 minutes
+        run: |
+          sleep 120
+
+      - name: Check sonatype repositories
+        # TODO master
+        uses: rees46/workflow/.github/actions/sonatype/check-repos@fix/publish-android
+        with:
+          repositoryIds: ${{ steps.extract_ids.outputs.repository_ids }}
+          sonataUsername: ${{ secrets.SONATA_USERNAME }}
+          sonataPassword: ${{ secrets.SONATA_PASSWORD }}

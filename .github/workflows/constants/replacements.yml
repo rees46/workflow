@@ -8,10 +8,10 @@ replacements:
     to: success@personaclick.com
   - from: desk@rees46.com
     to: success@personaclick.com
-  - from: "PUBLIVERSIONER_SECRET"
-    to: "PERSONACLICK_COURIER_SECRET"
-  - from: "PUBLIVERSIONER_ID"
-    to: "PERSONACLICK_COURIER_ID"
+  - from: 'PUBLIVERSIONER_SECRET'
+    to: 'PERSONACLICK_COURIER_SECRET'
+  - from: 'PUBLIVERSIONER_ID'
+    to: 'PERSONACLICK_COURIER_ID'
   - from: rees46.com
     to: personaclick.com
   - from: rees46.ru
