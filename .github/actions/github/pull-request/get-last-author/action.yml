@@ -2,12 +2,11 @@ name: Get last merget PullRequest author
 description: get last merget pull request author
 
 inputs:
-  sourceDirectory:
-    default: tmp/source
-    description: Commit author GitGup token
-    required: true
   githubToken:
     description: GitHup token
+    required: true
+  reviewerUsername:
+    description: github pull request reviewer username
     required: true
 
 outputs:
@@ -19,13 +18,19 @@ runs:
   using: composite
 
   steps:
-    - name: Get last merged PR author login
-      shell: bash
-      working-directory: ${{ inputs.sourceDirectory }}
+    - uses: actions/github-script@v7
       id: pr_author
-      env:
-        GH_TOKEN: ${{ inputs.githubToken }}
-      run: |
-        PR_NUMBER=$(gh pr list --state merged --limit 1 --json number --jq '.[0].number')
-        LAST_PR_AUTHOR=$(gh pr view $PR_NUMBER --json author --jq '.author.login')
-        echo "lastPrAuthor=$LAST_PR_AUTHOR" >> $GITHUB_OUTPUT
+      with:
+        github-token: ${{ inputs.githubToken }}
+        script: |
+          const { data: prs } = await github.rest.pulls.list({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            state: 'closed',
+            sort: 'updated',
+            direction: 'desc',
+            per_page: 1
+          });
+          const lastPr = prs.find(pr => pr.merged_at !== null);
+          const assignees = lastPr?.assignees?.map(a => a.login) || [];
+          core.setOutput('lastPrAuthor', assignees.join(', '));
