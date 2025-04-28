@@ -97,8 +97,7 @@ jobs:
 
       - name: Publish
         run: |
-          # TODO remove
-          # ./gradlew publish
+          ./gradlew publish
           ./gradlew publishAllPublicationsToSonatypeRepository
 
       - name: Install xmllint
@@ -125,8 +124,7 @@ jobs:
           echo "repository_ids=${repository_ids[*]}" >> $GITHUB_OUTPUT
 
       - name: Close stages
-        # TODO master
-        uses: rees46/workflow/.github/actions/sonatype/request@fix/publish-android
+        uses: rees46/workflow/.github/actions/sonatype/request@master
         with:
           requestEndpoint: finish
           repositoryIds: ${{ steps.extract_ids.outputs.repository_ids }}
@@ -138,19 +136,15 @@ jobs:
         run: |
           sleep 120
 
-          # TODO check close stages
-
       - name: Check sonatype repositories
-        # TODO master
-        uses: rees46/workflow/.github/actions/sonatype/check-repos@fix/publish-android
+        uses: rees46/workflow/.github/actions/sonatype/check-repos@master
         with:
           repositoryIds: ${{ steps.extract_ids.outputs.repository_ids }}
           sonataUsername: ${{ secrets.SONATA_USERNAME }}
           sonataPassword: ${{ secrets.SONATA_PASSWORD }}
 
       - name: Release stages
-        # TODO master
-        uses: rees46/workflow/.github/actions/sonatype/request@fix/publish-android
+        uses: rees46/workflow/.github/actions/sonatype/request@master
         with:
           requestEndpoint: promote
           repositoryIds: ${{ steps.extract_ids.outputs.repository_ids }}
@@ -158,15 +152,12 @@ jobs:
           sonataPassword: ${{ secrets.SONATA_PASSWORD }}
           sonataStagingProfileId: ${{ secrets.SONATA_STAGING_PROFILE_ID }}
 
-          # TODO check release stages
-
       - name: Sleep 2 minutes
         run: |
           sleep 120
 
       - name: Check sonatype repositories
-        # TODO master
-        uses: rees46/workflow/.github/actions/sonatype/check-repos@fix/publish-android
+        uses: rees46/workflow/.github/actions/sonatype/check-repos@master
         with:
           repositoryIds: ${{ steps.extract_ids.outputs.repository_ids }}
           sonataUsername: ${{ secrets.SONATA_USERNAME }}

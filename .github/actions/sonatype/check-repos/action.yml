@@ -51,10 +51,8 @@ runs:
           notifications=$(echo "$response_json" | jq ".notifications")
           repository_uri=$(echo "$response_json" | jq ".repositoryURI")
 
-          echo $notifications
-
           if [ "$notifications" -gt 0 ]; then
-            error_repos+=("$id: $notifications; $repository_uri")
+            error_repos+=("$id: $notifications notifications; $repository_uri")
           fi
         done
 
