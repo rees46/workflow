@@ -97,7 +97,8 @@ jobs:
 
       - name: Publish
         run: |
-          ./gradlew publish
+          # ./gradlew publish
+          # TODO rm
           ./gradlew publishAllPublicationsToSonatypeRepository
 
       # - name: Install xmllint
