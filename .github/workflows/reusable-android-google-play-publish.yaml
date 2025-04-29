@@ -81,10 +81,13 @@ jobs:
 
       # Sending to Google Play
       - name: Deploy to Google Play Internal Testing
+        id: publish
         uses: r0adkll/upload-google-play@v1
         with:
           serviceAccountJson: google-play-service-account.json
           packageName: ${{ inputs.packageName }}
           releaseFiles: ${{ inputs.aabReleasePath }}
           track: "internal"
-          changesNotSentForReview: true
+
+      - name: Show url to download
+        run: echo "${{ steps.publish.outputs.internalSharingDownloadUrl }}"
