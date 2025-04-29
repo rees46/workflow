@@ -18,4 +18,4 @@ runs:
     - name: Sync files to remote repository
       shell: bash
       run: |
-        rsync -av --progress --ignore-existing "${{ inputs.sourceDirectory }}" "${{ inputs.targetDirectory }}"
+        rsync -avp --progress --ignore-existing "${{ inputs.sourceDirectory }}" "${{ inputs.targetDirectory }}"

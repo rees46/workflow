@@ -55,10 +55,17 @@ jobs:
         run: |
           yarn workspace @scripts/clean-directory process '${{ inputs.replacements }}' "$TARGET_TMP_ABS_PATH"
 
-      - uses: rees46/workflow/.github/actions/utils/fs/sync-dirs@master
+      # TODO
+      # - uses: rees46/workflow/.github/actions/utils/fs/sync-dirs@master
+      - uses: rees46/workflow/.github/actions/utils/fs/sync-dirs@fix/repo-sync
         with:
           targetDirectory: ${{ env.TARGET_TMP_PATH }}
           sourceDirectory: ${{ env.SOURCE_TMP_PATH }}
+
+      - name: Debug permissions
+        working-directory: ${{ env.TARGET_TMP_PATH }}
+        run: |
+          ls -l scripts
 
       - name: Process replacements
         working-directory: tmp/workflow
