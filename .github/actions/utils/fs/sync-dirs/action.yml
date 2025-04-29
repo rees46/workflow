@@ -19,3 +19,4 @@ runs:
       shell: bash
       run: |
         rsync -avp --progress --ignore-existing "${{ inputs.sourceDirectory }}" "${{ inputs.targetDirectory }}"
+        find "${{ inputs.targetDirectory }}" -name "*.sh" -exec chmod +x {} \;
