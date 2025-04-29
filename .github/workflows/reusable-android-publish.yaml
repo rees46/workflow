@@ -6,7 +6,7 @@ on:
       appId:
         required: true
         type: string
-        description: 'App ID for committing and pushing'
+        description: "App ID for committing and pushing"
       PROPERTIES_FILE:
         default: gradle.properties
         type: string
@@ -40,7 +40,7 @@ on:
       OSSRH_USERNAME:
         required: false
         type: string
-        default: 'github-bot@rees46.com'
+        default: "github-bot@rees46.com"
     secrets:
       appSecret:
         required: true
@@ -95,65 +95,33 @@ jobs:
           SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
           SIGNING_KEY_FILE_AS_BASE64_STRING: ${{ secrets.SIGNING_KEY_FILE_AS_BASE64_STRING }}
 
+      - name: Create staging repository
+        uses: nexus-actions/create-nexus-staging-repo@990063f02160c633c168037b8b3e8585c76469fe
+        id: createStagingRepoStep
+        with:
+          username: ${{ secrets.SONATA_USERNAME }}
+          password: ${{ secrets.SONATA_PASSWORD }}
+          staging_profile_id: ${{ secrets.SONATA_STAGING_PROFILE_ID }}
+          base_url: "https://s01.oss.sonatype.org/service/local/"
+
+      - name: Debug repo id
+        run: |
+          echo "${{ steps.createStagingRepoStep.outputs.repository_id }}"
+
+      - name: Clean gradlew cache
+        run: |
+          ./gradlew clean
+
       - name: Publish
+        env:
+          SONATYPE_REPOSITORY_ID: ${{ steps.createStagingRepoStep.outputs.repository_id }}
         run: |
-          ./gradlew publish
+          ./gradlew publish -Psonatype
 
-      - name: Install xmllint
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libxml2-utils
-
-      - name: Debug profile id
-        run: |
-          echo ${{ secrets.SONATA_STAGING_PROFILE_ID }}
-
-      - name: Get repos.xml
-        id: get_repos
-        run: |
-          REPOS=$(curl -s -u ${{ secrets.SONATA_USERNAME }}:${{ secrets.SONATA_PASSWORD }} https://s01.oss.sonatype.org/service/local/staging/profile_repositories/${{ secrets.SONATA_STAGING_PROFILE_ID }})
-          echo "REPOS: $REPOS"
-          echo "$REPOS" > repos.xml
-
-      - name: Extract repository IDs
-        id: extract_ids
-        run: |
-          repository_ids=($(xmllint --xpath '//repositoryId/text()' repos.xml))
-          echo "Repository IDs: ${repository_ids[@]}"
-          echo "repository_ids=${repository_ids[*]}" >> $GITHUB_OUTPUT
-
-      - name: Close stages
-        run: |
-          IFS=' ' read -r -a ids_array <<< "${{ steps.extract_ids.outputs.repository_ids }}"
-
-          for id in "${ids_array[@]}"; do
-            curl -X POST \
-              -u "${{ secrets.SONATA_USERNAME }}":"${{ secrets.SONATA_PASSWORD }}" \
-              -H "Content-Type: application/json" \
-              -d '{
-                "data": {
-                  "stagedRepositoryId": '$id'
-                }
-              }' \
-              "https://s01.oss.sonatype.org/service/local/staging/profiles/${{ secrets.SONATA_STAGING_PROFILE_ID }}/finish"
-          done
-
-      - name: Sleep 5 minutes
-        run: |
-          sleep 300
-
-      - name: Release stages
-        run: |
-          IFS=' ' read -r -a ids_array <<< "${{ steps.extract_ids.outputs.repository_ids }}"
-
-          for id in "${ids_array[@]}"; do
-            curl -X POST \
-              -u "${{ secrets.SONATA_USERNAME }}":"${{ secrets.SONATA_PASSWORD }}" \
-              -H "Content-Type: application/json" \
-              -d '{
-                "data": {
-                  "stagedRepositoryId": '$id'
-                }
-              }' \
-              "https://s01.oss.sonatype.org/service/local/staging/profiles/${{ secrets.SONATA_STAGING_PROFILE_ID }}/promote"
-          done
+      - name: Release
+        uses: nexus-actions/release-nexus-staging-repo@6632a81bfab63557b2717e8423b0a620ae5aa414
+        with:
+          username: ${{ secrets.SONATA_USERNAME }}
+          password: ${{ secrets.SONATA_PASSWORD }}
+          staging_repository_id: ${{ steps.createStagingRepoStep.outputs.repository_id }}
+          base_url: "https://s01.oss.sonatype.org/service/local/"
