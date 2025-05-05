@@ -3,9 +3,13 @@ name: Reusable JS/TS PR checks
 on:
   workflow_call:
     inputs:
+      app-id:
+        description: "github app id"
+        required: true
+        type: string
       node-version:
-        description: 'Node version to run this workflow. Default: 19 as it is in action cache'
-        default: '19'
+        description: "Node version to run this workflow. Default: 19 as it is in action cache"
+        default: "19"
         required: false
         type: string
       workingDirectory:
@@ -13,6 +17,9 @@ on:
         default: ./
         type: string
         required: false
+    secrets:
+      private-key:
+        required: true
 
 jobs:
   run:
@@ -22,40 +29,58 @@ jobs:
         working-directory: ${{ inputs.workingDirectory }}
 
     steps:
+      - uses: actions/create-github-app-token@v1
+        id: app-token
+        with:
+          app-id: ${{ vars.PUBLIVERSIONER_ID }}
+          private-key: ${{ secrets.PUBLIVERSIONER_SECRET }}
+
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          token: ${{ steps.app-token.outputs.token }}
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - name: Prepare JS action
+        id: start
+        uses: rees46/workflow/.github/actions/js/prepare-js@master
         with:
-          node-version: ${{ inputs.node-version }}
+          nodeVersion: ${{ inputs.node-version }}
 
-      - name: Yarn cache directory
-        id: yarn-cache-dir-path
-        run: echo "dir=$(yarn config get cacheFolder)" >> $GITHUB_OUTPUT
-
-      - uses: actions/cache@v4
-        id: yarn-cache
-        with:
-          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-
-
-      - name: Fetch all branches
-        run: git fetch origin "+refs/heads/*:refs/remotes/origin/*"
-
-      - name: Wait before switching branch
-        run: sleep 5
-
-      - name: Switch branch
-        run: |
-          git switch ${{ github.head_ref }}
-
-      - name: Install
-        run: yarn install --inline-builds
+      # - name: Checkout
+      #   uses: actions/checkout@v4
+      #   with:
+      #     fetch-depth: 0
+      #
+      # - name: Setup Node
+      #   uses: actions/setup-node@v4
+      #   with:
+      #     node-version: ${{ inputs.node-version }}
+      #
+      # - name: Yarn cache directory
+      #   id: yarn-cache-dir-path
+      #   run: echo "dir=$(yarn config get cacheFolder)" >> $GITHUB_OUTPUT
+      #
+      # - uses: actions/cache@v4
+      #   id: yarn-cache
+      #   with:
+      #     path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+      #     key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+      #     restore-keys: |
+      #       ${{ runner.os }}-yarn-
+      #
+      # - name: Fetch all branches
+      #   run: git fetch origin "+refs/heads/*:refs/remotes/origin/*"
+      #
+      # - name: Wait before switching branch
+      #   run: sleep 5
+      #
+      # - name: Switch branch
+      #   run: |
+      #     git switch ${{ github.head_ref }}
+      #
+      # - name: Install
+      #   run: yarn install --inline-builds
 
       - name: Lint
         if: ${{ !cancelled() }}
