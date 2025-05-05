@@ -6,7 +6,7 @@ on:
       appId:
         required: true
         type: string
-        description: "App ID for committing and pushing"
+        description: 'App ID for committing and pushing'
       PROPERTIES_FILE:
         default: gradle.properties
         type: string
@@ -40,7 +40,7 @@ on:
       OSSRH_USERNAME:
         required: false
         type: string
-        default: "github-bot@rees46.com"
+        default: 'github-bot@rees46.com'
     secrets:
       appSecret:
         required: true
@@ -102,7 +102,7 @@ jobs:
           username: ${{ secrets.SONATA_USERNAME }}
           password: ${{ secrets.SONATA_PASSWORD }}
           staging_profile_id: ${{ secrets.SONATA_STAGING_PROFILE_ID }}
-          base_url: "https://s01.oss.sonatype.org/service/local/"
+          base_url: 'https://s01.oss.sonatype.org/service/local/'
 
       - name: Debug repo id
         run: |
@@ -124,4 +124,4 @@ jobs:
           username: ${{ secrets.SONATA_USERNAME }}
           password: ${{ secrets.SONATA_PASSWORD }}
           staging_repository_id: ${{ steps.createStagingRepoStep.outputs.repository_id }}
-          base_url: "https://s01.oss.sonatype.org/service/local/"
+          base_url: 'https://s01.oss.sonatype.org/service/local/'

@@ -4,12 +4,12 @@ on:
   workflow_call:
     inputs:
       app-id:
-        description: "github app id"
+        description: 'github app id'
         required: true
         type: string
       node-version:
-        description: "Node version to run this workflow. Default: 19 as it is in action cache"
-        default: "19"
+        description: 'Node version to run this workflow. Default: 19 as it is in action cache'
+        default: '19'
         required: false
         type: string
       workingDirectory:
