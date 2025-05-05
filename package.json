@@ -7,9 +7,9 @@
     "global/**"
   ],
   "devDependencies": {
-    "@atls/code-runtime": "1.0.0",
+    "@atls/code-runtime": "2.1.9",
     "@types/node": "22.0.0",
-    "typescript": "5.2.2"
+    "typescript": "5.5.4"
   },
-  "packageManager": "yarn@4.1.1"
+  "packageManager": "yarn@4.9.1"
 }

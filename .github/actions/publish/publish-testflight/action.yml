@@ -28,7 +28,7 @@ runs:
     - name: Upload to TestFlight
       uses: Apple-Actions/upload-testflight-build@master
       with:
-        app-path: "${{ inputs.archiveExportPath }}/${{ inputs.scheme }}.ipa"
+        app-path: '${{ inputs.archiveExportPath }}/${{ inputs.scheme }}.ipa'
         issuer-id: ${{ inputs.appStoreConnectIssuerId }}
         api-key-id: ${{ inputs.appStoreConnectApiKeyId }}
         api-private-key: ${{ inputs.appStoreConnectApiKey }}

@@ -1,7 +1,7 @@
 name: Reusable repository synchronization
 
 env:
-  WORKFLOW_REPO: "rees46/workflow"
+  WORKFLOW_REPO: 'rees46/workflow'
   WORKFLOW_TMP_PATH: tmp/workflow/
   TARGET_TMP_PATH: tmp/target/
   SOURCE_TMP_PATH: tmp/source/
