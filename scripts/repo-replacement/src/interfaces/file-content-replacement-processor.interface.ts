@@ -1,5 +1,5 @@
-import type { Replacement }          from './replacement.interface.js'
 import type { EscapeRegExpUtilType } from './escape-reg-exp-util.interface.js'
+import type { Replacement }          from './replacement.interface.js'
 
 export interface FileContentReplacementProcessorProps {
   filePath: string
