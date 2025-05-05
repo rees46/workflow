@@ -9,7 +9,7 @@ on:
         type: string
       node-version:
         description: 'Node version to run this workflow. Default: 19 as it is in action cache'
-        default: '19'
+        default: '22'
         required: false
         type: string
       workingDirectory:
