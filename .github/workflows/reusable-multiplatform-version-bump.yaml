@@ -43,6 +43,10 @@ jobs:
           additional-packages: |
             ['@semantic-release/git', '@semantic-release/exec']
 
+      - name: Debug git diff
+        run: |
+          git diff
+
       - name: Check release published
         shell: bash
         run: |
