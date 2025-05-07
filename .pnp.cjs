@@ -1397,7 +1397,8 @@ const RAW_RUNTIME_STATE =
         "packageLocation": "./scripts/check-vars/",\
         "packageDependencies": [\
           ["@scripts/check-vars", "workspace:scripts/check-vars"],\
-          ["@global/github-client", "workspace:global/github-client"]\
+          ["@global/github-client", "workspace:global/github-client"],\
+          ["@types/node", "npm:22.0.0"]\
         ],\
         "linkType": "SOFT"\
       }]\
@@ -1407,7 +1408,8 @@ const RAW_RUNTIME_STATE =
         "packageLocation": "./scripts/clean-directory/",\
         "packageDependencies": [\
           ["@scripts/clean-directory", "workspace:scripts/clean-directory"],\
-          ["@global/github-client", "workspace:global/github-client"]\
+          ["@global/github-client", "workspace:global/github-client"],\
+          ["@types/node", "npm:22.0.0"]\
         ],\
         "linkType": "SOFT"\
       }]\
@@ -1417,7 +1419,8 @@ const RAW_RUNTIME_STATE =
         "packageLocation": "./scripts/issue-status-updater/",\
         "packageDependencies": [\
           ["@scripts/issue-status-updater", "workspace:scripts/issue-status-updater"],\
-          ["@global/github-client", "workspace:global/github-client"]\
+          ["@global/github-client", "workspace:global/github-client"],\
+          ["@types/node", "npm:22.0.0"]\
         ],\
         "linkType": "SOFT"\
       }]\
@@ -1428,6 +1431,7 @@ const RAW_RUNTIME_STATE =
         "packageDependencies": [\
           ["@scripts/issues-getter", "workspace:scripts/issues-getter"],\
           ["@global/github-client", "workspace:global/github-client"],\
+          ["@types/node", "npm:22.0.0"],\
           ["octokit", "npm:4.0.2"]\
         ],\
         "linkType": "SOFT"\
@@ -1438,7 +1442,8 @@ const RAW_RUNTIME_STATE =
         "packageLocation": "./scripts/project-field-getter/",\
         "packageDependencies": [\
           ["@scripts/project-field-getter", "workspace:scripts/project-field-getter"],\
-          ["@global/github-client", "workspace:global/github-client"]\
+          ["@global/github-client", "workspace:global/github-client"],\
+          ["@types/node", "npm:22.0.0"]\
         ],\
         "linkType": "SOFT"\
       }]\
@@ -1448,7 +1453,8 @@ const RAW_RUNTIME_STATE =
         "packageLocation": "./scripts/project-getter/",\
         "packageDependencies": [\
           ["@scripts/project-getter", "workspace:scripts/project-getter"],\
-          ["@global/github-client", "workspace:global/github-client"]\
+          ["@global/github-client", "workspace:global/github-client"],\
+          ["@types/node", "npm:22.0.0"]\
         ],\
         "linkType": "SOFT"\
       }]\
@@ -1458,7 +1464,8 @@ const RAW_RUNTIME_STATE =
         "packageLocation": "./scripts/project-issue-getter/",\
         "packageDependencies": [\
           ["@scripts/project-issue-getter", "workspace:scripts/project-issue-getter"],\
-          ["@global/github-client", "workspace:global/github-client"]\
+          ["@global/github-client", "workspace:global/github-client"],\
+          ["@types/node", "npm:22.0.0"]\
         ],\
         "linkType": "SOFT"\
       }]\
@@ -1468,7 +1475,8 @@ const RAW_RUNTIME_STATE =
         "packageLocation": "./scripts/repo-replacement/",\
         "packageDependencies": [\
           ["@scripts/repo-replacement", "workspace:scripts/repo-replacement"],\
-          ["@global/github-client", "workspace:global/github-client"]\
+          ["@global/github-client", "workspace:global/github-client"],\
+          ["@types/node", "npm:22.0.0"]\
         ],\
         "linkType": "SOFT"\
       }]\

@@ -1088,6 +1088,7 @@ __metadata:
   resolution: "@scripts/check-vars@workspace:scripts/check-vars"
   dependencies:
     "@global/github-client": "workspace:*"
+    "@types/node": "npm:22.0.0"
   languageName: unknown
   linkType: soft
 
@@ -1096,6 +1097,7 @@ __metadata:
   resolution: "@scripts/clean-directory@workspace:scripts/clean-directory"
   dependencies:
     "@global/github-client": "workspace:*"
+    "@types/node": "npm:22.0.0"
   languageName: unknown
   linkType: soft
 
@@ -1104,6 +1106,7 @@ __metadata:
   resolution: "@scripts/issue-status-updater@workspace:scripts/issue-status-updater"
   dependencies:
     "@global/github-client": "workspace:*"
+    "@types/node": "npm:22.0.0"
   languageName: unknown
   linkType: soft
 
@@ -1112,6 +1115,7 @@ __metadata:
   resolution: "@scripts/issues-getter@workspace:scripts/issues-getter"
   dependencies:
     "@global/github-client": "workspace:*"
+    "@types/node": "npm:22.0.0"
     octokit: "npm:4.0.2"
   languageName: unknown
   linkType: soft
@@ -1121,6 +1125,7 @@ __metadata:
   resolution: "@scripts/project-field-getter@workspace:scripts/project-field-getter"
   dependencies:
     "@global/github-client": "workspace:*"
+    "@types/node": "npm:22.0.0"
   languageName: unknown
   linkType: soft
 
@@ -1129,6 +1134,7 @@ __metadata:
   resolution: "@scripts/project-getter@workspace:scripts/project-getter"
   dependencies:
     "@global/github-client": "workspace:*"
+    "@types/node": "npm:22.0.0"
   languageName: unknown
   linkType: soft
 
@@ -1137,6 +1143,7 @@ __metadata:
   resolution: "@scripts/project-issue-getter@workspace:scripts/project-issue-getter"
   dependencies:
     "@global/github-client": "workspace:*"
+    "@types/node": "npm:22.0.0"
   languageName: unknown
   linkType: soft
 
@@ -1145,6 +1152,7 @@ __metadata:
   resolution: "@scripts/repo-replacement@workspace:scripts/repo-replacement"
   dependencies:
     "@global/github-client": "workspace:*"
+    "@types/node": "npm:22.0.0"
   languageName: unknown
   linkType: soft
 
