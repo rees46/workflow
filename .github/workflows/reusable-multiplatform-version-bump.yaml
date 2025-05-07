@@ -39,6 +39,8 @@ jobs:
 
       - uses: codfish/semantic-release-action@v3
         id: semanticReleaseStep
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
         with:
           additional-packages: |
             ['@semantic-release/git', '@semantic-release/exec']
