@@ -37,6 +37,12 @@ runs:
         ISSUER_ID: ${{ inputs.appStoreConnectIssuerId }}
         ARCHIVE_PATH: ${{ inputs.archivePath }}
       run: |
+        CURRENT_VERSION=$(/usr/libexec/PlistBuddy -c "Print CFBundleVersion" "${{ github.workspace }}/Info.plist")
+        MARKETING_VERSION=$(/usr/libexec/PlistBuddy -c "Print CFBundleShortVersionString" "${{ github.workspace }}/Info.plist")
+
+        echo "Current version: $CURRENT_VERSION"
+        echo "Current marketing version: $MARKETING_VERSION"
+
         xcrun xcodebuild \
           -workspace "${{ inputs.xcworkspace }}" \
           -scheme "${{ inputs.scheme }}" \
@@ -48,6 +54,8 @@ runs:
           -archivePath "$ARCHIVE_PATH" \
           archive \
           CODE_SIGN_STYLE=Manual \
+          CURRENT_PROJECT_VERSION="$CURRENT_VERSION" \
+          MARKETING_VERSION="$MARKETING_VERSION" \
           CODE_SIGN_IDENTITY="${{ inputs.codeSignIdentity }}" \
           DEVELOPMENT_TEAM="${{ inputs.developmentTeam }}" \
           PROVISIONING_PROFILE_SPECIFIER="${{ inputs.provisioningProfileSpecifier }}" \

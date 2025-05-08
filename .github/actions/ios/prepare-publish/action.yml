@@ -64,6 +64,11 @@ runs:
         mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
         cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles
 
+    - name: Setup Xcode 16
+      uses: maxim-lobanov/setup-xcode@v1
+      with:
+        xcode-version: 16
+
     - name: Pod install
       shell: bash
       run: pod install

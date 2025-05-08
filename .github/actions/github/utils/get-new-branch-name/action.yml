@@ -13,4 +13,4 @@ runs:
     - name: Get new branch name
       shell: bash
       id: branch_name
-      run: echo "branchName=feat/new-release-$(date +%Y%m%d%H%M%S)" >> $GITHUB_OUTPUT
+      run: echo "branchName=feat/release-$(date +%Y%m%d%H%M%S)" >> $GITHUB_OUTPUT

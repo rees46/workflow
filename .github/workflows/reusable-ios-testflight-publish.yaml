@@ -56,18 +56,7 @@ jobs:
     timeout-minutes: 20
 
     steps:
-      - name: Checkout workflow repo
-        uses: actions/checkout@v4
-        with:
-          repository: ${{ env.WORKFLOW_REPO }}
-          path: ${{ env.WORKFLOW_TMP_PATH }}
-
-      - uses: rees46/workflow/.github/actions/js/prepare-js@master
-        with:
-          nodeVersion: 22
-          workingDirectory: ${{ env.WORKFLOW_TMP_PATH }}
-
-      - name: Check workflow variables
+      - name: Prepare testflight
         uses: rees46/workflow/.github/actions/publish/prepare-testflight@master
         with:
           secretsJson: ${{ toJSON(secrets) }}
