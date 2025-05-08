@@ -21,7 +21,7 @@ on:
         required: true
       githubToken:
         description: Github app token
-        required: true
+        required: false
 
 jobs:
   run:
