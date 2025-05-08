@@ -62,7 +62,9 @@ jobs:
           secretsJson: ${{ toJSON(secrets) }}
 
       - name: Prepare ios enveronment
-        uses: rees46/workflow/.github/actions/ios/prepare-publish@master
+        # TODO RM
+        # uses: rees46/workflow/.github/actions/ios/prepare-publish@master
+        uses: rees46/workflow/.github/actions/ios/prepare-publish@refactor/workflow
         with:
           iosCertificateP12Base64: ${{ secrets.IOS_CERTIFICATE_P12 }}
           p12Password: ${{ secrets.IOS_CERTIFICATE_PASSWORD }}
