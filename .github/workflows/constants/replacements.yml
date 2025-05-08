@@ -4,6 +4,8 @@ deletions:
 ignore:
   - version.properties
 replacements:
+  - from: SONATYPE_REES46
+    to: SONATYPE
   - from: desk@rees46.com
     to: success@personaclick.com
   - from: desk@rees46.com
