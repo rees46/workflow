@@ -32,7 +32,6 @@ runs:
         branchName: ${{ steps.createReleaseBranchStep.outputs.branchName }}
         githubToken: ${{ inputs.githubToken }}
         targetRepository: ${{ github.repository }}
-        filePattern: 'version.properties Info.plist'
 
     - uses: rees46/workflow/.github/actions/github/pull-request/create@master
       with:
