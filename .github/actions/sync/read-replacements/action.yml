@@ -39,8 +39,6 @@ runs:
     - name: Checkout target repository
       uses: actions/checkout@v4
       with:
-        # TODO rm
-        ref: feat/replacements
         token: ${{ steps.appTokenStep.outputs.token }}
         repository: ${{inputs.replacementsRepo}}
 
