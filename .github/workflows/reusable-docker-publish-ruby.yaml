@@ -4,13 +4,13 @@ on:
   workflow_call:
     inputs:
       node-version:
-        description: 'Node version to run this workflow. Default: 18 as it is in action cache'
-        default: '18'
+        description: Node version to run this workflow. Default 18 as it is in action cache
+        default: "18"
         required: false
         type: string
       changeLookUpPath:
-        description: 'Which folder to look for changes and publish'
-        default: ''
+        description: Which folder to look for changes and publish
+        default: ""
         required: false
         type: string
 
@@ -40,7 +40,7 @@ jobs:
           REPOSITORY_OWNER: ${{ github.repository_owner }}
         run: |
           echo "🏗🏗🏗️  Building api-rails..."
-          if [ -f "Dockerfile.api" ]; then
+          if [ -f "Dockerfile" ]; then
             echo "🔎🔎🔎  Found Dockerfile for api-rails"
             image_name_latest=ghcr.io/$REPOSITORY_OWNER/api-rails:latest
             image_name=ghcr.io/$REPOSITORY_OWNER/api-rails:$(git rev-parse --short HEAD)-$(date +%s)
