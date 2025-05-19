@@ -1,0 +1,94 @@
+name: Reusable JS/TS version bump & create PR
+
+on:
+  workflow_call:
+    inputs:
+      appId:
+        description: 'github app id'
+        required: true
+        type: string
+      node-version:
+        description: 'Node version to run this workflow. Default: 19 as it is in action cache'
+        default: '22'
+        required: false
+        type: string
+      workingDirectory:
+        description: Working direction for action
+        default: ./
+        type: string
+        required: false
+    secrets:
+      appSecret:
+        required: true
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Start JS action
+        id: start
+        uses: rees46/workflow/.github/actions/js/start-js@master
+        with:
+          appId: ${{ vars.appId }}
+          appSecret: ${{ secrets.appSecret }}
+
+      - name: Find base commit
+        id: base_commit
+        uses: rees46/workflow/.github/actions/js/find-base-commit-js@master
+        with:
+          token: ${{ steps.start.outputs.token }}
+
+      - name: Bump version
+        if: ${{ !contains(github.event.pull_request.title, 'revert') && !contains(github.event.pull_request.title, 'chore') }}
+        uses: rees46/workflow/.github/actions/js/version-js@master
+        with:
+          private: 'true'
+          token: ${{ steps.start.outputs.token }}
+          baseCommit: ${{ steps.base_commit.outputs.baseCommit }}
+          exclude: '.'
+
+      - name: Debug git diff
+        run: |
+          git diff
+
+      - uses: rees46/workflow/.github/actions/release/prepare-pr@master
+        with:
+          reviewerUsername: ${{ inputs.reviewerUsername }}
+          githubToken: ${{ steps.start.outputs.token }}
+          releaseVersion: ${{ steps.semanticReleaseStep.outputs.release-version }}
+
+      # - name: Create changelog and publish
+      #   if: ${{ !contains(github.event.pull_request.title, 'revert') && !contains(github.event.pull_request.title, 'chore') && !cancelled() }}
+      #   uses: rees46/workflow/.github/actions/js/changelog-and-publish-js@master
+      #   with:
+      #     baseCommit: ${{ steps.base_commit.outputs.baseCommit }}
+      #     token: ${{ steps.start.outputs.token }}
+      #     npmAuthToken: ${{ secrets.NPM_TOKEN }}
+      #     exclude: '.'
+      #
+      # - name: Commit changes
+      #   if: ${{ !contains(github.event.pull_request.title, 'revert') && !contains(github.event.pull_request.title, 'chore') && !cancelled() }}
+      #   uses: rees46/workflow/.github/actions/js/commit-js@master
+      #   with:
+      #     baseCommit: ${{ steps.base_commit.outputs.baseCommit }}
+      #     token: ${{ steps.start.outputs.token }}
+      #     exclude: '.'
+      #
+      # - name: Create release
+      #   if: ${{ !contains(github.event.pull_request.title, 'revert') && !contains(github.event.pull_request.title, 'chore') && !cancelled() }}
+      #   uses: rees46/workflow/.github/actions/js/release-js@master
+      #   with:
+      #     isMonorepo: 'true'
+      #     baseCommit: ${{ steps.base_commit.outputs.baseCommit }}
+      #     token: ${{ steps.start.outputs.token }}
+      #     exclude: '.'
+      #
+      # - name: Delete release
+      #   if: ${{ contains(github.event.pull_request.title, 'revert') }}
+      #   uses: rees46/workflow/.github/actions/js/delete-release-js@master
+      #   with:
+      #     isMonorepo: 'true'
+      #     baseCommit: ${{ steps.base_commit.outputs.baseCommit }}
+      #     token: ${{ steps.start.outputs.token }}
+      #     exclude: '.'
