@@ -82,12 +82,11 @@ jobs:
       #       exit 1
       #     fi
 
-      #
-      # - uses: rees46/workflow/.github/actions/release/prepare-pr@master
-      #   with:
-      #     reviewerUsername: ${{ inputs.reviewerUsername }}
-      #     githubToken: ${{ steps.start.outputs.token }}
-      #     releaseVersion: ${{ steps.semanticReleaseStep.outputs.release-version }}
+      - uses: rees46/workflow/.github/actions/release/prepare-pr@master
+        with:
+          reviewerUsername: ${{ inputs.reviewerUsername }}
+          githubToken: ${{ steps.start.outputs.token }}
+          releaseVersion: ${{ steps.semanticReleaseStep.outputs.release-version }}
 
       # - name: Create changelog and publish
       # - name: Create changelog and publish
