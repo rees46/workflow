@@ -45,18 +45,13 @@ jobs:
       #     token: ${{ steps.start.outputs.token }}
 
       # TODO to action
-      - name: Find base commit
+      - name: Find last tag commit
         id: base_commit
         run: |
           LAST_TAG=$(git describe --tags --abbrev=0)
           COMMIT_HASH=$(git rev-list -n 1 $LAST_TAG)
           echo "lastTagCommit=$COMMIT_HASH" >> $GITHUB_OUTPUT
           echo "The last tag hash is $COMMIT_HASH"
-
-      - uses: codfish/semantic-release-action@v3
-        id: semanticReleaseStep
-        env:
-          GH_TOKEN: ${{ inputs.githubToken || steps.start.outputs.token || secrets.GITHUB_TOKEN }}
 
       # - name: Bump version
       #   if: ${{ !contains(github.event.pull_request.title, 'revert') && !contains(github.event.pull_request.title, 'chore') }}
@@ -70,6 +65,20 @@ jobs:
       # - name: Debug git diff
       #   run: |
       #     git diff
+
+      - uses: codfish/semantic-release-action@v3
+        id: semanticReleaseStep
+        env:
+          GH_TOKEN: ${{ inputs.githubToken || steps.start.outputs.token || secrets.GITHUB_TOKEN }}
+
+      - name: Check release published
+        shell: bash
+        run: |
+          if [ "${NEW_RELEASE_PUBLISHED}" != "true" ]; then
+            echo "New release not published, exit"
+            exit 1
+          fi
+
       #
       # - uses: rees46/workflow/.github/actions/release/prepare-pr@master
       #   with:
