@@ -17,6 +17,11 @@ on:
         default: ./
         type: string
         required: false
+      reviewerUsername:
+        description: Working direction for action
+        default: ./
+        type: string
+        required: false
     secrets:
       appSecret:
         required: true
@@ -33,11 +38,11 @@ jobs:
           appId: ${{ vars.appId }}
           appSecret: ${{ secrets.appSecret }}
 
-      - name: Find base commit
-        id: base_commit
-        uses: rees46/workflow/.github/actions/js/find-base-commit-js@master
-        with:
-          token: ${{ steps.start.outputs.token }}
+      # - name: Find base commit
+      #   id: base_commit
+      #   uses: rees46/workflow/.github/actions/js/find-base-commit-js@master
+      #   with:
+      #     token: ${{ steps.start.outputs.token }}
 
       - name: Bump version
         if: ${{ !contains(github.event.pull_request.title, 'revert') && !contains(github.event.pull_request.title, 'chore') }}
