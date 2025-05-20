@@ -69,18 +69,18 @@ jobs:
         run: |
           git diff
 
-      # - uses: codfish/semantic-release-action@v3
-      #   id: semanticReleaseStep
-      #   env:
-      #     GH_TOKEN: ${{ inputs.githubToken || steps.start.outputs.token || secrets.GITHUB_TOKEN }}
-      #
-      # - name: Check release published
-      #   shell: bash
-      #   run: |
-      #     if [ "${NEW_RELEASE_PUBLISHED}" != "true" ]; then
-      #       echo "New release not published, exit"
-      #       exit 1
-      #     fi
+      - uses: codfish/semantic-release-action@v3
+        id: semanticReleaseStep
+        env:
+          GH_TOKEN: ${{ inputs.githubToken || steps.start.outputs.token || secrets.GITHUB_TOKEN }}
+
+      - name: Check release published
+        shell: bash
+        run: |
+          if [ "${NEW_RELEASE_PUBLISHED}" != "true" ]; then
+            echo "New release not published, exit"
+            exit 1
+          fi
 
       - uses: rees46/workflow/.github/actions/release/prepare-pr@master
         with:
