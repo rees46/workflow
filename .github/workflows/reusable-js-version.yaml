@@ -33,7 +33,9 @@ jobs:
     steps:
       - name: Start JS action
         id: start
-        uses: rees46/workflow/.github/actions/js/start-js@master
+        # TODO uncomment
+        # uses: rees46/workflow/.github/actions/js/start-js@master
+        uses: rees46/workflow/.github/actions/js/start-js@feat/reusable-js-version
         with:
           appId: ${{ inputs.appId }}
           appSecret: ${{ secrets.appSecret }}
