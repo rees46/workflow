@@ -35,7 +35,7 @@ jobs:
         id: start
         uses: rees46/workflow/.github/actions/js/start-js@master
         with:
-          appId: ${{ vars.appId }}
+          appId: ${{ inputs.appId }}
           appSecret: ${{ secrets.appSecret }}
 
       # - name: Find base commit
