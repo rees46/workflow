@@ -49,12 +49,9 @@ jobs:
         id: base_commit
         run: |
           LAST_TAG=$(git describe --tags --abbrev=0)
-          echo "lastTagCommit=$LAST_TAG" >> $GITHUB_OUTPUT
-
-      # TODO rm
-      - name: Debug last tag commit
-        run: |
-          echo "The last tag is ${{ steps.base_commit.outputs.lastTagCommit }}"
+          COMMIT_HASH=$(git rev-list -n 1 $LAST_TAG)
+          echo "lastTagCommit=$COMMIT_HASH" >> $GITHUB_OUTPUT
+          echo "The last tag hash is $COMMIT_HASH"
 
       # - uses: codfish/semantic-release-action@v3
       #   id: semanticReleaseStep
