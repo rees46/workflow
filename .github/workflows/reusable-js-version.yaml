@@ -53,14 +53,11 @@ jobs:
           echo "lastTagCommit=$COMMIT_HASH" >> $GITHUB_OUTPUT
           echo "The last tag hash is $COMMIT_HASH"
 
-      # - uses: codfish/semantic-release-action@v3
-      #   id: semanticReleaseStep
-      #   env:
-      #     GH_TOKEN: ${{ inputs.githubToken || steps.app-token.outputs.token || secrets.GITHUB_TOKEN }}
-      #   with:
-      #     additional-packages: |
-      #       ['@semantic-release/git', '@semantic-release/exec']
-      #
+      - uses: codfish/semantic-release-action@v3
+        id: semanticReleaseStep
+        env:
+          GH_TOKEN: ${{ inputs.githubToken || steps.start.outputs.token || secrets.GITHUB_TOKEN }}
+
       # - name: Bump version
       #   if: ${{ !contains(github.event.pull_request.title, 'revert') && !contains(github.event.pull_request.title, 'chore') }}
       #   uses: rees46/workflow/.github/actions/js/version-js@master
