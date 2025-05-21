@@ -16,5 +16,5 @@ runs:
       run: |
         LAST_TAG=$(git describe --tags --abbrev=0)
         COMMIT_HASH=$(git rev-list -n 1 $LAST_TAG)
-        echo "lastTagCommit=$COMMIT_HASH" >> $GITHUB_OUTPUT
         echo "The last tag hash is $COMMIT_HASH"
+        echo "lastTagCommit=$COMMIT_HASH" >> $GITHUB_OUTPUT
