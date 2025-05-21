@@ -31,6 +31,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: debug git vars
+        run: |
+          echo "${{ github.event_name }}"
+          echo "${{ github.event.pull_request.head.ref }}"
+          echo "${{ github.ref }}"
+
       - name: Start JS action
         id: start
         # TODO uncomment
