@@ -40,20 +40,11 @@ jobs:
           appId: ${{ inputs.appId }}
           appSecret: ${{ secrets.appSecret }}
 
-      # - name: Find base commit
-      #   id: base_commit
-      #   uses: rees46/workflow/.github/actions/js/find-base-commit-js@master
-      #   with:
-      #     token: ${{ steps.start.outputs.token }}
-
-      # TODO to action
       - name: Find last tag commit
         id: lastTagCommit
-        run: |
-          LAST_TAG=$(git describe --tags --abbrev=0)
-          COMMIT_HASH=$(git rev-list -n 1 $LAST_TAG)
-          echo "lastTagCommit=$COMMIT_HASH" >> $GITHUB_OUTPUT
-          echo "The last tag hash is $COMMIT_HASH"
+        # TODO uncomment
+        # uses: rees46/workflow/.github/actions/git/find-last-tag-commit@master
+        uses: rees46/workflow/.github/actions/git/find-last-tag-commit@feat/reusable-js-version
 
       - name: Bump version
         if: ${{ !contains(github.event.pull_request.title, 'revert') && !contains(github.event.pull_request.title, 'chore') }}
@@ -64,6 +55,15 @@ jobs:
           token: ${{ steps.start.outputs.token }}
           baseCommit: ${{ steps.lastTagCommit.outputs.lastTagCommit }}
           exclude: '.'
+
+      - name: Generate changelog
+        working-directory: ${{ inputs.workingDirectory }}
+        env:
+          GITHUB_TOKEN: ${{ inputs.token }}
+          BASE_COMMIT: ${{ steps.lastTagCommit.outputs.lastTagCommit }}
+          EXCLUDE: ${{ inputs.exclude }}
+        run: yarn workspaces foreach --since=$BASE_COMMIT^ --exclude=$EXCLUDE -vp --jobs=2 run changelog
+        shell: bash
 
       - name: Debug git diff
         run: |
@@ -87,40 +87,3 @@ jobs:
           reviewerUsername: ${{ inputs.reviewerUsername }}
           githubToken: ${{ steps.start.outputs.token }}
           releaseVersion: ${{ steps.semanticReleaseStep.outputs.release-version }}
-
-      # - name: Create changelog and publish
-      # - name: Create changelog and publish
-      # - name: Create changelog and publish
-      #   if: ${{ !contains(github.event.pull_request.title, 'revert') && !contains(github.event.pull_request.title, 'chore') && !cancelled() }}
-      #   uses: rees46/workflow/.github/actions/js/changelog-and-publish-js@master
-      #   with:
-      #     baseCommit: ${{ steps.base_commit.outputs.baseCommit }}
-      #     token: ${{ steps.start.outputs.token }}
-      #     npmAuthToken: ${{ secrets.NPM_TOKEN }}
-      #     exclude: '.'
-      #
-      # - name: Commit changes
-      #   if: ${{ !contains(github.event.pull_request.title, 'revert') && !contains(github.event.pull_request.title, 'chore') && !cancelled() }}
-      #   uses: rees46/workflow/.github/actions/js/commit-js@master
-      #   with:
-      #     baseCommit: ${{ steps.base_commit.outputs.baseCommit }}
-      #     token: ${{ steps.start.outputs.token }}
-      #     exclude: '.'
-      #
-      # - name: Create release
-      #   if: ${{ !contains(github.event.pull_request.title, 'revert') && !contains(github.event.pull_request.title, 'chore') && !cancelled() }}
-      #   uses: rees46/workflow/.github/actions/js/release-js@master
-      #   with:
-      #     isMonorepo: 'true'
-      #     baseCommit: ${{ steps.base_commit.outputs.baseCommit }}
-      #     token: ${{ steps.start.outputs.token }}
-      #     exclude: '.'
-      #
-      # - name: Delete release
-      #   if: ${{ contains(github.event.pull_request.title, 'revert') }}
-      #   uses: rees46/workflow/.github/actions/js/delete-release-js@master
-      #   with:
-      #     isMonorepo: 'true'
-      #     baseCommit: ${{ steps.base_commit.outputs.baseCommit }}
-      #     token: ${{ steps.start.outputs.token }}
-      #     exclude: '.'
