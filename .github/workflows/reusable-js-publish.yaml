@@ -30,24 +30,18 @@ jobs:
     steps:
       - name: Start JS action
         id: start
-        # TODO uncomment
-        # uses: rees46/workflow/.github/actions/js/start-js@master
-        uses: rees46/workflow/.github/actions/js/start-js@feat/reusable-js-version
+        uses: rees46/workflow/.github/actions/js/start-js@master
         with:
           appId: ${{ inputs.appId }}
           appSecret: ${{ secrets.appSecret }}
 
       - name: Find last tag commit
         id: lastTagCommit
-        # TODO uncomment
-        # uses: rees46/workflow/.github/actions/git/find-last-tag-commit@master
-        uses: rees46/workflow/.github/actions/git/find-last-tag-commit@feat/reusable-js-version
+        uses: rees46/workflow/.github/actions/git/find-last-tag-commit@master
 
       - name: Publish to npm registry
         if: ${{ !contains(github.event.pull_request.title, 'revert') && !contains(github.event.pull_request.title, 'chore') && !cancelled() }}
-        # TODO uncomment
-        # uses: rees46/workflow/.github/actions/js/registry-publish@master
-        uses: rees46/workflow/.github/actions/js/registry-publish@feat/reusable-js-version
+        uses: rees46/workflow/.github/actions/js/registry-publish@master
         with:
           baseCommit: ${{ steps.lastTagCommit.outputs.lastTagCommit }}
           token: ${{ steps.start.outputs.token }}

@@ -39,18 +39,14 @@ jobs:
 
       - name: Start JS action
         id: start
-        # TODO uncomment
-        # uses: rees46/workflow/.github/actions/js/start-js@master
-        uses: rees46/workflow/.github/actions/js/start-js@feat/reusable-js-version
+        uses: rees46/workflow/.github/actions/js/start-js@master
         with:
           appId: ${{ inputs.appId }}
           appSecret: ${{ secrets.appSecret }}
 
       - name: Find last tag commit
         id: lastTagCommit
-        # TODO uncomment
-        # uses: rees46/workflow/.github/actions/git/find-last-tag-commit@master
-        uses: rees46/workflow/.github/actions/git/find-last-tag-commit@feat/reusable-js-version
+        uses: rees46/workflow/.github/actions/git/find-last-tag-commit@master
 
       - name: Bump version
         uses: rees46/workflow/.github/actions/js/version-js@master
@@ -62,9 +58,7 @@ jobs:
           exclude: '.'
 
       - name: Generate changelog
-        # TODO uncomment
-        # uses: rees46/workflow/.github/actions/git/generate-changelog@master
-        uses: rees46/workflow/.github/actions/git/generate-changelog@feat/reusable-js-version
+        uses: rees46/workflow/.github/actions/git/generate-changelog@master
         with:
           githubToken: ${{ steps.start.outputs.token }}
           baseCommit: ${{ steps.lastTagCommit.outputs.lastTagCommit }}
