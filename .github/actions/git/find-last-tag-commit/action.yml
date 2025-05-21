@@ -2,8 +2,8 @@ name: Find last tag commin
 description: Find las tag and return this commit hash
 
 outputs:
-  branchName:
-    description: Created branch name
+  lastTagCommit:
+    description: Last tag commit hash
     value: ${{ steps.lastTagCommit.outputs.lastTagCommit }}
 
 runs:
