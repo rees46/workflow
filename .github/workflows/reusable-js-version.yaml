@@ -58,7 +58,7 @@ jobs:
           exclude: '.'
 
       - name: Generate changelog
-        uses: rees46/workflow/.github/actions/git/generate-changelog@master
+        uses: rees46/workflow/.github/actions/js/generate-changelog@master
         with:
           githubToken: ${{ steps.start.outputs.token }}
           baseCommit: ${{ steps.lastTagCommit.outputs.lastTagCommit }}
