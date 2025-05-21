@@ -45,7 +45,9 @@ jobs:
 
       - name: Publish to npm registry
         if: ${{ !contains(github.event.pull_request.title, 'revert') && !contains(github.event.pull_request.title, 'chore') && !cancelled() }}
-        uses: rees46/workflow/.github/actions/js/registry-publish@master
+        # TODO uncomment
+        # uses: rees46/workflow/.github/actions/js/registry-publish@master
+        uses: rees46/workflow/.github/actions/js/registry-publish@feat/reusable-js-version
         with:
           baseCommit: ${{ steps.lastTagCommit.outputs.lastTagCommit }}
           token: ${{ steps.start.outputs.token }}
