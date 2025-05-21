@@ -5,12 +5,12 @@ on:
     inputs:
       node-version:
         description: Node version to run this workflow. Default 18 as it is in action cache
-        default: "18"
+        default: '18'
         required: false
         type: string
       changeLookUpPath:
         description: Which folder to look for changes and publish
-        default: ""
+        default: ''
         required: false
         type: string
 

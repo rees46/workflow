@@ -1,0 +1,87 @@
+name: Reusable JS/TS version bump & create PR
+
+on:
+  workflow_call:
+    inputs:
+      appId:
+        description: 'github app id'
+        required: true
+        type: string
+      node-version:
+        description: 'Node version to run this workflow. Default: 19 as it is in action cache'
+        default: '22'
+        required: false
+        type: string
+      workingDirectory:
+        description: Working direction for action
+        default: ./
+        type: string
+        required: false
+      reviewerUsername:
+        description: Working direction for action
+        default: ./
+        type: string
+        required: false
+    secrets:
+      appSecret:
+        required: true
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: debug git vars
+        run: |
+          echo "${{ github.event_name }}"
+          echo "${{ github.event.pull_request.head.ref }}"
+          echo "${{ github.ref }}"
+
+      - name: Start JS action
+        id: start
+        uses: rees46/workflow/.github/actions/js/start-js@master
+        with:
+          appId: ${{ inputs.appId }}
+          appSecret: ${{ secrets.appSecret }}
+
+      - name: Find last tag commit
+        id: lastTagCommit
+        uses: rees46/workflow/.github/actions/git/find-last-tag-commit@master
+
+      - name: Bump version
+        uses: rees46/workflow/.github/actions/js/version-js@master
+        with:
+          checkChanges: 'false'
+          private: 'true'
+          token: ${{ steps.start.outputs.token }}
+          baseCommit: ${{ steps.lastTagCommit.outputs.lastTagCommit }}
+          exclude: '.'
+
+      - name: Generate changelog
+        uses: rees46/workflow/.github/actions/js/generate-changelog@master
+        with:
+          githubToken: ${{ steps.start.outputs.token }}
+          baseCommit: ${{ steps.lastTagCommit.outputs.lastTagCommit }}
+
+      - name: Debug git diff
+        run: |
+          git diff
+
+      - uses: codfish/semantic-release-action@v3
+        id: semanticReleaseStep
+        env:
+          GH_TOKEN: ${{ inputs.githubToken || steps.start.outputs.token || secrets.GITHUB_TOKEN }}
+
+      - name: Check release published
+        shell: bash
+        run: |
+          if [ "${NEW_RELEASE_PUBLISHED}" != "true" ]; then
+            echo "New release not published, exit"
+            exit 1
+          fi
+
+      - uses: rees46/workflow/.github/actions/release/prepare-pr@master
+        with:
+          reviewerUsername: ${{ inputs.reviewerUsername }}
+          githubToken: ${{ steps.start.outputs.token }}
+          releaseVersion: ${{ steps.semanticReleaseStep.outputs.release-version }}

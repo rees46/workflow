@@ -1,0 +1,49 @@
+name: Publish composite action
+description: create changelog and publish if applicable
+
+inputs:
+  onlyChangelog:
+    required: false
+    default: 'false'
+    description: Should only create changelog without publish
+  npmAuthToken:
+    required: false
+    description: NPM token for publishing
+  token:
+    required: true
+    description: GitHub PAT
+  baseCommit:
+    required: true
+    description: Base commit from which to parse workspace changes
+  exclude:
+    required: false
+    description: Which workspaces to exclude
+    default: 'nothing'
+  workingDirectory:
+    required: false
+    default: ./
+    description: Where the script runs
+  registryServer:
+    required: false
+    default: 'https://registry.npmjs.org'
+    description: Where to send the package
+
+runs:
+  using: composite
+
+  steps:
+    - name: Force Yarn to use NPM Registry
+      run: |
+        yarn config set npmScopes.rees46.npmRegistryServer ${{ inputs.registryServer }}
+        yarn config set npmRegistryServer ${{ inputs.registryServer }}
+      shell: bash
+
+    - name: Publish
+      if: inputs.onlyChangelog == 'false'
+      working-directory: ${{ inputs.workingDirectory }}
+      env:
+        YARN_NPM_AUTH_TOKEN: ${{ inputs.npmAuthToken }}
+        BASE_COMMIT: ${{ inputs.baseCommit }}
+        EXCLUDE: ${{ inputs.exclude }}
+      run: yarn workspaces foreach --since=$BASE_COMMIT^ --exclude=$EXCLUDE --no-private -vp --jobs=2 npm publish --access public
+      shell: bash
