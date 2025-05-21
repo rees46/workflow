@@ -47,7 +47,6 @@ jobs:
         uses: rees46/workflow/.github/actions/git/find-last-tag-commit@feat/reusable-js-version
 
       - name: Bump version
-        if: ${{ !contains(github.event.pull_request.title, 'revert') && !contains(github.event.pull_request.title, 'chore') }}
         uses: rees46/workflow/.github/actions/js/version-js@master
         with:
           checkChanges: 'false'
@@ -57,13 +56,12 @@ jobs:
           exclude: '.'
 
       - name: Generate changelog
-        working-directory: ${{ inputs.workingDirectory }}
-        env:
-          GITHUB_TOKEN: ${{ inputs.token }}
-          BASE_COMMIT: ${{ steps.lastTagCommit.outputs.lastTagCommit }}
-          EXCLUDE: ${{ inputs.exclude }}
-        run: yarn workspaces foreach --since=$BASE_COMMIT^ --exclude=$EXCLUDE -vp --jobs=2 run changelog
-        shell: bash
+        # TODO uncomment
+        # uses: rees46/workflow/.github/actions/git/generate-changelog@master
+        uses: rees46/workflow/.github/actions/git/generate-changelog@feat/reusable-js-version
+        with:
+          githubToken: ${{ steps.start.outputs.token }}
+          baseCommit: ${{ steps.lastTagCommit.outputs.lastTagCommit }}
 
       - name: Debug git diff
         run: |
