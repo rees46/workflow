@@ -27,6 +27,16 @@ on:
         default: '.'
         type: string
         required: false
+      checkChanges:
+        description: Should run 'yarn --since'?
+        required: false
+        type: string
+        default: 'true'
+      private:
+        description: Should apply only to private?
+        required: false
+        type: string
+        default: 'false'
     secrets:
       appSecret:
         required: true
@@ -56,8 +66,8 @@ jobs:
       - name: Bump version
         uses: rees46/workflow/.github/actions/js/version-js@master
         with:
-          checkChanges: 'false'
-          private: 'true'
+          checkChanges: ${{ inputs.checkChanges }}
+          private: ${{ inputs.private }}
           token: ${{ steps.start.outputs.token }}
           baseCommit: ${{ steps.lastTagCommit.outputs.lastTagCommit }}
           exclude: ${{ inputs.exclude }}
