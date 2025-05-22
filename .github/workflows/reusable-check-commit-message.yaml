@@ -27,31 +27,33 @@ jobs:
   check-commit-message:
     runs-on: ubuntu-latest
     outputs:
-      hasCommit: ${{ steps.check-merge.outputs.hasCommit }}
+      hasCommit: ${{ steps.check-commit.outputs.hasCommit }}
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: ${{ inputs.fetchDepth }}
 
       - name: Check last commit message
-        id: check-merge
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        id: check-commit
         run: |
           COMMIT_MSG=$(git log -1 --pretty=%B HEAD)
 
           if [[ "$COMMIT_MSG" == *"${{ inputs.commitMessage }}"* ]]; then
-            echo "Found merge from ${{ inputs.commitMessage }}: $COMMIT_MSG"
+            echo "Found commit from ${{ inputs.commitMessage }}: $COMMIT_MSG"
             echo "hasCommit=true" >> $GITHUB_OUTPUT
           else
-            echo "Merge from ${{ inputs.commitMessage }} has not found: $COMMIT_MSG"
+            echo "Commit from ${{ inputs.commitMessage }} branch has not found: $COMMIT_MSG"
             echo "hasCommit=false" >> $GITHUB_OUTPUT
           fi
 
-          echo "Current outputs:"
-          cat $GITHUB_OUTPUT
+      - name: Debug vars
+        run: |
+          echo "${{ inputs.cancelRunIfFound }}"
+          echo "${{ steps.check-commit.outputs.hasCommit }}"
 
       - name: Cancel workflow
-        if: ${{ inputs.cancelRunIfFound }} == 'true' &&  ${{ steps.check-merge.outputs.hasCommit }} == 'true'
+        if: ${{ inputs.cancelRunIfFound == 'true' && steps.check-commit.outputs.hasCommit == 'true' }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh run cancel ${{ github.run_id }}
