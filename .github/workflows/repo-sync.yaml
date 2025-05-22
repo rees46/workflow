@@ -16,7 +16,10 @@ jobs:
       replacements: ${{ steps.getReplacementsStep.outputs.replacements }}
     steps:
       - uses: rees46/workflow/.github/actions/sync/read-replacements@master
-        id: getReplacementsStep
+        with:
+          appId: ${{ vars.VERSIONER_ID }}
+          appSecret: ${{ secrets.VERSIONER_SECRET }}
+          replacementsPath: github/repo-sync-replacements/workflow.yml
 
   repoSync:
     needs: prepare
