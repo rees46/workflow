@@ -22,6 +22,11 @@ on:
         default: ./
         type: string
         required: false
+      exclude:
+        description: Exclude to bump
+        default: '.'
+        type: string
+        required: false
     secrets:
       appSecret:
         required: true
@@ -55,13 +60,14 @@ jobs:
           private: 'true'
           token: ${{ steps.start.outputs.token }}
           baseCommit: ${{ steps.lastTagCommit.outputs.lastTagCommit }}
-          exclude: '.'
+          exclude: ${{ inputs.exclude }}
 
       - name: Generate changelog
         uses: rees46/workflow/.github/actions/js/generate-changelog@master
         with:
           githubToken: ${{ steps.start.outputs.token }}
           baseCommit: ${{ steps.lastTagCommit.outputs.lastTagCommit }}
+          exclude: ${{ inputs.exclude }}
 
       - name: Debug git diff
         run: |

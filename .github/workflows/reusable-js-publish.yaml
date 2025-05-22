@@ -17,6 +17,11 @@ on:
         default: ./
         type: string
         required: false
+      exclude:
+        required: false
+        description: Which workspaces to exclude
+        type: string
+        default: 'nothing'
     secrets:
       appSecret:
         required: true
@@ -46,4 +51,4 @@ jobs:
           baseCommit: ${{ steps.lastTagCommit.outputs.lastTagCommit }}
           token: ${{ steps.start.outputs.token }}
           npmAuthToken: ${{ secrets.npmToken }}
-          exclude: '.'
+          exclude: ${{ inputs.exclude }}
