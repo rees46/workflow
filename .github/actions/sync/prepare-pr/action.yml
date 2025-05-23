@@ -27,6 +27,8 @@ runs:
 
     - uses: rees46/workflow/.github/actions/github/utils/get-new-branch-name@master
       id: newBranchNameStep
+      with:
+        baseBranchName: 'sync'
 
     - uses: rees46/workflow/.github/actions/git/checkout-new-branch@master
       with:
