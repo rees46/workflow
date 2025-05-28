@@ -14,9 +14,13 @@ on:
         type: string
         required: false
       cancelRunIfFound:
-        description: Cancel workflow run if commit not founc
-        default: 'true'
-        type: string
+        description: Abort workflow execution when the target commit is missing
+        default: true
+        type: boolean
+        required: false
+    secrets:
+      githubToken:
+        description: Github token to cancel workflow
         required: false
     outputs:
       hasCommit:
@@ -27,31 +31,35 @@ jobs:
   check-commit-message:
     runs-on: ubuntu-latest
     outputs:
-      hasCommit: ${{ steps.check-merge.outputs.hasCommit }}
+      hasCommit: ${{ steps.check-commit.outputs.hasCommit }}
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: ${{ inputs.fetchDepth }}
 
       - name: Check last commit message
-        id: check-merge
+        id: check-commit
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.githubToken || secrets.GITHUB_TOKEN }}
         run: |
           COMMIT_MSG=$(git log -1 --pretty=%B HEAD)
 
           if [[ "$COMMIT_MSG" == *"${{ inputs.commitMessage }}"* ]]; then
-            echo "Found merge from ${{ inputs.commitMessage }}: $COMMIT_MSG"
+            echo "Found commit from ${{ inputs.commitMessage }}: $COMMIT_MSG"
             echo "hasCommit=true" >> $GITHUB_OUTPUT
           else
-            echo "Merge from ${{ inputs.commitMessage }} has not found: $COMMIT_MSG"
+            echo "Commit from ${{ inputs.commitMessage }} branch has not found: $COMMIT_MSG"
             echo "hasCommit=false" >> $GITHUB_OUTPUT
           fi
 
-          echo "Current outputs:"
-          cat $GITHUB_OUTPUT
+      - name: Debug vars
+        run: |
+          echo "${{ inputs.cancelRunIfFound }}"
+          echo "${{ steps.check-commit.outputs.hasCommit }}"
 
       - name: Cancel workflow
-        if: ${{ inputs.cancelRunIfFound }} == 'true' &&  ${{ steps.check-merge.outputs.hasCommit }} == 'true'
+        if: ${{ inputs.cancelRunIfFound && steps.check-commit.outputs.hasCommit == 'true' }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh run cancel ${{ github.run_id }}
