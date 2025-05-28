@@ -18,6 +18,10 @@ on:
         default: 'true'
         type: string
         required: false
+    secrets:
+      githubToken:
+        description: Github token to cancel workflow
+        required: false
     outputs:
       hasCommit:
         description: 'Has commit message'
@@ -35,6 +39,8 @@ jobs:
 
       - name: Check last commit message
         id: check-commit
+        env:
+          GH_TOKEN: ${{ secrets.githubToken || secrets.GITHUB_TOKEN }}
         run: |
           COMMIT_MSG=$(git log -1 --pretty=%B HEAD)
 
