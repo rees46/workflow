@@ -14,7 +14,7 @@ on:
         type: string
         required: false
       cancelRunIfFound:
-        description: Cancel workflow run if commit not found
+        description: Abort workflow execution when the target commit is missing
         default: true
         type: boolean
         required: false
