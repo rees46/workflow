@@ -16,11 +16,18 @@ runs:
   using: composite
 
   steps:
-    - uses: rees46/workflow/.github/actions/git/create-release-branch@master
+    - name: Create release branch
+      shell: bash
       id: createReleaseBranchStep
-      with:
-        githubToken: ${{ inputs.githubToken }}
-        releaseVersion: ${{ inputs.releaseVersion }}
+      run: |
+        set -e
+
+        branch="release/${{ inputs.releaseVersion }}"
+        git fetch origin
+        git switch -c "$branch"
+        git push origin "$branch"
+
+        echo "branchName=$branch" >> "$GITHUB_OUTPUT"
 
     - uses: rees46/workflow/.github/actions/github/pull-request/get-last-author@master
       id: lastPrAuthorStep
@@ -40,5 +47,5 @@ runs:
         lastPrAuthor: ${{ steps.lastPrAuthorStep.outputs.lastPrAuthor }}
         prTitle: 'Bump version to ${{ inputs.releaseVersion }}'
         prBody: 'Automated version bump'
-        branchName: ${{ steps.newBranchNameStep.outputs.branchName }}
+        branchName: ${{ steps.createReleaseBranchStep.outputs.branchName }}
         reviewerUsername: ${{ inputs.reviewerUsername }}
