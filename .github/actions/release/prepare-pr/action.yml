@@ -33,7 +33,9 @@ runs:
         githubToken: ${{ inputs.githubToken }}
         targetRepository: ${{ github.repository }}
 
-    - uses: rees46/workflow/.github/actions/github/pull-request/create@master
+    # TODO rm
+    # - uses: rees46/workflow/.github/actions/github/pull-request/create@master
+    - uses: rees46/workflow/.github/actions/github/pull-request/create@refactor/workflow
       with:
         targetDirectory: .
         githubToken: ${{ inputs.githubToken }}

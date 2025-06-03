@@ -96,7 +96,9 @@ jobs:
             exit 1
           fi
 
-      - uses: rees46/workflow/.github/actions/release/prepare-pr@master
+      # TODO rm
+      # - uses: rees46/workflow/.github/actions/release/prepare-pr@master
+      - uses: rees46/workflow/.github/actions/release/prepare-pr@refactor/workflow
         with:
           reviewerUsername: ${{ inputs.reviewerUsername }}
           githubToken: ${{ steps.start.outputs.token }}
