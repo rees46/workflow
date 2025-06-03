@@ -41,9 +41,10 @@ runs:
         title: ${{ inputs.prTitle }}
         body: ${{ inputs.prBody }}
         base: ${{ github.event.repository.default_branch }}
-        head: ${{ inputs.branchName }}
+        branch: ${{ inputs.branchName }}
         assignees: ${{ inputs.lastPrAuthor }}
         reviewers: ${{ inputs.reviewerUsername }}
+        delete-branch: true
         draft: false
 
     - name: Enable Pull Request Automerge
