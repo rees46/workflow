@@ -79,10 +79,6 @@ jobs:
           baseCommit: ${{ steps.lastTagCommit.outputs.lastTagCommit }}
           exclude: ${{ inputs.exclude }}
 
-      - name: Debug git diff
-        run: |
-          git diff
-
       - uses: codfish/semantic-release-action@v3
         id: semanticReleaseStep
         env:
@@ -96,9 +92,13 @@ jobs:
             exit 1
           fi
 
-      # TODO rm
-      # - uses: rees46/workflow/.github/actions/release/prepare-pr@master
-      - uses: rees46/workflow/.github/actions/release/prepare-pr@refactor/workflow
+      - name: Debug git diff
+        id: git_diff
+        run: |
+          git diff --quiet || echo "has_changes=true" >> "$GITHUB_OUTPUT"
+
+      - uses: rees46/workflow/.github/actions/release/prepare-pr@master
+        if: steps.git_diff.outputs.has_changes == 'true'
         with:
           reviewerUsername: ${{ inputs.reviewerUsername }}
           githubToken: ${{ steps.start.outputs.token }}
