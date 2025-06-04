@@ -43,6 +43,7 @@ runs:
         title: ${{ inputs.prTitle }}
         body: ${{ inputs.prBody }}
         base: ${{ github.event.repository.default_branch }}
+        sign-commits: true
         assignees: ${{ inputs.lastPrAuthor }}
         reviewers: ${{ inputs.reviewerUsername }}
         draft: false
