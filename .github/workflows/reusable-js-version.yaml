@@ -102,9 +102,7 @@ jobs:
         run: |
           git diff --quiet || echo "has_changes=true" >> "$GITHUB_OUTPUT"
 
-      # TODO uncomment
-      # - uses: rees46/workflow/.github/actions/release/prepare-pr@master
-      - uses: rees46/workflow/.github/actions/release/prepare-pr@refactor/workflow
+      - uses: rees46/workflow/.github/actions/release/prepare-pr@master
         if: steps.git_diff.outputs.has_changes == 'true'
         with:
           reviewerUsername: ${{ inputs.reviewerUsername }}

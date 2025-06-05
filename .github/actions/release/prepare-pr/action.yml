@@ -44,9 +44,7 @@ runs:
       shell: bash
       run: sleep 10s
 
-    # TODO uncomment
-    # - uses: rees46/workflow/.github/actions/github/pull-request/create@master
-    - uses: rees46/workflow/.github/actions/github/pull-request/create@refactor/workflow
+    - uses: rees46/workflow/.github/actions/github/pull-request/create@master
       with:
         targetDirectory: .
         githubToken: ${{ inputs.githubToken }}
