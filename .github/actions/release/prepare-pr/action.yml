@@ -40,6 +40,18 @@ runs:
         githubToken: ${{ inputs.githubToken }}
         targetRepository: ${{ github.repository }}
 
+- name: Wait for branch to be available
+  shell: bash
+  run: |
+    for i in {1..10}; do
+      if git ls-remote --heads origin "refs/heads/${{ inputs.releaseVersion }}" | grep -q "${{ inputs.releaseVersion }}"; then
+        echo "Branch is available."
+        break
+      else
+        echo "Branch not yet available. Waiting..."
+        sleep 6
+      fi
+    done
     - uses: rees46/workflow/.github/actions/github/pull-request/create@master
       with:
         targetDirectory: .

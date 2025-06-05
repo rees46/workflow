@@ -44,6 +44,9 @@ on:
 jobs:
   run:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
 
     steps:
       - name: debug git vars
@@ -86,10 +89,12 @@ jobs:
 
       - name: Check release published
         shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.githubToken || secrets.GITHUB_TOKEN }}
         run: |
           if [ "${NEW_RELEASE_PUBLISHED}" != "true" ]; then
-            echo "New release not published, exit"
-            exit 1
+            echo "New release not published, cancel workflow"
+            gh run cancel ${{ github.run_id }}
           fi
 
       - name: Debug git diff
