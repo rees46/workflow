@@ -37,6 +37,7 @@ runs:
       uses: peter-evans/create-pull-request@v7
       id: cpr
       with:
+        path: ${{ inputs.targetDirectory || '.' }}
         branch: ${{ inputs.branchName }}
         commit-message: ${{ inputs.branchName }}
         sign-commits: true

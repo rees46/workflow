@@ -108,6 +108,9 @@ jobs:
         run: |
           echo "${{ steps.createStagingRepoStep.outputs.repository_id }}"
 
+      - name: Grant execute permission to gradlew
+        run: chmod +x gradlew
+
       - name: Clean gradlew cache
         run: |
           ./gradlew clean
