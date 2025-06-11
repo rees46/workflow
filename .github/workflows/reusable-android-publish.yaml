@@ -94,10 +94,6 @@ jobs:
           SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
           SIGNING_KEY_FILE_AS_BASE64_STRING: ${{ secrets.SIGNING_KEY_FILE_AS_BASE64_STRING }}
 
-      - name: Debug gradle.properties
-        run: |
-          cat gradle.properties
-
       - name: Create staging repository
         uses: nexus-actions/create-nexus-staging-repo@990063f02160c633c168037b8b3e8585c76469fe
         id: createStagingRepoStep
@@ -106,10 +102,6 @@ jobs:
           password: ${{ secrets.SONATA_PASSWORD }}
           staging_profile_id: ${{ secrets.SONATA_STAGING_PROFILE_ID }}
           base_url: 'https://s01.oss.sonatype.org/service/local/'
-
-      - name: Debug repo id
-        run: |
-          echo "${{ steps.createStagingRepoStep.outputs.repository_id }}"
 
       - name: Grant execute permission to gradlew
         run: chmod +x gradlew
