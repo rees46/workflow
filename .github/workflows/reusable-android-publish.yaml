@@ -74,7 +74,6 @@ jobs:
         uses: actions/checkout@v4
         with:
           token: ${{ steps.app-token.outputs.token }}
-          ref: master
           fetch-depth: 0
 
       - name: Prepare Android Action
@@ -94,6 +93,10 @@ jobs:
           SIGNING_KEY_ID: ${{ secrets.SIGNING_KEY_ID }}
           SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
           SIGNING_KEY_FILE_AS_BASE64_STRING: ${{ secrets.SIGNING_KEY_FILE_AS_BASE64_STRING }}
+
+      - name: Debug gradle.properties
+        run: |
+          cat gradle.properties
 
       - name: Create staging repository
         uses: nexus-actions/create-nexus-staging-repo@990063f02160c633c168037b8b3e8585c76469fe
