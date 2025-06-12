@@ -32,6 +32,9 @@ inputs:
   branchName:
     description: git branch name
     required: true
+  targetRepository:
+    description: pull reques target repository
+    required: false
 
 runs:
   using: composite
@@ -58,6 +61,7 @@ runs:
       if: steps.cpr.outputs.pull-request-operation == 'created'
       uses: peter-evans/enable-pull-request-automerge@v3
       with:
+        repository: ${{ inputs.targetRepository || github.repository }}
         token: ${{ inputs.githubToken }}
         pull-request-number: ${{ steps.cpr.outputs.pull-request-number }}
         merge-method: squash

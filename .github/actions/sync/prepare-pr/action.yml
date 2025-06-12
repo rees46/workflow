@@ -53,6 +53,7 @@ runs:
 
     - uses: rees46/workflow/.github/actions/github/pull-request/create@master
       with:
+        targetRepository: ${{ inputs.targetRepository }}
         reviewerUsername: ${{ inputs.reviewerUsername }}
         targetDirectory: ${{ env.TARGET_TMP_PATH }}
         githubToken: ${{ inputs.appToken }}
