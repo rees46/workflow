@@ -25,6 +25,10 @@ inputs:
     description: PullRequest reviewer username
     default: TorinAsakura
     required: true
+  commitMessage:
+    default: 'feat: automated commit'
+    description: commit message
+    required: false
   branchName:
     description: git branch name
     required: true
@@ -39,7 +43,7 @@ runs:
       with:
         path: ${{ inputs.targetDirectory || '.' }}
         branch: ${{ inputs.branchName }}
-        commit-message: ${{ inputs.branchName }}
+        commit-message: ${{ inputs.commitMessage }}
         sign-commits: true
         delete-branch: true
         draft: false

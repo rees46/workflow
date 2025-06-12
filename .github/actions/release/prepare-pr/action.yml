@@ -53,3 +53,4 @@ runs:
         prBody: 'Automated version bump'
         branchName: ${{ steps.createReleaseBranchStep.outputs.branchName }}
         reviewerUsername: ${{ inputs.reviewerUsername }}
+        commitMessage: 'feat(release): sync'
