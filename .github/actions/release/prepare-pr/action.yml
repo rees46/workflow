@@ -11,6 +11,10 @@ inputs:
   reviewerUsername:
     description: pull-request reviewer username
     required: true
+  targetRepository:
+    description: target repository to commit
+    required: false
+    default: ''
 
 runs:
   using: composite
@@ -53,4 +57,4 @@ runs:
         prBody: 'Automated version bump'
         branchName: ${{ steps.createReleaseBranchStep.outputs.branchName }}
         reviewerUsername: ${{ inputs.reviewerUsername }}
-        commitMessage: 'feat(release): sync'
+        commitMessage: 'feat(release): version'
