@@ -61,3 +61,4 @@ runs:
         branchName: ${{ steps.newBranchNameStep.outputs.branchName }}
         prTitle: 'Synchronization PR'
         prBody: 'Automated repository synchronization'
+        commitMessage: 'feat(release): sync'
