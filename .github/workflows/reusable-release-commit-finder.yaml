@@ -10,7 +10,7 @@ on:
         required: false
       commitMessage:
         description: Commit message to find
-        default: 'release/'
+        default: 'feat(release): version'
         type: string
         required: false
       cancelRunIfFound:
