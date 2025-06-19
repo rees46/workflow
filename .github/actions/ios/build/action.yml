@@ -37,15 +37,34 @@ runs:
         ISSUER_ID: ${{ inputs.appStoreConnectIssuerId }}
         ARCHIVE_PATH: ${{ inputs.archivePath }}
       run: |
-        CURRENT_VERSION=$(/usr/libexec/PlistBuddy -c "Print CFBundleVersion" "${{ github.workspace }}/Info.plist")
-        MARKETING_VERSION=$(/usr/libexec/PlistBuddy -c "Print CFBundleShortVersionString" "${{ github.workspace }}/Info.plist")
+        # TODO rm 
+        cd iosApp
+
+        # CURRENT_VERSION=$(/usr/libexec/PlistBuddy -c "Print CFBundleVersion" "${{ github.workspace }}/Info.plist")
+        # MARKETING_VERSION=$(/usr/libexec/PlistBuddy -c "Print CFBundleShortVersionString" "${{ github.workspace }}/Info.plist")
+
+        CURRENT_VERSION=$(/usr/libexec/PlistBuddy -c "Print CFBundleVersion" "${{ github.workspace }}/iosApp/iosApp/Info.plist")
+        MARKETING_VERSION=$(/usr/libexec/PlistBuddy -c "Print CFBundleShortVersionString" "${{ github.workspace }}/iosApp/iosApp/Info.plist")
+
+        TEAM_ID_ENV=MYA32EHWN4
+        BUNDLE_ID_ENV=com.rees46.loyalty-program
+        APP_NAME_ENV="REES46 Loyalty Program"
+        PROVISIONING_PROFILE_SPECIFIER_ENV="loyalty distribution"
+
+        SHOP_ID=357382bf66ac0ce2f1722677c59511
+        SHOP_SECRET=9902b2c111e006ee944833c95e9e6066
+        BASE_URL=https://api.rees46.ru
 
         echo "Current version: $CURRENT_VERSION"
         echo "Current marketing version: $MARKETING_VERSION"
 
         xcrun xcodebuild \
-          -workspace "${{ inputs.xcworkspace }}" \
-          -scheme "${{ inputs.scheme }}" \
+          # TODO rm
+          -project "iosApp.xcodeproj" \
+          -scheme "iosApp" \
+          # TODO rm
+          # -workspace "${{ inputs.xcworkspace }}" \
+          # -scheme "${{ inputs.scheme }}" \
           -configuration AppStoreDistribution \
           -sdk iphoneos \
           -parallelizeTargets \

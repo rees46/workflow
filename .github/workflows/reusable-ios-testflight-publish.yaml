@@ -62,7 +62,9 @@ jobs:
           secretsJson: ${{ toJSON(secrets) }}
 
       - name: Prepare ios enveronment
-        uses: rees46/workflow/.github/actions/ios/prepare-publish@master
+        # TODO rm
+        # uses: rees46/workflow/.github/actions/ios/prepare-publish@master
+        uses: rees46/workflow/.github/actions/ios/prepare-publish@refactor/publish-ios-workflow
         with:
           iosCertificateP12Base64: ${{ secrets.IOS_CERTIFICATE_P12 }}
           p12Password: ${{ secrets.IOS_CERTIFICATE_PASSWORD }}
@@ -72,7 +74,9 @@ jobs:
           appStoreConnectApiKey: ${{ secrets.APP_STORE_CONNECT_API_KEY }}
 
       - name: Build ios
-        uses: rees46/workflow/.github/actions/ios/build@master
+        # TODO rm
+        # uses: rees46/workflow/.github/actions/ios/build@master
+        uses: rees46/workflow/.github/actions/ios/build@refactor/publish-ios-workflow
         with:
           appStoreConnectApiKeyId: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
           appStoreConnectIssuerId: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
