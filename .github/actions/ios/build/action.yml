@@ -2,6 +2,10 @@ name: ios build
 description: build ios package
 
 inputs:
+  githubToken:
+    description: GitHub token for authentication
+    required: true
+    default: ''
   archivePath:
     description: string
     required: true
@@ -37,6 +41,7 @@ runs:
         ISSUER_ID: ${{ inputs.appStoreConnectIssuerId }}
         ARCHIVE_PATH: ${{ inputs.archivePath }}
         GITHUB_USERNAME: rees46
+        GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
       run: |
         # TODO rm 
         cd iosApp
@@ -47,7 +52,6 @@ runs:
         CURRENT_VERSION=$(/usr/libexec/PlistBuddy -c "Print CFBundleVersion" "${{ github.workspace }}/iosApp/iosApp/Info.plist")
         MARKETING_VERSION=$(/usr/libexec/PlistBuddy -c "Print CFBundleShortVersionString" "${{ github.workspace }}/iosApp/iosApp/Info.plist")
 
-        GITHUB_TOKEN= ${{ secrets.GITHUB_TOKEN }}
         SHOP_ID=357382bf66ac0ce2f1722677c59511
         SHOP_SECRET=9902b2c111e006ee944833c95e9e6066
         BASE_URL=https://api.rees46.ru

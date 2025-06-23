@@ -78,6 +78,7 @@ jobs:
         # uses: rees46/workflow/.github/actions/ios/build@master
         uses: rees46/workflow/.github/actions/ios/build@refactor/publish-ios-workflow
         with:
+          githubToken: ${{ secrets.GITHUB_TOKEN }}
           appStoreConnectApiKeyId: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
           appStoreConnectIssuerId: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
           archivePath: ${{ env.ARCHIVE_PATH }}
