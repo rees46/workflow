@@ -36,6 +36,7 @@ runs:
         API_KEY_ID: ${{ inputs.appStoreConnectApiKeyId }}
         ISSUER_ID: ${{ inputs.appStoreConnectIssuerId }}
         ARCHIVE_PATH: ${{ inputs.archivePath }}
+        GITHUB_USERNAME: rees46
       run: |
         # TODO rm 
         cd iosApp
@@ -46,11 +47,7 @@ runs:
         CURRENT_VERSION=$(/usr/libexec/PlistBuddy -c "Print CFBundleVersion" "${{ github.workspace }}/iosApp/iosApp/Info.plist")
         MARKETING_VERSION=$(/usr/libexec/PlistBuddy -c "Print CFBundleShortVersionString" "${{ github.workspace }}/iosApp/iosApp/Info.plist")
 
-        TEAM_ID_ENV=MYA32EHWN4
-        BUNDLE_ID_ENV=com.rees46.loyalty-program
-        APP_NAME_ENV="REES46 Loyalty Program"
-        PROVISIONING_PROFILE_SPECIFIER_ENV="loyalty distribution"
-
+        GITHUB_TOKEN= ${{ secrets.GITHUB_TOKEN }}
         SHOP_ID=357382bf66ac0ce2f1722677c59511
         SHOP_SECRET=9902b2c111e006ee944833c95e9e6066
         BASE_URL=https://api.rees46.ru
@@ -58,24 +55,34 @@ runs:
         echo "Current version: $CURRENT_VERSION"
         echo "Current marketing version: $MARKETING_VERSION"
 
-        xcrun xcodebuild \
-          # TODO rm
-          -project "iosApp.xcodeproj" \
-          -scheme "iosApp" \
-          # TODO rm
-          # -workspace "${{ inputs.xcworkspace }}" \
-          # -scheme "${{ inputs.scheme }}" \
-          -configuration AppStoreDistribution \
+        # TODO updated
+        # GITHUB_USERNAME=rees46 \
+        TEAM_ID_ENV=MYA32EHWN4 \
+        BUNDLE_ID_ENV=com.rees46.loyalty-program \
+        APP_NAME_ENV="REES46 Loyalty Program" \
+        PROVISIONING_PROFILE_SPECIFIER_ENV="loyalty distribution" \
+        xcodebuild \
+          -project iosApp.xcodeproj \
+          -scheme iosApp \
+          -configuration Release \
           -sdk iphoneos \
-          -parallelizeTargets \
-          -showBuildTimingSummary \
-          -disableAutomaticPackageResolution \
-          -archivePath "$ARCHIVE_PATH" \
-          archive \
-          CODE_SIGN_STYLE=Manual \
-          CURRENT_PROJECT_VERSION="$CURRENT_VERSION" \
-          MARKETING_VERSION="$MARKETING_VERSION" \
-          CODE_SIGN_IDENTITY="${{ inputs.codeSignIdentity }}" \
-          DEVELOPMENT_TEAM="${{ inputs.developmentTeam }}" \
-          PROVISIONING_PROFILE_SPECIFIER="${{ inputs.provisioningProfileSpecifier }}" \
-          OTHER_CODE_SIGN_FLAGS="--deep"
+          clean build
+
+        # TODO uncomment
+        # xcrun xcodebuild \
+        #   -workspace "${{ inputs.xcworkspace }}" \
+        #   -scheme "${{ inputs.scheme }}" \
+        #   -configuration AppStoreDistribution \
+        #   -sdk iphoneos \
+        #   -parallelizeTargets \
+        #   -showBuildTimingSummary \
+        #   -disableAutomaticPackageResolution \
+        #   -archivePath "$ARCHIVE_PATH" \
+        #   archive \
+        #   CODE_SIGN_STYLE=Manual \
+        #   CURRENT_PROJECT_VERSION="$CURRENT_VERSION" \
+        #   MARKETING_VERSION="$MARKETING_VERSION" \
+        #   CODE_SIGN_IDENTITY="${{ inputs.codeSignIdentity }}" \
+        #   DEVELOPMENT_TEAM="${{ inputs.developmentTeam }}" \
+        #   PROVISIONING_PROFILE_SPECIFIER="${{ inputs.provisioningProfileSpecifier }}" \
+        #   OTHER_CODE_SIGN_FLAGS="--deep"
