@@ -51,4 +51,4 @@ jobs:
             ghcr.io/rees46/${{ inputs.packageName }}:${{ steps.tags.outputs.tagSuffix }}
             ghcr.io/rees46/${{ inputs.packageName }}:${{ steps.tags.outputs.tagPrefix }}${{ steps.tags.outputs.commitSha }}-${{ steps.tags.outputs.date }}
           cache-from: type=gha,scope=${{ inputs.packageName }}
-          cache-to: type=gha,scope=${{ inputs.packageName }}
+          cache-to: type=gha,mode=max,scope=${{ inputs.packageName }}
