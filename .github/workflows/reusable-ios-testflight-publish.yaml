@@ -73,12 +73,19 @@ jobs:
           appStoreConnectApiKeyId: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
           appStoreConnectApiKey: ${{ secrets.APP_STORE_CONNECT_API_KEY }}
 
+      - uses: actions/create-github-app-token@v1
+        id: app-token
+        with:
+          app-id: ${{ secrets.GITHUB_APP_ID }}
+          private-key: ${{ secrets.GITHUB_APP_PRIVATE_KEY }}
+
       - name: Build ios
         # TODO rm
         # uses: rees46/workflow/.github/actions/ios/build@master
         uses: rees46/workflow/.github/actions/ios/build@refactor/publish-ios-workflow
         with:
-          githubToken: ${{ secrets.GITHUB_TOKEN }}
+          # githubToken: ${{ secrets.GITHUB_TOKEN }}
+          githubToken: ${{ steps.app-token.outputs.token }}
           appStoreConnectApiKeyId: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
           appStoreConnectIssuerId: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
           archivePath: ${{ env.ARCHIVE_PATH }}

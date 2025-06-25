@@ -34,14 +34,24 @@ inputs:
 runs:
   using: composite
   steps:
+    - name: Debug package
+      shell: bash
+      run: |
+        curl -I -u _:${{ inputs.githubToken }} https://maven.pkg.github.com/rees46/kmp/com/rees46/ios/com.rees46.ios.gradle.plugin/maven-metadata.xml
+
+    - name: Debug package
+      shell: bash
+      run: |
+        curl -I -u _:${{ inputs.githubToken }} https://maven.pkg.github.com/rees46/kmp/com/rees46/ios/com.rees46.ios.gradle.plugin/1.1.3/com.rees46.ios.gradle.plugin-1.1.3.pom
+
     - name: Build and Archive
       shell: bash
       env:
         API_KEY_ID: ${{ inputs.appStoreConnectApiKeyId }}
         ISSUER_ID: ${{ inputs.appStoreConnectIssuerId }}
         ARCHIVE_PATH: ${{ inputs.archivePath }}
-        GITHUB_USERNAME: rees46
-        GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
+        GITHUB_USERNAME: _
+        GITHUB_TOKEN: ${{ inputs.githubToken }}
       run: |
         # TODO rm 
         cd iosApp
@@ -90,3 +100,9 @@ runs:
         #   DEVELOPMENT_TEAM="${{ inputs.developmentTeam }}" \
         #   PROVISIONING_PROFILE_SPECIFIER="${{ inputs.provisioningProfileSpecifier }}" \
         #   OTHER_CODE_SIGN_FLAGS="--deep"
+
+    - name: Debug ios package
+      shell: bash
+      if: ${{ always() }}
+      run: |
+        ls -R ~/.gradle/caches/modules-2/files-2.1/ | grep 'com.rees46.ios'
