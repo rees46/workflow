@@ -61,11 +61,13 @@ jobs:
         with:
           app-id: ${{ secrets.GITHUB_APP_ID }}
           private-key: ${{ secrets.GITHUB_APP_PRIVATE_KEY }}
+          owner: rees46
+          repositories: kmp
 
       - name: Check token scopes
         shell: bash
         run: |
-          curl -s -u _:${{ steps.app-token.outputs.token }} https://api.github.com/users/octocat
+          curl -I -u _:${{ steps.app-token.outputs.token }} https://api.github.com/
 
       - name: Debug package
         shell: bash
