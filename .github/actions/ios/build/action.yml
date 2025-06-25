@@ -2,9 +2,21 @@ name: ios build
 description: build ios package
 
 inputs:
+  workingDirectory:
+    description: xcodebuild directory
+    required: false
+    default: ''
+  infoPlistPath:
+    description: Path to Info.plist to get application version
+    required: false
+    default: 'Info.plist'
+  githubUsername:
+    description: GitHub username for access to github-packages
+    required: false
+    default: ''
   githubToken:
-    description: GitHub token for authentication
-    required: true
+    description: GitHub token for access to github-packages
+    required: false
     default: ''
   archivePath:
     description: string
@@ -34,33 +46,29 @@ inputs:
 runs:
   using: composite
   steps:
+    - name: Get versions
+      id: get-version
+      shell: bash
+      run: |
+        CURRENT_PROJECT_VERSION=$(/usr/libexec/PlistBuddy -c "Print CFBundleVersion" "${{ github.workspace }}/${{ inputs.infoPlistPath }}")
+        MARKETING_VERSION=$(/usr/libexec/PlistBuddy -c "Print CFBundleShortVersionString" "${{ github.workspace }}/${{ inputs.infoPlistPath }}")
+
+        echo "Current project version: $CURRENT_PROJECT_VERSION"
+        echo "Current marketing version: $MARKETING_VERSION"
+
+        echo "currentProjectVersion=$CURRENT_PROJECT_VERSION" >> "$GITHUB_OUTPUT"
+        echo "marketingVersion=$MARKETING_VERSION" >> "$GITHUB_OUTPUT"
+
     - name: Build and Archive
       shell: bash
+      working-directory: ${{ inputs.workingDirectory | github.workspace }}
       env:
         API_KEY_ID: ${{ inputs.appStoreConnectApiKeyId }}
         ISSUER_ID: ${{ inputs.appStoreConnectIssuerId }}
         ARCHIVE_PATH: ${{ inputs.archivePath }}
-        GITHUB_USERNAME: _
+        GITHUB_USERNAME: ${{ inputs.githubUsername }}
         GITHUB_TOKEN: ${{ inputs.githubToken }}
       run: |
-        # TODO rm 
-        cd iosApp
-
-        # CURRENT_VERSION=$(/usr/libexec/PlistBuddy -c "Print CFBundleVersion" "${{ github.workspace }}/Info.plist")
-        # MARKETING_VERSION=$(/usr/libexec/PlistBuddy -c "Print CFBundleShortVersionString" "${{ github.workspace }}/Info.plist")
-
-        CURRENT_VERSION=$(/usr/libexec/PlistBuddy -c "Print CFBundleVersion" "${{ github.workspace }}/iosApp/iosApp/Info.plist")
-        MARKETING_VERSION=$(/usr/libexec/PlistBuddy -c "Print CFBundleShortVersionString" "${{ github.workspace }}/iosApp/iosApp/Info.plist")
-
-        SHOP_ID=357382bf66ac0ce2f1722677c59511
-        SHOP_SECRET=9902b2c111e006ee944833c95e9e6066
-        BASE_URL=https://api.rees46.ru
-
-        echo "Current version: $CURRENT_VERSION"
-        echo "Current marketing version: $MARKETING_VERSION"
-
-        # TODO updated
-        # GITHUB_USERNAME=rees46 \
         TEAM_ID_ENV=MYA32EHWN4 \
         BUNDLE_ID_ENV=com.rees46.loyalty-program \
         APP_NAME_ENV="REES46 Loyalty Program" \
@@ -84,15 +92,9 @@ runs:
         #   -archivePath "$ARCHIVE_PATH" \
         #   archive \
         #   CODE_SIGN_STYLE=Manual \
-        #   CURRENT_PROJECT_VERSION="$CURRENT_VERSION" \
-        #   MARKETING_VERSION="$MARKETING_VERSION" \
+        #   CURRENT_PROJECT_VERSION="${{ steps.get-version.outputs.currentProjectVersion }}" \
+        #   MARKETING_VERSION="${{ steps.get-version.outputs.marketingVersion }}" \
         #   CODE_SIGN_IDENTITY="${{ inputs.codeSignIdentity }}" \
         #   DEVELOPMENT_TEAM="${{ inputs.developmentTeam }}" \
         #   PROVISIONING_PROFILE_SPECIFIER="${{ inputs.provisioningProfileSpecifier }}" \
         #   OTHER_CODE_SIGN_FLAGS="--deep"
-
-    - name: Debug ios package
-      shell: bash
-      if: ${{ always() }}
-      run: |
-        ls -R ~/.gradle/caches/modules-2/files-2.1/ | grep 'com.rees46.ios'
