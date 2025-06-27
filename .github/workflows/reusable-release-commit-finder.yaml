@@ -52,11 +52,6 @@ jobs:
             echo "hasCommit=false" >> $GITHUB_OUTPUT
           fi
 
-      - name: Debug vars
-        run: |
-          echo "${{ inputs.cancelRunIfFound }}"
-          echo "${{ steps.check-commit.outputs.hasCommit }}"
-
       - name: Cancel workflow
         if: ${{ inputs.cancelRunIfFound && steps.check-commit.outputs.hasCommit == 'true' }}
         env:
