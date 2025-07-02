@@ -28,13 +28,13 @@ runs:
     - uses: actions/create-github-app-token@v1
       id: app-token
       with:
-        owner: ${{ github.repository_owner }}
         app-id: ${{ inputs.appId }}
         private-key: ${{ inputs.appSecret }}
 
     - name: Checkout
       uses: actions/checkout@v4
       with:
+        owner: ${{ github.repository_owner }}
         fetch-depth: 0
         token: ${{ steps.app-token.outputs.token }}
 
