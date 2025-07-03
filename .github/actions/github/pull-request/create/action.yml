@@ -58,10 +58,7 @@ runs:
         reviewers: ${{ inputs.reviewerUsername }}
 
     - name: Enable Pull Request Automerge
-      if: steps.cpr.outputs.pull-request-operation == 'created'
-      uses: peter-evans/enable-pull-request-automerge@v3
-      with:
-        repository: ${{ inputs.targetRepository || github.repository }}
-        token: ${{ inputs.githubToken }}
-        pull-request-number: ${{ steps.cpr.outputs.pull-request-number }}
-        merge-method: squash
+      shell: bash
+      run: gh pr merge --squash --admin "${{ steps.cpr.outputs.pull-request-number }}"
+      env:
+        GH_TOKEN: ${{ inputs.githubToken }}
