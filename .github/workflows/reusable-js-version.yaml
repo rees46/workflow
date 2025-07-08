@@ -90,7 +90,7 @@ jobs:
       - name: Check release published
         shell: bash
         env:
-          GH_TOKEN: ${{ secrets.githubToken || secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           if [ "${NEW_RELEASE_PUBLISHED}" != "true" ]; then
             echo "New release not published, cancel workflow"
