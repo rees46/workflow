@@ -23,7 +23,7 @@ inputs:
   filePattern:
     description: File pattern used for `git add`. For example `src/*.js`
     required: false
-    default: '.'
+    default: 'version.properties'
 
 runs:
   using: composite
