@@ -32,4 +32,4 @@ jobs:
       replacements: ${{ needs.prepare.outputs.replacements }}
       repositoryOwner: personaclick
       targetRepository: personaclick/workflow
-      reviewerUsername: iwwwanow
+      reviewerUsername: torinasakura
