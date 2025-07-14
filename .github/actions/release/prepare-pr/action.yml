@@ -43,6 +43,7 @@ runs:
         branchName: ${{ steps.createReleaseBranchStep.outputs.branchName }}
         githubToken: ${{ inputs.githubToken }}
         targetRepository: ${{ github.repository }}
+        filePattern: 'version.properties'
 
     - uses: rees46/workflow/.github/actions/git/wait-available-branch@master
       with:
