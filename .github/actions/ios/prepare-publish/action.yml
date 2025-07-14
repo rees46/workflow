@@ -69,6 +69,7 @@ runs:
       with:
         xcode-version: 16
 
-    - name: Pod install
-      shell: bash
-      run: pod install
+    # TODO ?
+    # - name: Pod install
+    #   shell: bash
+    #   run: pod install

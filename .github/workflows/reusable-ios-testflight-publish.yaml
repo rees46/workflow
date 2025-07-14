@@ -11,6 +11,15 @@ env:
 on:
   workflow_call:
     inputs:
+      workingDirectory:
+        description: xcodebuild execution directory
+        required: false
+        type: string
+      infoPlistPath:
+        description: Path to Info.plist to get application version
+        required: false
+        type: string
+        default: 'Info.plist'
       xcworkspace:
         required: true
         type: string
@@ -25,6 +34,15 @@ on:
         type: string
       provisioningProfileSpecifier:
         required: true
+        type: string
+      shopId:
+        required: false
+        type: string
+      shopSecret:
+        required: false
+        type: string
+      baseUrl:
+        required: false
         type: string
     secrets:
       GITHUB_APP_ID:
@@ -57,12 +75,21 @@ jobs:
 
     steps:
       - name: Prepare testflight
-        uses: rees46/workflow/.github/actions/publish/prepare-testflight@master
+        uses: rees46/workflow/.github/actions/ios/prepare-testflight@master
         with:
           secretsJson: ${{ toJSON(secrets) }}
 
+      - name: Set loyalty-program envs
+        if: ${{ inputs.shopId && iputs.shopSecret && inputs.baseUrl }}
+        run: |
+          echo "SHOP_ID=${{ inputs.shopId }}" >> "$GITHUB_ENV"
+          echo "SHOP_SECRET=${{ inputs.shopSecret }}" >> "$GITHUB_ENV"
+          echo "BASE_URL=${{ inputs.baseUrl }}" >> "$GITHUB_ENV"
+
       - name: Prepare ios enveronment
-        uses: rees46/workflow/.github/actions/ios/prepare-publish@master
+        # TODO rm
+        # uses: rees46/workflow/.github/actions/ios/prepare-publish@master
+        uses: rees46/workflow/.github/actions/ios/prepare-publish@refactor/publish-ios-workflow
         with:
           iosCertificateP12Base64: ${{ secrets.IOS_CERTIFICATE_P12 }}
           p12Password: ${{ secrets.IOS_CERTIFICATE_PASSWORD }}
@@ -72,8 +99,14 @@ jobs:
           appStoreConnectApiKey: ${{ secrets.APP_STORE_CONNECT_API_KEY }}
 
       - name: Build ios
-        uses: rees46/workflow/.github/actions/ios/build@master
+        # TODO rm
+        # uses: rees46/workflow/.github/actions/ios/build@master
+        uses: rees46/workflow/.github/actions/ios/build@refactor/publish-ios-workflow
         with:
+          workingDirectory: ${{ inputs.workingDirectory }}
+          infoPlistPath: ${{ input.infoPlistPath }}
+          githubUsername: jade-smith-rs46
+          githubToken: ${{ secrets.JADE_SMITH_BOT_TOKEN }}
           appStoreConnectApiKeyId: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
           appStoreConnectIssuerId: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
           archivePath: ${{ env.ARCHIVE_PATH }}
@@ -91,7 +124,7 @@ jobs:
           archiveExportPath: ${{ env.ARCHIVE_EXPORT_PATH }}
 
       - name: Upload to testflight
-        uses: rees46/workflow/.github/actions/publish/publish-testflight@master
+        uses: rees46/workflow/.github/actions/ios/publish-testflight@master
         with:
           archiveExportPath: ${{ env.ARCHIVE_EXPORT_PATH }}
           appStoreConnectIssuerId: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
