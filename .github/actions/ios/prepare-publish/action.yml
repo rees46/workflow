@@ -1,4 +1,4 @@
-name: prepare ios enveronment to publish on testflight
+name: prepare ios environment to publish on testflight
 description: install certificate, provisioning profile & p8 key
 
 inputs:

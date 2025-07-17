@@ -1,5 +1,5 @@
 name: prepare testflight publish action
-description: checout to source, target and workflow repo, prepare nodejs enveronment and install dependencies; github app token on output
+description: checkout to source, target and workflow repo, prepare nodejs environment and install dependencies; github app token on output
 
 inputs:
   workflowRepo:
