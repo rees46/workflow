@@ -1,5 +1,5 @@
-name: Find last tag commin
-description: Find las tag and return this commit hash
+name: Find last tag commit
+description: Find last tag and return this commit hash
 
 outputs:
   lastTagCommit:
