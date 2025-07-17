@@ -1,5 +1,5 @@
 name: Check variables
-description: chech variables for prepare publish enveronment; needs checkouted workflow repo
+description: check variables for prepare publish environment; needs checked out workflow repo
 
 inputs:
   workflowDirectory:
@@ -10,7 +10,7 @@ inputs:
     description: variables to check in json format
     required: true
   requiredVars:
-    description: list of required variables, devided by `,`
+    description: list of required variables, divided by `,`
 
 runs:
   using: composite
