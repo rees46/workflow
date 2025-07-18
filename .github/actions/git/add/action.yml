@@ -3,7 +3,7 @@ description: create commit
 
 inputs:
   excludeTmp:
-    description: Esclude tmp dir - boolean
+    description: Exclude tmp dir - boolean
     required: false
     default: ''
   workingDirectory:

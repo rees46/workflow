@@ -4,10 +4,10 @@ description: create pull request on target repo
 inputs:
   targetDirectory:
     default: tmp/target
-    description: Commit author GitGup token
+    description: Commit author GitHub token
     required: true
   githubToken:
-    description: GitHup token
+    description: GitHub token
     required: true
   prTitle:
     description: PullRequest title
@@ -33,7 +33,7 @@ inputs:
     description: git branch name
     required: true
   targetRepository:
-    description: pull reques target repository
+    description: pull request target repository
     required: false
 
 runs:

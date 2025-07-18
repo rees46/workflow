@@ -11,7 +11,7 @@ inputs:
     required: false
     default: ${{ github.repository }}
   githubToken:
-    description: GitHup token
+    description: GitHub token
     required: true
   branchName:
     description: Branch to commit
@@ -23,7 +23,7 @@ inputs:
   filePattern:
     description: File pattern used for `git add`. For example `src/*.js`
     required: false
-    default: '.'
+    default: 'version.properties'
 
 runs:
   using: composite
