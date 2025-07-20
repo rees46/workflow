@@ -1,9 +1,10 @@
+/* eslint-disable no-console, n/no-sync, no-await-in-loop, @typescript-eslint/explicit-function-return-type, @typescript-eslint/explicit-module-boundary-types, eslint-comments/no-unused-disable */
 import type { DirecotryReplacementProcessorProps } from '../interfaces/index.js'
 
 import fs                                          from 'node:fs'
 import path                                        from 'node:path'
 
-export const direcotryReplacementProcessor = async ({
+export const directoryReplacementProcessor = async ({
   directory,
   config,
   applyReplacementProcessor,
@@ -51,7 +52,7 @@ export const direcotryReplacementProcessor = async ({
         const newPath = path.join(directory, newName)
         fs.renameSync(fullPath, newPath)
         console.info(`Direcotry renamed: from ${fullPath} to ${newPath}`)
-        await direcotryReplacementProcessor({
+        await directoryReplacementProcessor({
           directory: newPath,
           config,
           applyReplacementProcessor,
@@ -59,7 +60,7 @@ export const direcotryReplacementProcessor = async ({
           escapeRegExpUtil,
         })
       } else {
-        await direcotryReplacementProcessor({
+        await directoryReplacementProcessor({
           directory: fullPath,
           config,
           applyReplacementProcessor,
