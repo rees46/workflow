@@ -42,6 +42,10 @@ runs:
         token: ${{ steps.appTokenStep.outputs.token }}
         repository: ${{inputs.replacementsRepo}}
 
+    - name: Install jq and yq
+      run: |
+        apt-get update && apt-get install -y jq yq
+
     - name: Read replacements from file
       shell: bash
       id: getReplacementsStep
