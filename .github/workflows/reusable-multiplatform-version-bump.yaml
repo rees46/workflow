@@ -41,25 +41,31 @@ jobs:
           token: ${{ steps.app-token.outputs.token }}
           fetch-depth: 0
 
-      - uses: codfish/semantic-release-action@v3
+      - name: Install NodeJS
+        uses: actions/setup-node@v4
+
+      - name: Semantic release
         id: semanticReleaseStep
         env:
-          GH_TOKEN: ${{ secrets.githubToken || steps.app-token.outputs.token || secrets.GITHUB_TOKEN }}
-        with:
-          additional-packages: |
-            ['@semantic-release/git', '@semantic-release/exec']
-
-      - name: Debug git diff
+          GITHUB_TOKEN: ${{ secrets.githubToken || steps.app-token.outputs.token || secrets.GITHUB_TOKEN }}
         run: |
-          git diff
+          npx semantic-release -p '[
+            "@semantic-release/git",
+            [
+              "@semantic-release/exec",
+              {
+                "successCmd": "echo \"release-version=${nextRelease.version}\" >> \"$GITHUB_OUTPUT\""
+              }
+            ]
+          ]'
 
-      - name: Check release published
-        shell: bash
-        run: |
-          if [ "${NEW_RELEASE_PUBLISHED}" != "true" ]; then
-            echo "New release not published, exit"
-            exit 1
-          fi
+      # - uses: codfish/semantic-release-action@v3
+      #   id: semanticReleaseStep
+      #   env:
+      #     GH_TOKEN: ${{ secrets.githubToken || steps.app-token.outputs.token || secrets.GITHUB_TOKEN }}
+      #   with:
+      #     additional-packages: |
+      #       ['@semantic-release/git', '@semantic-release/exec']
 
       - uses: rees46/workflow/.github/actions/release/prepare-pr@master
         with:
