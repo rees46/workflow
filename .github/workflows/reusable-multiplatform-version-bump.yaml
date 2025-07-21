@@ -44,28 +44,13 @@ jobs:
       - name: Install NodeJS
         uses: actions/setup-node@v4
 
-      - name: Semantic release
+      - uses: docker://ghcr.io/codfish/semantic-release-action:v3
         id: semanticReleaseStep
         env:
-          GITHUB_TOKEN: ${{ secrets.githubToken || steps.app-token.outputs.token || secrets.GITHUB_TOKEN }}
-        run: |
-          npx semantic-release -p '[
-            "@semantic-release/git",
-            [
-              "@semantic-release/exec",
-              {
-                "successCmd": "echo \"release-version=${nextRelease.version}\" >> \"$GITHUB_OUTPUT\""
-              }
-            ]
-          ]'
-
-      # - uses: codfish/semantic-release-action@v3
-      #   id: semanticReleaseStep
-      #   env:
-      #     GH_TOKEN: ${{ secrets.githubToken || steps.app-token.outputs.token || secrets.GITHUB_TOKEN }}
-      #   with:
-      #     additional-packages: |
-      #       ['@semantic-release/git', '@semantic-release/exec']
+          GH_TOKEN: ${{ secrets.githubToken || steps.app-token.outputs.token || secrets.GITHUB_TOKEN }}
+        with:
+          additional-packages: |
+            ['@semantic-release/git', '@semantic-release/exec']
 
       - uses: rees46/workflow/.github/actions/release/prepare-pr@master
         with:
