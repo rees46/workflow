@@ -7,10 +7,15 @@ on:
         description: Name of the package to publish
         required: false
         type: string
+      contextLocation:
+        description: Location of context
+        required: false
+        type: string
+        default: .
 
 jobs:
   run:
-    name: Publish
+    name: Build and publish docker image
     runs-on: ubuntu-latest
 
     steps:
@@ -52,3 +57,63 @@ jobs:
             ghcr.io/rees46/${{ inputs.packageName }}:${{ steps.tags.outputs.tagPrefix }}${{ steps.tags.outputs.commitSha }}-${{ steps.tags.outputs.date }}
           cache-from: type=gha,scope=${{ inputs.packageName }}
           cache-to: type=gha,mode=max,scope=${{ inputs.packageName }}
+          context: ${{ inputs.contextLocation }}
+
+      - name: Expose GitHub Runtime
+        if: ${{ !inputs.packageName }}
+        uses: crazy-max/ghaction-github-runtime@v3
+
+      - name: Build and publish all found docker images
+        if: ${{ !inputs.packageName }}
+        env:
+          CONTEXT_LOCATION: ${{ inputs.contextLocation }}
+          BUILD_ID: ${{ steps.tags.outputs.date }}
+          GIT_SHA: ${{ steps.tags.outputs.commitSha }}
+          TAG_PREFIX: ${{ steps.tags.outputs.tagPrefix }}
+          TAG_SUFFIX: ${{ steps.tags.outputs.tagSuffix }}
+        run: |
+          set -uo pipefail
+
+          REPOSITORY_OWNER_CLEAN=$(echo "$REPOSITORY_OWNER" | tr '[:upper:]' '[:lower:]')
+
+          echo "🏗️ Начинаем билдить образы, не падаем на первом фейле, держимся до конца..."
+
+          FAILED_IMAGES=()
+
+          while IFS= read -r -d '' DOCKERFILE; do
+            REL_PATH="${DOCKERFILE}"
+            IMAGE_BASENAME="$(basename $(dirname "${REL_PATH}" | tr '_' '-'))"
+
+            [[ "${IMAGE_BASENAME}" == "." ]] && IMAGE_BASENAME="$(basename "${CONTEXT_LOCATION}")"
+
+            IMAGE_TAG="${TAG_PREFIX}${GIT_SHA}-${BUILD_ID}"
+            IMAGE="ghcr.io/${REPOSITORY_OWNER_CLEAN}/${IMAGE_BASENAME}:${IMAGE_TAG}"
+            IMAGE_LATEST="ghcr.io/${REPOSITORY_OWNER_CLEAN}/${IMAGE_BASENAME}:${TAG_SUFFIX}"
+
+            echo "📦 ${IMAGE_BASENAME} → ${IMAGE}"
+
+            if docker buildx build \
+              --file "${DOCKERFILE}" \
+              --tag "${IMAGE}" \
+              --tag "${IMAGE_LATEST}" \
+              --cache-from type=gha,scope="${IMAGE_BASENAME}" \
+              --cache-to type=gha,scope="${IMAGE_BASENAME}" \
+              --push \
+              --progress plain \
+              "${CONTEXT_LOCATION}"; then
+
+              echo "✅ Успех: ${IMAGE_BASENAME}"
+
+            else
+              echo "❌ Фейл: ${IMAGE_BASENAME}" >&2
+              FAILED_IMAGES+=("${IMAGE_BASENAME}")
+            fi
+
+          done < <(find "${CONTEXT_LOCATION}" -name Dockerfile -type f -print0)
+
+          if [ "${#FAILED_IMAGES[@]}" -ne 0 ]; then
+            echo "⚠️ Завалились образы: ${FAILED_IMAGES[*]}"
+            exit 1
+          else
+            echo "🎉 Все образы успешно запушены."
+          fi
