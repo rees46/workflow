@@ -42,11 +42,7 @@ jobs:
         delay-service
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          ref: master
-          fetch-depth: 0
+      - uses: actions/checkout@v4
 
       - name: Changed files
         id: changed_files
@@ -64,7 +60,6 @@ jobs:
           JENKINS_DEPLOY_USER: ${{ secrets.USER }}
           JENKINS_DEPLOY_TOKEN: ${{ secrets.TOKEN }}
           GIT_BRANCH: ${{ inputs.branch }}
-
         if: ${{ steps.changed_packages.outputs.packages }} != ''
         run: |
           PACKAGES=$(echo "$CHANGED_FILES" | tr ' ' '\n' | grep 'packages/' | awk -F'/' '{print $2}' | uniq)
