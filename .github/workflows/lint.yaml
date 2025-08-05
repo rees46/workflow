@@ -13,13 +13,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Run yamllint
         uses: ibiqlik/action-yamllint@v3
         with:
-          file_or_dir: ".github/**/*.y*ml"
+          file_or_dir: '.github/**/*.y*ml'
           format: 'colored'
 
       - name: Run actionlint
