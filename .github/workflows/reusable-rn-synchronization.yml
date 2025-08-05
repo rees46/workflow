@@ -129,4 +129,4 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.token }}
           BRANCH_NAME: ${{ env.BRANCH_NAME }}
           LAST_PR_AUTHOR: ${{ env.LAST_PR_AUTHOR }}
-          MANAGER: TorinAsakura
+          MANAGER: nelfimov

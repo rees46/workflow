@@ -19,7 +19,7 @@ inputs:
     required: false
   reviewerUsername:
     description: PullRequest reviewer username
-    default: TorinAsakura
+    default: nelfimov
     required: true
   lastPrAuthor:
     description: PullRequest reviewer username
