@@ -90,7 +90,7 @@ jobs:
 
       - name: Configure Elasticsearch for Hunspell
         run: |
-          curl -X PUT "http://localhost:9200/_cluster/settings" -H 'Content-Type: application/json' -d'
+          curl -si -X PUT "http://localhost:9200/_cluster/settings" -H 'Content-Type: application/json' -d'
           {
             "persistent": {
               "indices.analysis.hunspell.dictionary.location": "/usr/share/elasticsearch/config/hunspell"
