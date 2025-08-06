@@ -1,14 +1,14 @@
-name: Reusable JS/TS PR checks
+name: Reusable JS PR checks
 
 on:
   workflow_call:
     inputs:
       app-id:
-        description: 'github app id'
+        description: GitHub app id
         required: true
         type: string
       node-version:
-        description: 'Node version to run this workflow. Default: 19 as it is in action cache'
+        description: 'Node version to run this workflow. Default: 22 as it is in action cache'
         default: '22'
         required: false
         type: string
@@ -24,6 +24,7 @@ on:
 jobs:
   run:
     runs-on: ubuntu-latest
+
     defaults:
       run:
         working-directory: ${{ inputs.workingDirectory }}
@@ -35,10 +36,8 @@ jobs:
           app-id: ${{ inputs.app-id }}
           private-key: ${{ secrets.private-key }}
 
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
-          fetch-depth: 0
           token: ${{ steps.app-token.outputs.token }}
 
       - name: Prepare JS action

@@ -4,7 +4,7 @@ on:
   workflow_call:
     inputs:
       appId:
-        description: 'github app id'
+        description: GitHub app id
         required: true
         type: string
       node-version:
