@@ -1,0 +1,42 @@
+name: Reusable common checks
+
+on:
+  workflow_call:
+    inputs:
+      paths-ignore:
+        description: Paths to ignore, ex. ["foo", "bar/**"]
+        required: false
+        type: string
+
+env:
+  CLICOLOR: 1
+
+jobs:
+  check-common:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create spell check config
+        run: |
+          cat <<EOF > typos.toml
+          [files]
+          extend-exclude = ${{ inputs.paths-ignore || '[]' }}
+
+          [default]
+          extend-ignore-identifiers-re = [
+            "AttributeID.*Supress.*",
+            "PnL",
+            "TGE",
+            "tge",
+          ]
+          EOF
+
+      - name: Spell Check Repo
+        uses: crate-ci/typos@v1.35.1
+        with:
+          config: ./typos.toml
+
+      - name: Lint commits
+        uses: wagoid/commitlint-github-action@v6
