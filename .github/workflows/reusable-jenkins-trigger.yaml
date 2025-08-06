@@ -1,34 +1,34 @@
-name: Deploy nodejs services
+name: Trigger jenkins
 
 on:
   workflow_call:
     inputs:
       job_name:
-        description: 'Jenkins job name'
+        description: Jenkins job name
         required: true
         type: string
       image_tag:
-        description: 'Docker image tag'
+        description: Docker image tag
         required: true
         type: string
       git_branch_name:
-        description: 'Git branch name'
+        description: Git branch name
         required: true
         type: string
       git_commit:
-        description: 'Git commit hash'
+        description: Git commit hash
         required: true
         type: string
       git_commit_msg:
-        description: 'Git commit message'
+        description: Git commit message
         required: true
         type: string
       git_commit_author:
-        description: 'Git commit author'
+        description: Git commit author
         required: true
         type: string
       git_commit_url:
-        description: 'Git commit url'
+        description: Git commit url
         required: true
         type: string
     secrets:
@@ -60,6 +60,7 @@ jobs:
 
         run: |
           echo "Triggering Jenkins Job: $JOB_NAME"
+
           curl -X POST -u "$JENKINS_DEPLOY_USER:$JENKINS_DEPLOY_TOKEN" \
               "${JENKINS_URL}/job/${JOB_NAME}/buildWithParameters" \
           --data-urlencode "IMAGE_TAG=${IMAGE_TAG}" \
