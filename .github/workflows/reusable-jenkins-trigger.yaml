@@ -5,32 +5,36 @@ on:
     inputs:
       job_name:
         description: Jenkins job name
-        required: true
+        required: false
         type: string
       image_tag:
         description: Docker image tag
-        required: true
+        required: false
         type: string
       git_branch_name:
         description: Git branch name
-        required: true
+        required: false
         type: string
       git_commit:
         description: Git commit hash
-        required: true
+        required: false
         type: string
       git_commit_msg:
         description: Git commit message
-        required: true
+        required: false
         type: string
       git_commit_author:
         description: Git commit author
-        required: true
+        required: false
         type: string
       git_commit_url:
         description: Git commit url
-        required: true
+        required: false
         type: string
+      path:
+        required: false
+        type: string
+        default: ''
     secrets:
       URL:
         required: true
@@ -40,8 +44,9 @@ on:
         required: true
 
 jobs:
-  run:
+  single:
     name: Deploy trigger
+    if: inputs.path == ''
     runs-on: ubuntu-latest
 
     steps:
@@ -51,8 +56,8 @@ jobs:
           JENKINS_DEPLOY_USER: ${{ secrets.USER }}
           JENKINS_DEPLOY_TOKEN: ${{ secrets.TOKEN }}
           JOB_NAME: ${{ inputs.job_name }}
-          IMAGE_TAG: ${{ inputs.image_tag }}
-          GIT_BRANCH_NAME: ${{ inputs.git_branch_name }}
+          IMAGE_TAG: ${{ inputs.image_tag || 'latest' }}
+          GIT_BRANCH_NAME: ${{ inputs.git_branch_name || github.ref_name }}
           GIT_COMMIT: ${{ inputs.git_commit }}
           GIT_COMMIT_MSG: ${{ inputs.git_commit_msg }}
           GIT_COMMIT_AUTHOR: ${{ inputs.git_commit_author }}
@@ -71,3 +76,76 @@ jobs:
               --data-urlencode "GIT_COMMIT_MSG=${GIT_COMMIT_MSG}" \
               --data-urlencode "GIT_COMMIT_AUTHOR=${GIT_COMMIT_AUTHOR}" \
               --data-urlencode "GIT_COMMIT_URL=${GIT_COMMIT_URL}"
+
+  multiple:
+    if: inputs.path != ''
+
+    name: Deploy multiple trigger
+    runs-on: ubuntu-latest
+    env:
+      PHP_SERVICES: |
+        monitoring-service
+        notification-service
+        message-service
+        recommender-service
+        pictures-service
+        api-service
+        import-service
+        clickhouse-queue
+        yml-import-service
+        autovaz-import-service
+        message-status-service
+        message-status-callback-service
+        delay-service
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: changed_files
+        uses: tj-actions/changed-files@v46.0.5
+
+      - name: Check if any services need deploy
+        id: changed_packages
+        env:
+          CHANGED_FILES: ${{ steps.changed_files.outputs.all_changed_files }}
+          SEARCH_PATH: ${{ inputs.path }}
+        run: |
+          echo "CHANGED_FILES: $CHANGED_FILES"
+
+          packages=$(echo "$CHANGED_FILES" | tr ' ' '\n' | grep "^${SEARCH_PATH}/" | awk -F '/' '{print $2}' | uniq | tr '\n' ' ')
+          echo "packages=${packages}" >> "$GITHUB_OUTPUT"
+
+          echo "Found packages: $packages"
+
+      - name: Trigger jenkins all
+        if: ${{ contains(steps.changed_packages.outputs.packages, 'core') }}
+        env:
+          JENKINS_URL: ${{ secrets.URL }}
+          JENKINS_DEPLOY_USER: ${{ secrets.USER }}
+          JENKINS_DEPLOY_TOKEN: ${{ secrets.TOKEN }}
+          GIT_BRANCH: ${{ github.ref_name }}
+        run: |
+          echo "Starting to deploy all php packages $PHP_SERVICES"
+
+          for service in $SERVICES
+          do
+            curl -si -X POST -u "$JENKINS_DEPLOY_USER:$JENKINS_DEPLOY_TOKEN" \
+              "${JENKINS_URL}/job/${service}/buildWithParameters?BRANCH_NAME=${GIT_BRANCH}"
+          done
+
+      - name: Trigger jenkins job for changed
+        if: ${{ !contains(steps.changed_packages.outputs.packages, 'core') }}
+        env:
+          PACKAGES: ${{ steps.changed_packages.outputs.packages }}
+          JENKINS_URL: ${{ secrets.URL }}
+          JENKINS_DEPLOY_USER: ${{ secrets.USER }}
+          JENKINS_DEPLOY_TOKEN: ${{ secrets.TOKEN }}
+          GIT_BRANCH: ${{ github.ref_name }}
+        run: |
+          echo "Starting to deploy $PACKAGES"
+
+          for package in $PACKAGES
+          do
+            curl -si -X POST -u "$JENKINS_DEPLOY_USER:$JENKINS_DEPLOY_TOKEN" \
+              "${JENKINS_URL}/job/${package}/buildWithParameters?BRANCH_NAME=${GIT_BRANCH}"
+          done

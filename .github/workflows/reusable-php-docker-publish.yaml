@@ -2,28 +2,31 @@ name: Reusable PHP docker publish
 
 on:
   workflow_call:
-    inputs:
-      branch:
-        description: "Git branch name"
-        required: true
-        type: string
+
+env:
+  SEARCH_PATH: packages
 
 jobs:
   run:
-    name: Publish PHP docker images
     runs-on: ubuntu-latest
 
     steps:
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
       - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.base_ref }}
+
+      - id: changed_files
+        uses: tj-actions/changed-files@v46.0.5
+
+      - name: Check if any services need deploy
+        id: changed_packages
+        env:
+          CHANGED_FILES: ${{ steps.changed_files.outputs.all_changed_files }}
+        run: |
+          echo "CHANGED_FILES: $CHANGED_FILES"
+
+          packages=$(echo "$CHANGED_FILES" | tr ' ' '\n' | grep "^${SEARCH_PATH}/" | awk -F '/' '{print $2}' | uniq | tr '\n' ' ')
+          echo "packages=${packages}" >> "$GITHUB_OUTPUT"
+
+          echo "Found packages: $packages"
 
       - name: Set tags
         id: tags
@@ -42,6 +45,12 @@ jobs:
           echo "tagPrefix=$TAG_PREFIX" >> "$GITHUB_OUTPUT"
           echo "tagSuffix=$TAG_SUFFIX" >> "$GITHUB_OUTPUT"
 
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - uses: docker/setup-buildx-action@v3
 
       - name: Build and push core image
@@ -55,7 +64,8 @@ jobs:
           cache-from: type=gha,scope=core
           cache-to: type=gha,mode=max,scope=core
 
-      - name: Build and Push Docker images
+      - name: Build and push all docker images
+        if: contains(steps.changed_packages.outputs.packages, 'core')
         env:
           REPOSITORY_OWNER: ${{ github.repository_owner }}
           SOURCE_PATH: packages
@@ -78,12 +88,45 @@ jobs:
             IMAGE_NAME_LATEST=ghcr.io/$REPOSITORY_OWNER/$PACKAGE_NAME:${{ steps.tags.outputs.tagSuffix }}
 
             echo "📦  ${IMAGE_NAME} → ${IMAGE_NAME_LATEST}"
+
             docker buildx build . \
               --file "${package}" \
               --tag "${IMAGE_NAME}" \
               --tag "${IMAGE_NAME_LATEST}" \
               --cache-from type=gha,scope="${PACKAGE_NAME}" \
               --cache-to type=gha,scope="${PACKAGE_NAME}" \
+              --push \
+              --progress plain \
+
+            echo "✅  pushed ${IMAGE_NAME} + ${IMAGE_NAME_LATEST}"
+          done
+
+      - name: Build and push changed docker images
+        if: ${{ !contains(steps.changed_packages.outputs.packages, 'core') }}
+        env:
+          REPOSITORY_OWNER: ${{ github.repository_owner }}
+          CHANGED_FILES: ${{ steps.changed_packages.outputs.packages }}
+        run: |
+          echo "Trying to build packages: $CHANGED_FILES"
+
+          for package in $CHANGED_FILES; do
+
+            if [ "$package" = "core" ]; then
+              echo "⏭️  Skipping build for core package"
+              continue
+            fi
+
+            IMAGE_NAME=ghcr.io/$REPOSITORY_OWNER/$package:${{ steps.tags.outputs.tagPrefix }}$(git rev-parse --short HEAD)-$(date +%s)
+            IMAGE_NAME_LATEST=ghcr.io/$REPOSITORY_OWNER/$package:${{ steps.tags.outputs.tagSuffix }}
+
+            echo "📦  ${IMAGE_NAME} → ${IMAGE_NAME_LATEST}"
+
+            docker buildx build . \
+              --file "$SEARCH_PATH/${package}/Dockerfile" \
+              --tag "${IMAGE_NAME}" \
+              --tag "${IMAGE_NAME_LATEST}" \
+              --cache-from type=gha,scope="${package}" \
+              --cache-to type=gha,scope="${package}" \
               --push \
               --progress plain \
 
