@@ -61,11 +61,13 @@ jobs:
         run: |
           echo "Triggering Jenkins Job: $JOB_NAME"
 
-          curl -X POST -u "$JENKINS_DEPLOY_USER:$JENKINS_DEPLOY_TOKEN" \
+          curl -si -X POST -u "$JENKINS_DEPLOY_USER:$JENKINS_DEPLOY_TOKEN" \
               "${JENKINS_URL}/job/${JOB_NAME}/buildWithParameters" \
-          --data-urlencode "IMAGE_TAG=${IMAGE_TAG}" \
-          --data-urlencode "GIT_BRANCH_NAME=${GIT_BRANCH_NAME}" \
-          --data-urlencode "GIT_COMMIT=${GIT_COMMIT}" \
-          --data-urlencode "GIT_COMMIT_MSG=${GIT_COMMIT_MSG}" \
-          --data-urlencode "GIT_COMMIT_AUTHOR=${GIT_COMMIT_AUTHOR}" \
-          --data-urlencode "GIT_COMMIT_URL=${GIT_COMMIT_URL}"
+              --data-urlencode "IMAGE_TAG=${IMAGE_TAG}" \
+              --data-urlencode "GIT_BRANCH_NAME=${GIT_BRANCH_NAME}" \
+              --data-urlencode "BRANCH_NAME=${GIT_BRANCH_NAME}" \
+              --data-urlencode "GIT_COMMIT=${GIT_COMMIT}" \
+              --data-urlencode "COMMIT_HASH=${GIT_COMMIT}" \
+              --data-urlencode "GIT_COMMIT_MSG=${GIT_COMMIT_MSG}" \
+              --data-urlencode "GIT_COMMIT_AUTHOR=${GIT_COMMIT_AUTHOR}" \
+              --data-urlencode "GIT_COMMIT_URL=${GIT_COMMIT_URL}"
