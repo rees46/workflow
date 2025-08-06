@@ -53,8 +53,7 @@ jobs:
           username: ${{ github.repository_owner }}
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Copy files into Elasticsearch container
         run: |
@@ -63,29 +62,32 @@ jobs:
           docker exec "$container_id" mkdir -p /usr/share/elasticsearch/config/hunspell
           docker cp ./.config/elastic_dictionary/tr_TR "$container_id":/usr/share/elasticsearch/config/hunspell/tr_TR
 
-      - name: Changed files
-        id: changed_files
-        uses: tj-actions/changed-files@v42
+      - id: changed_files
+        uses: tj-actions/changed-files@v46.0.5
 
       - name: Check if any packages need testing
+        id: changed_packages
         env:
           CHANGED_FILES: ${{ steps.changed_files.outputs.all_changed_files }}
-        id: changed_packages
+          SEARCH_PATH: packages
         run: |
-          echo "packages=$(echo "$CHANGED_FILES" | grep 'packages/' | awk -F'/' '{print $2}' | uniq)" >> $GITHUB_OUTPUT
-          echo "Changed packages"
-          echo $packages
+          echo "CHANGED_FILES: $CHANGED_FILES"
+
+          packages=$(echo "$CHANGED_FILES" | tr ' ' '\n' | grep "^${SEARCH_PATH}/" | awk -F '/' '{print $2}' | uniq | tr '\n' ' ')
+          echo "packages=${packages}" >> "$GITHUB_OUTPUT"
+
+          echo "Found packages: $packages"
 
       - name: Set up PHP
-        if: ${{ steps.changed_packages.outputs.packages != '' }}
+        if: steps.changed_packages.outputs.packages != ''
         uses: shivammathur/setup-php@v2
         with:
           tools: composer
           extensions: event
-          php-version: '8.1.21'
+          php-version: 8.1.21
 
       - name: Install dependencies
-        if: ${{ steps.changed_packages.outputs.packages != '' }}
+        if: steps.changed_packages.outputs.packages != ''
         run: composer install --prefer-dist --no-progress --no-suggest
 
       - name: Configure Elasticsearch for Hunspell
@@ -99,19 +101,18 @@ jobs:
           '
 
       - name: Run core tests
-        if: ${{ steps.changed_packages.outputs.packages != '' }}
+        if: steps.changed_packages.outputs.packages != ''
         run: |
           echo "🏗️🏗️🏗️ Testing core..."
           mv packages/core/config/test_secrets.ini.example packages/core/config/test_secrets.ini
           XDEBUG_MODE=coverage vendor/bin/phpunit --bootstrap=packages/core/test/autoload.php --configuration=packages/core/phpunit.xml
 
       - name: Run tests
+        if: steps.changed_packages.outputs.packages != ''
         env:
-          CHANGED_FILES: ${{ steps.changed_files.outputs.all_changed_files }}
-        if: ${{ steps.changed_packages.outputs.packages != '' }}
+          CHANGED_PACKAGES: ${{ steps.changed_packages.outputs.packages }}
         run: |
-          PACKAGES=$(echo "$CHANGED_FILES" | tr ' ' '\n' | grep 'packages/' | awk -F'/' '{print $2}' | uniq)
-          for package in $PACKAGES
+          for package in $CHANGED_PACKAGES
           do
             echo "🏗️🏗️🏗️ Testing $package..."
             if test -f "packages/$package/config/test_secrets.ini.example"; then 
