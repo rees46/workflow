@@ -1,0 +1,50 @@
+name: Reusable PHP version
+
+on:
+  workflow_call:
+
+env:
+  SEARCH_PATH: packages
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          tools: composer
+          extensions: imagick sockets, bcmath, zip, xml, intl, gmp, pgsql, pcntl, event
+          php-version: '8.1'
+
+      - name: Install dependencies
+        if: steps.changed_packages.outputs.packages != ''
+        run: composer install --prefer-dist --no-progress --no-suggest
+
+      - id: changed_files
+        uses: tj-actions/changed-files@v46.0.5
+
+      - name: Check if any services need deploy
+        id: changed_packages
+        env:
+          CHANGED_FILES: ${{ steps.changed_files.outputs.all_changed_files }}
+        run: |
+          echo "CHANGED_FILES: $CHANGED_FILES"
+
+          packages=$(echo "$CHANGED_FILES" | tr ' ' '\n' | grep "^${SEARCH_PATH}/" | awk -F '/' '{print $2}' | uniq | tr '\n' ' ')
+          echo "packages=${packages}" >> "$GITHUB_OUTPUT"
+
+          echo "Found packages: $packages"
+
+      - name: Generate changelog
+        env:
+          CHANGED_PACKAGES: ${{ steps.changed_packages.outputs.packages }}
+        run: |
+          for package in $CHANGED_PACKAGES
+          do
+            cd packages/$package
+            php conventional-changelog --commit
+            cd ../..
+          done

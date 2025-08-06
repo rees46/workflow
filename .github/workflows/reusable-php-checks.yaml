@@ -83,8 +83,8 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           tools: composer
-          extensions: event
-          php-version: 8.1.21
+          extensions: imagick sockets, bcmath, zip, xml, intl, gmp, pgsql, pcntl, event
+          php-version: '8.1'
 
       - name: Install dependencies
         if: steps.changed_packages.outputs.packages != ''
