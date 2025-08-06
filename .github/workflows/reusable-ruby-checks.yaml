@@ -96,10 +96,10 @@ jobs:
 
       - name: Prepare configs
         run: |
-          if test -f "config/database.yml.exmaple"; then
+          if test -f "config/database.yml.example"; then
             mv ./config/database.yml.example ./config/database.yml
           fi
-          if test -f "config/secrets.yml.exmaple"; then
+          if test -f "config/secrets.yml.example"; then
             mv ./config/secrets.yml.example ./config/secrets.yml
           fi
 
