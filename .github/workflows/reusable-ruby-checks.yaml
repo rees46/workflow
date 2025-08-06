@@ -69,7 +69,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Check if NodeJS is needed
+        id: nodejs
+        run: |
+          if test -f "package.json"; then
+            echo "node_needed=true" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Setup node
+        if: ${{ steps.nodejs.outputs.node_needed == 'true' }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ inputs.nodeVersion }}
@@ -81,14 +89,19 @@ jobs:
           bundler-cache: true
 
       - name: Yarn install
+        if: ${{ steps.nodejs.outputs.node_needed == 'true' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: yarn install --inline-builds
 
       - name: Prepare configs
         run: |
-          mv ./config/database.yml.example ./config/database.yml
-          mv ./config/secrets.yml.example ./config/secrets.yml
+          if test -f "config/database.yml.exmaple"; then
+            mv ./config/database.yml.example ./config/database.yml
+          fi
+          if test -f "config/secrets.yml.exmaple"; then
+            mv ./config/secrets.yml.example ./config/secrets.yml
+          fi
 
       - name: Prepare DB
         env:
