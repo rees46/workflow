@@ -66,8 +66,17 @@ jobs:
           psql -c "CREATE DATABASE rees46_clickhouse_test WITH OWNER postgres;"
           psql -d postgres -c "SELECT version();"
 
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+
+      - name: Needs ImageMagick
+        run: |
+          if grep -ri 'rmagick' Gemfile; then
+            echo "🧙‍♂️ RMagick detected, installing ImageMagick..."
+            sudo apt-get update
+            sudo apt-get install -y --no-install-recommends imagemagick-6.q16 libmagickwand-dev
+          else
+            echo "No RMagick found, skipping ImageMagick install."
+          fi
 
       - name: Check if NodeJS is needed
         id: nodejs
@@ -76,14 +85,12 @@ jobs:
             echo "node_needed=true" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Setup node
-        if: ${{ steps.nodejs.outputs.node_needed == 'true' }}
+      - if: ${{ steps.nodejs.outputs.node_needed == 'true' }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ inputs.nodeVersion }}
 
-      - name: Setup Ruby and install gems
-        uses: ruby/setup-ruby@v1
+      - uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{ inputs.rubyVersion }}
           bundler-cache: true
