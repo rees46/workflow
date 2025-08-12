@@ -55,9 +55,6 @@ jobs:
       - name: Pod install
         working-directory: ./DemoApp
         run: |
-          pod cache clean --all
-          rm -rf Pods
-          rm -rf Pods.xcodeproj
           pod install
 
       - name: Decode signing key file
@@ -74,38 +71,16 @@ jobs:
           cp ./DemoApp/REES46Demo/Supporting\ Files/GoogleService-Info.plist ./DemoApp/REES46.xcodeproj/xcshareddata/xcschemes/GoogleService-Info.plist
           cp ./DemoApp/REES46Demo/Supporting\ Files/GoogleService-Info.plist ./DemoApp/REES46Demo/GoogleService-Info.plist
 
-      - name: Use tree to show all files
-        run: |
-          print_tree() {
-            find "$1" | awk '
-            BEGIN {
-              FS="/"
-              OFS="/"
-            }
-            {
-              depth = split($0, path, "/") - 1
-              for (i = 1; i <= depth; i++) {
-                printf "|   "
-              }
-              printf "|-- %s\n", path[depth + 1]
-            }'
-          }
-
-          start_dir="${1:-.}"
-
-          echo "$start_dir"
-          print_tree "$start_dir"
-
       - name: Build
         run: |
-          xcodebuild clean build -workspace ./DemoApp/REES46.xcworkspace -scheme REES46Demo \
+          xcodebuild build -workspace ./DemoApp/REES46.xcworkspace -scheme REES46Demo \
           -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 15,OS=latest' \
           CODE_SIGN_IDENTITY='' CODE_SIGNING_REQUIRED='NO' CODE_SIGN_ENTITLEMENTS=''
 
       - name: Run tests
         if: ${{ !cancelled() }}
         run: |
-          xcodebuild clean test -workspace ./DemoApp/REES46.xcworkspace -scheme REES46Demo \
+          xcodebuild test -workspace ./DemoApp/REES46.xcworkspace -scheme REES46Demo \
           -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 15,OS=latest' \
           CODE_SIGN_IDENTITY='' CODE_SIGNING_REQUIRED='NO' CODE_SIGN_ENTITLEMENTS=''
 
