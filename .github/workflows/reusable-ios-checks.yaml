@@ -19,6 +19,15 @@ on:
       cocoapodsToken:
         description: Cocoapods token
         required: true
+      testShopId:
+        required: false
+      testApiUrl:
+        required: false
+
+env:
+  ACTIONS_IS_RUNNING: true
+  TEST_SHOP_ID: ${{ secrets.testShopId }}
+  TEST_API_URL: ${{ secrets.testApiUrl }}
 
 jobs:
   run:
