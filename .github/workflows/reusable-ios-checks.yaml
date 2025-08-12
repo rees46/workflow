@@ -19,9 +19,7 @@ on:
       cocoapodsToken:
         description: Cocoapods token
         required: true
-      testShopId:
-        required: false
-      testApiUrl:
+      env_vars:
         required: false
 
 jobs:
@@ -29,10 +27,16 @@ jobs:
     runs-on: macos-latest
     env:
       ACTIONS_IS_RUNNING: true
-      TEST_SHOP_ID: ${{ secrets.testShopId }}
-      TEST_API_URL: ${{ secrets.testApiUrl }}
+      env_vars: ${{ secrets.env_vars }}
     steps:
-      - run: env
+      - if: secrets.env_vars != ''
+        run: |
+          for i in $env_vars; do
+            i=$(echo $i | sed 's/=.*//g')=$(echo ${i#*=} | base64 -di | base64 -di)
+            echo ::add-mask::${i#*=}
+            printf '%s\n' "$i" >> $GITHUB_ENV
+          done
+          env
 
       - uses: actions/checkout@v4
 
