@@ -24,6 +24,8 @@ jobs:
   run:
     runs-on: macos-latest
     steps:
+      - run: env
+
       - uses: actions/checkout@v4
 
       - uses: swift-actions/setup-swift@v2
