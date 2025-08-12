@@ -29,10 +29,10 @@ jobs:
       ACTIONS_IS_RUNNING: true
       env_vars: ${{ secrets.env_vars }}
     steps:
-      - if: secrets.env_vars != ''
-        run: |
+      - run: |
+          echo $env_vars
           for i in $env_vars; do
-            i=$(echo $i | sed 's/=.*//g')=$(echo ${i#*=} | base64 -di | base64 -di)
+            i=$(echo $i | sed 's/=.*//g')=$(echo ${i#*=} | base64 -d | base64 -d)
             echo ::add-mask::${i#*=}
             printf '%s\n' "$i" >> $GITHUB_ENV
           done
