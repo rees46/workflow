@@ -83,6 +83,9 @@ jobs:
 
       - name: Run tests
         if: ${{ !cancelled() }}
+        env:
+          TEST_RUNNER_TEST_SHOP_ID: ${{ secrets.TEST_SHOP_ID }}
+          TEST_RUNNER_TEST_API_URL: ${{ secrets.TEST_API_URL }}
         run: |
           xcodebuild test -workspace ./DemoApp/REES46.xcworkspace -scheme REES46Demo \
           -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 15,OS=latest' \
