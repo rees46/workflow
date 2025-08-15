@@ -34,9 +34,8 @@ jobs:
           app-id: ${{ inputs.appId }}
           private-key: ${{ secrets.appSecret }}
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
-          owner: ${{ github.repository_owner }}
           token: ${{ steps.app-token.outputs.token }}
           fetch-depth: 0
 
