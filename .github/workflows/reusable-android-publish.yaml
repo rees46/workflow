@@ -71,7 +71,7 @@ jobs:
           private-key: ${{ secrets.appSecret }}
 
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           token: ${{ steps.app-token.outputs.token }}
           fetch-depth: 0
@@ -95,6 +95,7 @@ jobs:
           SIGNING_KEY_FILE_AS_BASE64_STRING: ${{ secrets.SIGNING_KEY_FILE_AS_BASE64_STRING }}
 
       - name: Create staging repository
+        if: ${{ !cancelled() }}
         uses: nexus-actions/create-nexus-staging-repo@990063f02160c633c168037b8b3e8585c76469fe
         id: createStagingRepoStep
         with:
@@ -104,19 +105,23 @@ jobs:
           base_url: 'https://s01.oss.sonatype.org/service/local/'
 
       - name: Grant execute permission to gradlew
+        if: ${{ !cancelled() }}
         run: chmod +x gradlew
 
       - name: Clean gradlew cache
+        if: ${{ !cancelled() }}
         run: |
           ./gradlew clean
 
       - name: Publish
+        if: ${{ !cancelled() }}
         env:
           SONATYPE_REPOSITORY_ID: ${{ steps.createStagingRepoStep.outputs.repository_id }}
         run: |
           ./gradlew publish -Psonatype
 
       - name: Release
+        if: ${{ !cancelled() }}
         uses: nexus-actions/release-nexus-staging-repo@6632a81bfab63557b2717e8423b0a620ae5aa414
         with:
           username: ${{ secrets.SONATA_USERNAME }}
