@@ -42,12 +42,6 @@ runs:
         token: ${{ steps.appTokenStep.outputs.token }}
         repository: ${{inputs.replacementsRepo}}
 
-    - name: Install jq and yq
-      shell: bash
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y jq --no-install-recommends
-
     - id: get_replacements
       uses: mikefarah/yq@master
       with:
@@ -57,7 +51,8 @@ runs:
       shell: bash
       id: getReplacementsStep
       run: |
-        REPLACEMENTS=$(echo {{ steps.get_replacements.outputs.result }} | jq -c)
+        set -eo pipefail
+        REPLACEMENTS=$(jq -c '.' <<< '${{ steps.get_replacements.outputs.result }}')
         echo "Replacements: $REPLACEMENTS"
 
         echo "replacements=$REPLACEMENTS" >> $GITHUB_OUTPUT
