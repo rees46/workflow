@@ -43,6 +43,7 @@ runs:
         repository: ${{inputs.replacementsRepo}}
 
     - name: Install jq and yq
+      shell: bash
       run: |
         apt-get update && apt-get install -y jq yq
 
