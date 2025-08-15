@@ -40,6 +40,18 @@ runs:
   using: composite
 
   steps:
+    - id: changed-files
+      uses: tj-actions/changed-files@v46.0.5
+
+    - name: List all changed files
+      shell: bash
+      env:
+        ALL_CHANGED_FILES: ${{ steps.changed-files.outputs.all_changed_files }}
+      run: |
+        for file in ${ALL_CHANGED_FILES}; do
+          echo "$file was changed"
+        done
+
     - name: Create Pull Request
       uses: peter-evans/create-pull-request@v7
       id: cpr
