@@ -45,7 +45,8 @@ runs:
     - name: Install jq and yq
       shell: bash
       run: |
-        apt-get update && apt-get install -y jq yq
+        sudo apt-get update
+        sudo apt-get install -y jq yq --no-install-recommends
 
     - name: Read replacements from file
       shell: bash
