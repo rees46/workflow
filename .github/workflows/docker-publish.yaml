@@ -69,6 +69,7 @@ jobs:
           GIT_SHA: ${{ steps.tags.outputs.commitSha }}
           TAG_PREFIX: ${{ steps.tags.outputs.tagPrefix }}
           TAG_SUFFIX: ${{ steps.tags.outputs.tagSuffix }}
+          REPOSITORY_OWNER: ${{ github.repository_owner }}
         run: |
           set -uo pipefail
 
