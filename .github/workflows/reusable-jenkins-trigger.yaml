@@ -127,9 +127,9 @@ jobs:
         run: |
           echo "Starting to deploy all php packages $PHP_SERVICES"
 
-          for service in $SERVICES
+          for service in $PHP_SERVICES
           do
-            curl -si -X POST -u "$JENKINS_DEPLOY_USER:$JENKINS_DEPLOY_TOKEN" \
+            curl -s -X POST -u "$JENKINS_DEPLOY_USER:$JENKINS_DEPLOY_TOKEN" \
               "${JENKINS_URL}/job/${service}/buildWithParameters?BRANCH_NAME=${GIT_BRANCH}"
           done
 
