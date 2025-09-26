@@ -8,8 +8,8 @@ on:
         required: true
         type: string
       node-version:
-        description: 'Node version to run this workflow. Default: 22 as it is in action cache'
-        default: '22'
+        description: 'Node version to run this workflow. Default: 24 as it is in action cache'
+        default: '24'
         required: false
         type: string
       workingDirectory:
@@ -36,7 +36,7 @@ jobs:
           app-id: ${{ inputs.app-id }}
           private-key: ${{ secrets.private-key }}
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           token: ${{ steps.app-token.outputs.token }}
           fetch-depth: 0
