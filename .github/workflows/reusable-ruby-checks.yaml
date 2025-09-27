@@ -166,7 +166,7 @@ jobs:
             exit 0
           fi
 
-      - name: Run linters
+      - name: Lint
         if: ${{ !cancelled() }}
         env:
           CHANGED_FILES: ${{ steps.changed_files.outputs.all_changed_files }}
