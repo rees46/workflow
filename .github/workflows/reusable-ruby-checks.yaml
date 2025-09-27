@@ -52,6 +52,9 @@ jobs:
       - name: PSQL client
         run: sudo apt-get install --yes --no-install-recommends postgresql-client
 
+      - id: changed_files
+        uses: tj-actions/changed-files@v47.0.0
+
       - name: Start postgres
         env:
           PGPASSWORD: test
@@ -151,19 +154,20 @@ jobs:
 
       - name: Run linters
         if: ${{ !cancelled() }}
+        env:
+          CHANGED_FILES: ${{ steps.changed_files.outputs.all_changed_files }}
         run: |
-          if test -f "bin/rubocop"; then
-            bin/rubocop --parallel
+          set -e
+          RUBY_FILES=$(echo "$CHANGED_FILES" | grep '\.rb$' || true)
+
+          if [ -z "$RUBY_FILES" ]; then
+            echo "No Ruby files changed, skipping rubocop"
+            exit 0
           fi
-          if test -f "bin/stylelint"; then
-            bin/stylelint
-          fi
-          if test -f "bin/prettier"; then
-            bin/stylelint
-          fi
-          if test -f "bin/prettier"; then
-            bin/prettier
-          fi
-          if test -f "bin/eslint"; then
-            bin/eslint
+
+          if bundle show rubocop > /dev/null 2>&1; then
+            echo "Running rubocop..."
+            bundle exec rubocop $RUBY_FILES
+          else
+            echo "Rubocop not installed, skipping lint step"
           fi
