@@ -44,7 +44,5 @@ jobs:
         run: |
           for package in $CHANGED_PACKAGES
           do
-            cd packages/$package
-            php conventional-changelog --commit
-            cd ../..
+            php vendor/bin/conventional-changelog packages/$package --commit
           done
