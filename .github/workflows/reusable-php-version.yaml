@@ -2,6 +2,9 @@ name: Reusable PHP version
 
 on:
   workflow_call:
+    secrets:
+      token:
+        required: true
 
 env:
   SEARCH_PATH: packages
@@ -11,7 +14,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.token }}
 
       - uses: shivammathur/setup-php@v2
         with:
@@ -19,12 +25,25 @@ jobs:
           extensions: imagick sockets, bcmath, zip, xml, intl, gmp, pgsql, pcntl, event
           php-version: '8.1'
 
+      - name: Get Composer Cache Directory
+        id: composer-cache
+        run: |
+          echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+      - name: Restore Composer Cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
+
       - name: Install dependencies
         if: steps.changed_packages.outputs.packages != ''
         run: composer install --prefer-dist --no-progress --no-suggest
 
       - id: changed_files
-        uses: tj-actions/changed-files@v46.0.5
+        uses: tj-actions/changed-files@v47.0.0
 
       - name: Check if any services need deploy
         id: changed_packages
@@ -44,5 +63,9 @@ jobs:
         run: |
           for package in $CHANGED_PACKAGES
           do
-            php vendor/bin/conventional-changelog packages/$package --commit
+            CI_TAG_PREFIX="${package}@" php vendor/bin/conventional-changelog packages/$package --commit --config=.conventional-changelog-config.php
           done
+
+      - name: Push changes
+        run: |
+          git push
