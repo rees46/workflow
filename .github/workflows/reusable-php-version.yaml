@@ -5,6 +5,8 @@ on:
     secrets:
       token:
         required: true
+      sshSignKey:
+        required: true
 
 env:
   SEARCH_PATH: packages
@@ -18,6 +20,17 @@ jobs:
         with:
           fetch-depth: 0
           token: ${{ secrets.token }}
+
+      - name: Setup Git
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.sshSignKey }}" > ~/.ssh/signing_key
+          chmod 600 ~/.ssh/signing_key
+          git config --global gpg.format ssh
+          git config --global user.signingkey ~/.ssh/signing_key
+          git config --global commit.gpgsign true
+          git config --global user.name "jade-smith-rs46"
+          git config --global user.email "github-bot@rees46.com"
 
       - uses: shivammathur/setup-php@v2
         with:
