@@ -38,10 +38,6 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-composer-
 
-      - name: Install dependencies
-        if: steps.changed_packages.outputs.packages != ''
-        run: composer install --prefer-dist --no-progress --no-suggest
-
       - id: changed_files
         uses: tj-actions/changed-files@v47.0.0
 
@@ -57,7 +53,12 @@ jobs:
 
           echo "Found packages: $packages"
 
+      - name: Install dependencies
+        if: steps.changed_packages.outputs.packages != ''
+        run: composer install --prefer-dist --no-progress --no-suggest
+
       - name: Generate changelog
+        if: steps.changed_packages.outputs.packages != ''
         env:
           CHANGED_PACKAGES: ${{ steps.changed_packages.outputs.packages }}
         run: |
