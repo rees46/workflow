@@ -35,19 +35,23 @@ jobs:
       - name: Fetch stage branch
         run: git fetch origin stage
 
-      - name: Create work branch from stage
+      - name: Fetch and merge
         run: |
-          SYNC_BRANCH="sync/master-to-stage-${{ github.run_id }}"
-          git checkout -b "$SYNC_BRANCH" origin/stage
-          git merge origin/master --no-edit || true
-          git push origin "$SYNC_BRANCH"
-          echo "SYNC_BRANCH=$SYNC_BRANCH" >> $GITHUB_ENV
+          git fetch origin stage
+          git checkout stage
+          git merge origin/master --no-edit
+          git push origin stage
 
-      - name: Create PR into stage
+      - name: Comment on original PR if failed
+        if: failure()
         env:
           GITHUB_TOKEN: ${{ secrets.githubToken }}
         run: |
-          BODY="Автосинк PR #${{ github.event.pull_request.number }}"
+          RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          BODY="❌ Автосинк в stage завалился. Логи тут: $RUN_URL"
+          SYNC_BRANCH="sync/master-to-stage-${{ github.run_id }}"
+
+          git checkout -b $SYNC_BRANCH
 
           gh pr create \
             --base stage \
@@ -55,4 +59,8 @@ jobs:
             --title "Sync master -> stage" \
             --body "$BODY" \
             --assignee "${{ github.event.pull_request.user.login }}" \
+            --repo "$GITHUB_REPOSITORY"
+
+          gh pr comment ${{ github.event.pull_request.number }} \
+            --body "$BODY" \
             --repo "$GITHUB_REPOSITORY"
