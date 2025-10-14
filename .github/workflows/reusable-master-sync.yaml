@@ -38,9 +38,9 @@ jobs:
       - name: Create work branch from stage
         run: |
           SYNC_BRANCH="sync/master-to-stage-${{ github.run_id }}"
-          git checkout stage
+          git checkout -b "$SYNC_BRANCH" origin/stage
           git merge origin/master --no-edit || true
-          git push origin $SYNC_BRANCH
+          git push origin "$SYNC_BRANCH"
           echo "SYNC_BRANCH=$SYNC_BRANCH" >> $GITHUB_ENV
 
       - name: Create PR into stage
