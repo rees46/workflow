@@ -148,7 +148,7 @@ jobs:
           RAILS_ENV: development
         run: |
           bundle exec rake db:seed
-          bundle exec bin/rails runner -e production "RunnerWrapper.run('Themes::Updater.update_all_themes')"
+          bundle exec bin/rails runner -e production "RunnerWrapper.run('Themes::Updater.update_all_themes')" || true
 
       - name: Publish postgres docker image
         env:
