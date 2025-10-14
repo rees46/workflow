@@ -39,8 +39,11 @@ jobs:
         run: |
           git fetch origin stage
           git checkout stage
-          git merge --ff-only origin/master
-          git push origin stage
+          git rebase origin/master || {
+            git rebase --abort || true
+            exit 1
+          }
+          git push --force-with-lease origin stage
 
       - name: Comment on original PR if failed
         if: failure()
