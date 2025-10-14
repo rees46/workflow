@@ -172,7 +172,9 @@ jobs:
           CHANGED_FILES: ${{ steps.changed_files.outputs.all_changed_files }}
         run: |
           set -e
-          RUBY_FILES=$(echo "$CHANGED_FILES" | grep '\.rb$' || true)
+          RUBY_FILES=$(for f in $CHANGED_FILES; do
+            [[ "$f" == *.rb ]] && echo "$f"
+          done)
 
           if [ -z "$RUBY_FILES" ]; then
             echo "No Ruby files changed, skipping rubocop"
