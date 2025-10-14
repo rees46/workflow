@@ -1,0 +1,63 @@
+name: Reusable master sync
+
+on:
+  workflow_call:
+    inputs:
+      appId:
+        description: 'github app id'
+        required: true
+        type: string
+    secrets:
+      githubToken:
+        required: true
+      sshSigningKey:
+        required: true
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.githubToken }}
+
+      - name: Setup Git
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.sshSigningKey }}" > ~/.ssh/signing_key
+          chmod 600 ~/.ssh/signing_key
+          git config --global gpg.format ssh
+          git config --global user.signingkey ~/.ssh/signing_key
+          git config --global commit.gpgsign true
+          git config --global user.name "jade-smith-rs46"
+          git config --global user.email "github-bot@rees46.com"
+
+      - name: Fetch stage branch
+        run: git fetch origin stage
+
+      - name: Create work branch from stage
+        run: |
+          SYNC_BRANCH="sync/master-to-stage-${{ github.run_id }}"
+          git checkout stage
+          git merge origin/master --no-edit || true
+          git push origin $SYNC_BRANCH
+          echo "SYNC_BRANCH=$SYNC_BRANCH" >> $GITHUB_ENV
+
+      - name: Create PR into stage
+        env:
+          GITHUB_TOKEN: ${{ secrets.githubToken }}
+        run: |
+          BODY="Автосинк PR #${{ github.event.pull_request.number }}"
+
+          gh pr create \
+            --base stage \
+            --head "$SYNC_BRANCH" \
+            --title "Sync master -> stage" \
+            --body "$BODY" \
+            --assignee "${{ github.event.pull_request.user.login }}" \
+            --repo "$GITHUB_REPOSITORY"
