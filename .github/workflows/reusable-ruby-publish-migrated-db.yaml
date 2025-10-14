@@ -37,14 +37,13 @@ jobs:
             sleep 1
           done
 
-      - name: Start postgres
+      - name: Create postgres users
         run: |
           docker exec postgres psql -U postgres -c "CREATE USER rails WITH SUPERUSER PASSWORD 'rails';"
           docker exec postgres psql -U postgres -c "CREATE USER rees46 WITH SUPERUSER PASSWORD 'rees46';"
           docker exec postgres rm -rf /docker-entrypoint-initdb.d/*
 
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Start clickhouse server
         run: |
@@ -59,27 +58,15 @@ jobs:
           yandex/clickhouse-server:22-alpine;
           docker cp ./config/clickhouse-config.xml clickhouse_server:/etc/clickhouse-server/config.xml
 
-      - name: Setup node
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ inputs.nodeVersion }}
-
-      - name: Setup Ruby and install gems
-        uses: ruby/setup-ruby@v1
+      - uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{ inputs.rubyVersion }}
           bundler-cache: true
-
-      - name: Yarn install
-        run: yarn install --inline-builds
 
       - name: Prepare configs
         run: |
           mv ./config/database.yml.example ./config/database.yml
           mv ./config/secrets.yml.example ./config/secrets.yml
-
-      - name: Change configs
-        run: |
           file="./config/database.yml"
           awk '
           {
