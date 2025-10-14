@@ -148,7 +148,6 @@ jobs:
           RAILS_ENV: development
         run: |
           bundle exec rake db:seed
-          bundle exec bin/rails runner -e production "RunnerWrapper.run('Themes::Updater.update_all_themes')" || true
 
       - name: Publish postgres docker image
         env:
@@ -159,5 +158,5 @@ jobs:
 
           echo $(docker exec postgres psql -U rees46 -W rees46 -d rees46_test -c "\dt;")
           echo $GITHUB_TOKEN | docker login ghcr.io -u $REPOSITORY_OWNER --password-stdin
-          docker commit postgres ghcr.io/rees46/postgres-migrated:latest
+          docker commit --change "ENV PGDATA=/data" postgres ghcr.io/rees46/postgres-migrated:latest
           docker push ghcr.io/rees46/postgres-migrated:latest
