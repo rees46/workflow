@@ -95,7 +95,7 @@ jobs:
               $0 = "  <<: *default_clickhouse"
               in_development_clickhouse = 0
             }
-                                                   
+
             print
           }' "$file" > tmp && mv tmp "$file"
           echo "$(cat $file)"
@@ -105,8 +105,11 @@ jobs:
           bundle exec rake clickhouse:create
           bundle exec rake clickhouse:schema:load
           docker exec clickhouse_server clickhouse-client --query="rename database rees46 to rees46_test"
+          bundle exec rake clickhouse:create
+          bundle exec rake clickhouse:schema:load
           docker exec clickhouse_server clickhouse-client --query="show databases"
           docker exec clickhouse_server clickhouse-client --query="show tables from rees46_test"
+          docker exec clickhouse_server clickhouse-client --query="show tables from rees46"
 
       - name: Publish clickhouse server docker image
         env:
@@ -120,11 +123,20 @@ jobs:
           docker commit clickhouse_server ghcr.io/rees46/clickhouse-server-migrated:latest
           docker push ghcr.io/rees46/clickhouse-server-migrated:latest
 
-      - name: Run postgres migrations
+      - name: Run postgres migrations test
         env:
           PG_PASSWORD: rees46
           PG_USER: rees46
           RAILS_ENV: test
+        run: |
+          bundle exec rake db:create
+          bundle exec rake db:schema:load
+
+      - name: Run postgres migrations development
+        env:
+          PG_PASSWORD: rees46
+          PG_USER: rees46
+          RAILS_ENV: development
         run: |
           bundle exec rake db:create
           bundle exec rake db:schema:load
@@ -134,6 +146,8 @@ jobs:
           REPOSITORY_OWNER: ${{ github.repository_owner }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          docker exec postgres psql -U postgres -c "SELECT datname FROM pg_database WHERE datistemplate = false;"
+
           echo $(docker exec postgres psql -U rees46 -W rees46 -d rees46_test -c "\dt;")
           echo $GITHUB_TOKEN | docker login ghcr.io -u $REPOSITORY_OWNER --password-stdin
           docker commit postgres ghcr.io/rees46/postgres-migrated:latest
