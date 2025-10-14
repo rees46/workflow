@@ -39,7 +39,7 @@ jobs:
         run: |
           git fetch origin stage
           git checkout stage
-          git merge origin/master --no-edit
+          git merge --ff-only origin/master
           git push origin stage
 
       - name: Comment on original PR if failed
@@ -52,6 +52,7 @@ jobs:
           SYNC_BRANCH="sync/master-to-stage-${{ github.run_id }}"
 
           git checkout -b $SYNC_BRANCH
+          git push origin "$SYNC_BRANCH"
 
           gh pr create \
             --base stage \
