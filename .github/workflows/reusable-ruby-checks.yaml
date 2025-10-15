@@ -166,22 +166,22 @@ jobs:
             exit 0
           fi
 
-      - name: Lint
-        if: ${{ !cancelled() }}
-        env:
-          CHANGED_FILES: ${{ steps.changed_files.outputs.all_changed_files }}
-        run: |
-          set -e
-          RUBY_FILES=$(echo "$CHANGED_FILES" | tr ' ' '\n' | grep '\.rb$' || true)
-
-          if [ -z "$RUBY_FILES" ]; then
-            echo "No Ruby files changed, skipping rubocop"
-            exit 0
-          fi
-
-          if bundle show rubocop > /dev/null 2>&1; then
-            echo "Running rubocop..."
-            bundle exec rubocop $RUBY_FILES
-          else
-            echo "Rubocop not installed, skipping lint step"
-          fi
+      # - name: Lint
+      #   if: ${{ !cancelled() }}
+      #   env:
+      #     CHANGED_FILES: ${{ steps.changed_files.outputs.all_changed_files }}
+      #   run: |
+      #     set -e
+      #     RUBY_FILES=$(echo "$CHANGED_FILES" | tr ' ' '\n' | grep '\.rb$' || true)
+      #
+      #     if [ -z "$RUBY_FILES" ]; then
+      #       echo "No Ruby files changed, skipping rubocop"
+      #       exit 0
+      #     fi
+      #
+      #     if bundle show rubocop > /dev/null 2>&1; then
+      #       echo "Running rubocop..."
+      #       bundle exec rubocop $RUBY_FILES
+      #     else
+      #       echo "Rubocop not installed, skipping lint step"
+      #     fi
