@@ -20,6 +20,7 @@ jobs:
         with:
           file_or_dir: '.github/**/*.y*ml'
           format: 'colored'
+          config_file: '.yamllint.yml'
 
       - name: Run actionlint
         uses: docker://rhysd/actionlint:latest
