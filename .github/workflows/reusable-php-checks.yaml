@@ -282,6 +282,7 @@ jobs:
         run: |
           echo "🏗️🏗️🏗️ Testing core..."
           mv packages/core/config/test_secrets.ini.example packages/core/config/test_secrets.ini
+          [ -f packages/core/config/ci_secrets.ini.example ] mv packages/core/config/ci_secrets.ini.example packages/core/config/test_secrets.in
           XDEBUG_MODE=coverage vendor/bin/phpunit --bootstrap=packages/core/test/autoload.php --configuration=packages/core/phpunit.xml
 
       - name: Run tests
@@ -300,6 +301,7 @@ jobs:
             echo "🏗️🏗️🏗️ Testing $package..."
             if test -f "packages/$package/config/test_secrets.ini.example"; then 
               mv packages/$package/config/test_secrets.ini.example packages/$package/config/test_secrets.ini
+              [ -f packages/$package/config/ci_secrets.ini.example ] mv packages/$package/config/ci_secrets.ini.example packages/$package/config/test_secrets.in
               XDEBUG_MODE=coverage vendor/bin/phpunit --bootstrap=packages/$package/test/autoload.php --configuration=packages/$package/phpunit.xml
             fi
           done
