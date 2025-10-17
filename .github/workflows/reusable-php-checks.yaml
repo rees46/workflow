@@ -272,6 +272,13 @@ jobs:
 
       - name: Run core tests
         if: steps.changed_packages.outputs.packages != ''
+        env:
+          DB_HOST: 127.0.0.1
+          DB_MASTER_HOST: 127.0.0.1
+          CLICKHOUSE_HOST: 127.0.0.1
+          RABBITMQ_HOST: 127.0.0.1
+          ELASTIC_URL: http://127.0.0.1:9200
+          REDIS_HOST: 127.0.0.1:6379
         run: |
           echo "🏗️🏗️🏗️ Testing core..."
           mv packages/core/config/test_secrets.ini.example packages/core/config/test_secrets.ini
@@ -281,6 +288,12 @@ jobs:
         if: steps.changed_packages.outputs.packages != ''
         env:
           CHANGED_PACKAGES: ${{ steps.changed_packages.outputs.packages }}
+          DB_HOST: 127.0.0.1
+          DB_MASTER_HOST: 127.0.0.1
+          CLICKHOUSE_HOST: 127.0.0.1
+          RABBITMQ_HOST: 127.0.0.1
+          ELASTIC_URL: http://127.0.0.1:9200
+          REDIS_HOST: 127.0.0.1:6379
         run: |
           for package in $CHANGED_PACKAGES
           do
