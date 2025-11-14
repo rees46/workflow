@@ -1,0 +1,140 @@
+name: Pack image
+
+on:
+  workflow_call:
+    inputs:
+      registryURL:
+        description: 'Where to publish built docker image. Github - `ghcr.io`. Yandex - `cr.yandex`'
+        required: true
+        type: string
+      registryUser:
+        description: 'How to authenticate user. For yandex - `oauth`, `iam`, `json_key`. For GitHub - repo owner'
+        type: string
+        required: true
+      project:
+        description: 'Project name for publishing to registry. For GitHub - repo name.'
+        type: string
+        required: false
+      imageNamePrefix:
+        description: 'Image name prefix'
+        required: false
+        type: string
+      nodeVersion:
+        description: 'Node version to run this workflow. Default: 22'
+        default: '22'
+        required: false
+        type: string
+      escapeCharactersInKey:
+        required: false
+        default: true
+        type: boolean
+        description: 'Login via echo -e. Default: true'
+      include:
+        required: false
+        type: string
+        description: 'A comma-separated list of workspace names or glob patterns to include in the build. If provided, only these packages will be processed.'
+      exclude:
+        required: false
+        type: string
+        description: 'A comma-separated list of workspace names or glob patterns to exclude from the build. If provided, these packages will be skipped.'
+    secrets:
+      registryKey:
+        required: true
+        description: 'Login key for registry'
+      project:
+        required: false
+        description: 'Project name for publishing to registry. For GitHub - repo name.'
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate inputs - include and exclude
+        if: ${{ inputs.include && inputs.exclude }}
+        run: |
+          echo "Error: You cannot specify both 'include' and 'exclude' at the same time."
+          exit 1
+
+      - name: Login to registry
+        env:
+          REGISTRY_KEY: ${{ secrets.registryKey }}
+          USERNAME: ${{ inputs.registryUser }}
+          REGISTRY_URL: ${{ inputs.registryURL }}
+          ESCAPE_CHARACTERS: ${{ inputs.escapeCharactersInKey }}
+        run: |
+          printf '%s' "$REGISTRY_KEY" | docker login $REGISTRY_URL -u $USERNAME --password-stdin
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ inputs.nodeVersion }}
+
+      - name: Yarn cache directory
+        id: yarn-cache-dir-path
+        run: echo "dir=$(yarn config get cacheFolder)" >> $GITHUB_OUTPUT
+
+      - uses: actions/cache@v4
+        id: yarn-cache
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
+      - name: Yarn install
+        run: yarn install --inline-builds
+
+      - name: Install Buildpack CLI
+        run: |
+          (curl -sSL "https://github.com/buildpacks/pack/releases/download/v0.36.2/pack-v0.36.2-linux.tgz" | sudo tar -C /usr/local/bin/ --no-same-owner -xzv pack)
+
+      - name: Pack and publish
+        if: ${{ !inputs.include && !inputs.exclude }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REGISTRY_URL: ${{ inputs.registryURL }}
+          PROJECT: ${{ secrets.project != '' && secrets.project || inputs.project }}
+          IMAGE_NAME_PREFIX: ${{ inputs.imageNamePrefix }}
+        run: |
+          PROJECT_LOWER=$(echo "$PROJECT" | tr '[:upper:]' '[:lower:]')
+
+          yarn workspaces changed foreach -vpj 2 image pack --publish --tag-policy hash-timestamp --registry "$REGISTRY_URL/$PROJECT_LOWER/$IMAGE_NAME_PREFIX"
+
+      - name: Pack and publish included packages
+        if: ${{ inputs.include }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REGISTRY_URL: ${{ inputs.registryURL }}
+          PROJECT: ${{ secrets.project != '' && secrets.project || inputs.project }}
+          IMAGE_NAME_PREFIX: ${{ inputs.imageNamePrefix }}
+        run: |
+          PROJECT_LOWER=$(echo "$PROJECT" | tr '[:upper:]' '[:lower:]')
+
+          IFS=',' read -r -a include_array <<< "${{ inputs.include }}"
+          INCLUDE_FLAGS=""
+          for ws in "${include_array[@]}"; do
+            INCLUDE_FLAGS+="--include \"$ws\" "
+          done
+
+          yarn workspaces foreach --all $INCLUDE_FLAGS image pack --publish --tag-policy hash-timestamp --registry "$REGISTRY_URL/$PROJECT_LOWER/$IMAGE_NAME_PREFIX"
+
+      - name: Pack and publish without excluded
+        if: ${{ !inputs.include && inputs.exclude }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REGISTRY_URL: ${{ inputs.registryURL }}
+          PROJECT: ${{ secrets.project != '' && secrets.project || inputs.project }}
+          IMAGE_NAME_PREFIX: ${{ inputs.imageNamePrefix }}
+        run: |
+          PROJECT_LOWER=$(echo "$PROJECT" | tr '[:upper:]' '[:lower:]')
+
+          IFS=',' read -r -a include_array <<< "${{ inputs.exclude }}"
+          EXCLUDE_FLAGS=""
+          for ws in "${include_array[@]}"; do
+            EXCLUDE_FLAGS+="--exclude \"$ws\" "
+          done
+
+          yarn workspaces foreach --all $EXCLUDE_FLAGS image pack --publish --tag-policy hash-timestamp --registry "$REGISTRY_URL/$PROJECT_LOWER/$IMAGE_NAME_PREFIX"
