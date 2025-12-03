@@ -41,35 +41,15 @@ jobs:
           - 5672:5672
 
       postgres:
-        image: postgres:alpine
-        env:
-          POSTGRES_PASSWORD: test
-          POSTGRES_USER: postgres
+        image: ghcr.io/rees46/postgres-migrated:latest
         ports:
           - 5432:5432
 
     steps:
-      - name: PSQL client
-        run: sudo apt-get install --yes --no-install-recommends postgresql-client
-
       - id: changed_files
         uses: tj-actions/changed-files@v47.0.0
 
-      - name: Start postgres
-        env:
-          PGPASSWORD: test
-          PGUSER: postgres
-          PGHOST: localhost
-        run: |
-          psql -c "CREATE DATABASE rees46_test WITH OWNER postgres;"
-          psql -c "CREATE DATABASE rees46_production WITH OWNER postgres;"
-          psql -c "CREATE DATABASE rees46_clickhouse_rails_test WITH OWNER postgres;"
-          psql -c "CREATE DATABASE rees46_rails_test WITH OWNER postgres;"
-          psql -c "CREATE DATABASE rees46_clickhouse WITH OWNER postgres;"
-          psql -c "CREATE DATABASE rees46_clickhouse_test WITH OWNER postgres;"
-          psql -d postgres -c "SELECT version();"
-
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Needs ImageMagick
         run: |
@@ -126,17 +106,6 @@ jobs:
           if test -f "config/secrets.yml.example"; then
             mv ./config/secrets.yml.example ./config/secrets.yml
           fi
-
-      - name: Prepare DB
-        env:
-          DISABLE_DATABASE_ENVIRONMENT_CHECK: 1
-          RAILS_ENV: test
-          PG_USER: postgres
-          PG_PASSWORD: test
-        run: |
-          bundle exec rake db:functions:install || true
-          bin/rails db:environment:set
-          bundle exec rake db:reset
 
       - name: Load clickhouse schema
         if: ${{ !cancelled() }}
