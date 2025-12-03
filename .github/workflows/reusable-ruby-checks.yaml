@@ -134,6 +134,7 @@ jobs:
           PG_USER: postgres
           PG_PASSWORD: test
         run: |
+          bundle exec rake db:functions:install || true
           bin/rails db:environment:set
           bundle exec rake db:reset
 
