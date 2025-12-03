@@ -54,8 +54,8 @@ jobs:
 
       - name: Start postgres
         env:
-          PGPASSWORD: test
-          PGUSER: postgres
+          PGUSER: rees46
+          PGPASSWORD: rees46
           PGHOST: localhost
         run: |
           psql -c "CREATE DATABASE rees46_clickhouse_rails_test WITH OWNER postgres;"
@@ -124,8 +124,8 @@ jobs:
         env:
           DISABLE_DATABASE_ENVIRONMENT_CHECK: 1
           RAILS_ENV: test
-          PG_USER: postgres
-          PG_PASSWORD: test
+          PG_USER: rees46
+          PG_PASSWORD: rees46
         run: bundle exec rake clickhouse:schema:load || bundle exec rake clickhouse:schema:load -- --simple
 
       - name: Test
@@ -133,8 +133,8 @@ jobs:
         env:
           DISABLE_DATABASE_ENVIRONMENT_CHECK: 1
           RAILS_ENV: test
-          PG_USER: postgres
-          PG_PASSWORD: test
+          PG_USER: rees46
+          PG_PASSWORD: rees46
         run: bin/rspec
 
       - name: Bundle
