@@ -1,0 +1,21 @@
+name: Reusable Ruby cache
+
+on:
+  workflow_call:
+    inputs:
+      rubyVersion:
+        description: Ruby version to use
+        default: '2.7.5'
+        type: string
+        required: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ inputs.rubyVersion }}
+          bundler-cache: true
