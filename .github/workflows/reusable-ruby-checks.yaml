@@ -59,6 +59,7 @@ jobs:
           PGHOST: localhost
         run: |
           psql -d postgres -c "CREATE DATABASE rees46_clickhouse_rails_test WITH OWNER rees46;"
+          psql -d postgres -c "CREATE DATABASE rees46_rails_test WITH OWNER rees46;"
           psql -d postgres -c "SELECT version();"
 
       - uses: actions/checkout@v5
