@@ -112,8 +112,8 @@ jobs:
         env:
           DISABLE_DATABASE_ENVIRONMENT_CHECK: 1
           RAILS_ENV: test
-          PG_USER: postgres
-          PG_PASSWORD: test
+          PG_USER: rees46
+          PG_PASSWORD: rees46
         run: bundle exec rake clickhouse:schema:load || bundle exec rake clickhouse:schema:load -- --simple
 
       - name: Test
@@ -121,8 +121,8 @@ jobs:
         env:
           DISABLE_DATABASE_ENVIRONMENT_CHECK: 1
           RAILS_ENV: test
-          PG_USER: postgres
-          PG_PASSWORD: test
+          PG_USER: rees46
+          PG_PASSWORD: rees46
         run: bin/rspec
 
       - name: Bundle
