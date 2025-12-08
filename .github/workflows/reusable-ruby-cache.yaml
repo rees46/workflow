@@ -15,6 +15,16 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
+      - name: Needs ImageMagick
+        run: |
+          if grep -ri 'rmagick' Gemfile; then
+            echo "🧙‍♂️ RMagick detected, installing ImageMagick..."
+            sudo apt-get update
+            sudo apt-get install -y --no-install-recommends imagemagick-6.q16 libmagickwand-dev
+          else
+            echo "No RMagick found, skipping ImageMagick install."
+          fi
+
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{ inputs.rubyVersion }}
