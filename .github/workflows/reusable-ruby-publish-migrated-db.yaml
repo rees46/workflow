@@ -130,13 +130,21 @@ jobs:
           bundle exec rake db:functions:install || true
           bundle exec rake db:schema:load
 
-      - name: Run seeds
+      - name: Run seeds dev
         env:
+          RAILS_ENV: development
           PG_PASSWORD: rees46
           PG_USER: rees46
         run: |
-          RAILS_ENV=development bundle exec rake db:seed
-          RAILS_ENV=test bundle exec rake db:seed
+          bundle exec rake db:seed
+
+      - name: Run seeds test
+        env:
+          RAILS_ENV: test
+          DATABASE_TEST_URL: postgres://rees46:rees46@localhost:5432/rees46_test
+          DATABASE_CLICK_TEST_URL: postgres://rees46:rees46@localhost:5432/rees46_clickhouse_test
+        run: |
+          bundle exec rake db:seed
 
       - name: Publish postgres docker image
         env:
