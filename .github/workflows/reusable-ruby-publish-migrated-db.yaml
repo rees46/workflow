@@ -119,7 +119,8 @@ jobs:
           bundle exec rake db:create
           bundle exec rake db:functions:install || true
           bundle exec rake db:schema:load
-          bundle exec rails clickhouse:schema:load -- --simple
+          bundle exec rake clickhouse:create
+          bundle exec rake clickhouse:schema:load -- --simple
 
       - name: Run postgres migrations development
         env:
