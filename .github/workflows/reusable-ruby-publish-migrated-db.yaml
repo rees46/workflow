@@ -112,9 +112,9 @@ jobs:
 
       - name: Run postgres migrations test
         env:
-          PG_PASSWORD: rees46
-          PG_USER: rees46
           RAILS_ENV: test
+          DATABASE_TEST_URL: postgres://rees46:rees46@localhost:5432/rees46_test
+          DATABASE_CLICK_TEST_URL: postgres://rees46:rees46@localhost:5432/rees46_clickhouse_test
         run: |
           bundle exec rake db:create
           bundle exec rake db:functions:install || true
