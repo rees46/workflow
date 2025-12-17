@@ -26,42 +26,9 @@ jobs:
       run:
         working-directory: ${{ inputs.workingDirectory }}
 
-    services:
-      redis:
-        image: redis:alpine
-        ports:
-          - 6379:6379
-
-      rabbit:
-        image: rabbitmq:management-alpine
-        env:
-          RABBITMQ_DEFAULT_USER: guest
-          RABBITMQ_DEFAULT_PASS: guest
-        ports:
-          - 5672:5672
-
-      postgres:
-        image: ghcr.io/rees46/postgres-migrated:latest
-        ports:
-          - 5432:5432
-
     steps:
-      - name: PSQL client
-        run: sudo apt-get install --yes --no-install-recommends postgresql-client
-
       - id: changed_files
         uses: tj-actions/changed-files@v47.0.0
-
-      - name: Start postgres
-        env:
-          PGUSER: rees46
-          PGPASSWORD: rees46
-          PGHOST: localhost
-        run: |
-          psql -d postgres -c "CREATE DATABASE rees46_clickhouse_rails_test WITH OWNER rees46;"
-          psql -d postgres -c "CREATE DATABASE rees46_clickhouse_test WITH OWNER rees46;"
-          psql -d postgres -c "CREATE DATABASE rees46_rails_test WITH OWNER rees46;"
-          psql -d postgres -c "SELECT version();"
 
       - uses: actions/checkout@v5
 
@@ -120,15 +87,6 @@ jobs:
           if test -f "config/secrets.yml.example"; then
             mv ./config/secrets.yml.example ./config/secrets.yml
           fi
-
-      - name: Load clickhouse schema
-        if: ${{ !cancelled() }}
-        env:
-          DISABLE_DATABASE_ENVIRONMENT_CHECK: 1
-          RAILS_ENV: test
-          PG_USER: rees46
-          PG_PASSWORD: rees46
-        run: bundle exec rake clickhouse:schema:load || bundle exec rake clickhouse:schema:load -- --simple
 
       - name: Test
         if: ${{ !cancelled() }}
