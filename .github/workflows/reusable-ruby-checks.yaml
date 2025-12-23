@@ -27,6 +27,12 @@ jobs:
         working-directory: ${{ inputs.workingDirectory }}
 
     steps:
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - id: changed_files
         uses: tj-actions/changed-files@v47.0.0
 
