@@ -94,17 +94,6 @@ jobs:
             mv ./config/secrets.yml.example ./config/secrets.yml
           fi
 
-      - name: Migrate
-        env:
-          RAILS_ENV: test
-        if: ${{ !cancelled() }}
-        run: |
-          if test -f "bin/rspec_prepare"; then
-            bin/rspec_prepare
-          else
-            exit 0
-          fi
-
       - name: Test
         if: ${{ !cancelled() }}
         env:
