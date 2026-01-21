@@ -1,0 +1,47 @@
+name: Setup Core V2 Environment
+description: Sets up PHP v2
+
+inputs:
+  php:
+    description: 'PHP Version'
+    required: false
+    default: '8.4'
+  php-extensions:
+    description: 'PHP Extensions'
+    required: false
+    default: 'apcu, amqp, protobuf, intl, gmp, sockets, zip, opcache, pdo_pgsql'
+
+runs:
+  using: composite
+  steps:
+    - name: Setup PHP ${{ inputs.php }}
+      uses: shivammathur/setup-php@v2
+      with:
+        extensions: ${{ inputs.php-extensions }}
+        php-version: ${{ inputs.php }}
+
+    - name: Validate Composer
+      shell: bash
+      run: composer validate
+
+    - name: Get Composer Cache Directory
+      shell: bash
+      id: composer-cache
+      run: |
+        echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+    - name: Restore Composer Cache
+      uses: actions/cache@v5
+      with:
+        path: ${{ steps.composer-cache.outputs.dir }}
+        key: core-v2-composer-${{ hashFiles('composer.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-core-v2-composer-
+
+    - name: Install Dependencies
+      uses: nick-invision/retry@v2
+      with:
+        timeout_minutes: 5
+        max_attempts: 3
+        command: |
+          composer install --prefer-dist --no-interaction --no-progress
