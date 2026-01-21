@@ -231,7 +231,7 @@ jobs:
         run: |
           echo "CHANGED_FILES: $CHANGED_FILES"
 
-          packages=$(echo "$CHANGED_FILES" | tr ' ' '\n' | grep "^${SEARCH_PATH}/" | awk -F '/' '{print $2}' | uniq | tr '\n' ' ')
+          packages=$(echo "$CHANGED_FILES" | tr ' ' '\n' | grep "^${SEARCH_PATH}/" | grep -v "^${SEARCH_PATH}/core-v2" | awk -F '/' '{print $2}' | uniq | tr '\n' ' ')
           echo "packages=${packages}" >> "$GITHUB_OUTPUT"
 
           echo "Found packages: $packages"
