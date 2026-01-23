@@ -13,15 +13,33 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
+
+      - name: Get changed YAML files
+        id: changed-yaml
+        uses: tj-actions/changed-files@v45
+        with:
+          files: |
+            .github/**/*.yml
+            .github/**/*.yaml
+
+      - name: Get changed workflow files
+        id: changed-workflows
+        uses: tj-actions/changed-files@v45
+        with:
+          files: |
+            .github/workflows/**/*.yml
+            .github/workflows/**/*.yaml
 
       - name: Run yamllint
+        if: ${{ !cancelled() }} && steps.changed-yaml.outputs.any_changed == 'true'
         uses: ibiqlik/action-yamllint@v3
         with:
-          file_or_dir: '.github/**/*.y*ml'
+          file_or_dir: ${{ steps.changed-yaml.outputs.all_changed_files }}
           format: 'colored'
 
       - name: Run actionlint
+        if: ${{ !cancelled() }} && steps.changed-workflows.outputs.any_changed == 'true'
         uses: docker://rhysd/actionlint:latest
         with:
-          args: -color
+          args: -color ${{ steps.changed-workflows.outputs.all_changed_files }}
