@@ -32,14 +32,23 @@ jobs:
             .github/workflows/**/*.yaml
 
       - name: Run yamllint
-        if: ${{ !cancelled() && steps.changed-yaml.outputs.any_changed == 'true' }}
+        if: |
+          !cancelled() &&
+          steps.changed-yaml.outputs.any_changed == 'true'
         uses: ibiqlik/action-yamllint@v3
         with:
           file_or_dir: ${{ steps.changed-yaml.outputs.all_changed_files }}
           format: 'colored'
+          # https://yamllint.readthedocs.io/en/stable/configuration.html
+          config_data: |
+            extends: default
+            rules:
+              document-start: disable
 
       - name: Run actionlint
-        if: ${{ !cancelled() && steps.changed-workflows.outputs.any_changed == 'true' }}
+        if: |
+          !cancelled() &&
+          steps.changed-workflows.outputs.any_changed == 'true'
         uses: docker://rhysd/actionlint:latest
         with:
           args: -color ${{ steps.changed-workflows.outputs.all_changed_files }}
