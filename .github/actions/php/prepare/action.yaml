@@ -34,13 +34,14 @@ runs:
       shell: bash
       id: composer-cache
       run: |
+        cd ${{ inputs.work-directory }}
         echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
 
     - name: Restore Composer Cache
       uses: actions/cache@v5
       with:
         path: ${{ steps.composer-cache.outputs.dir }}
-        key: core-v2-composer-${{ hashFiles('composer.lock') }}
+        key: core-v2-composer-${{ hashFiles(format('{0}/composer.lock', inputs.work-directory)) }}
         restore-keys: |
           ${{ runner.os }}-core-v2-composer-
 
