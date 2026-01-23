@@ -42,7 +42,6 @@ runs:
 
     - uses: actions/setup-node@v6
       with:
-        node-version: ${{ inputs.nodeVersion }}
         registry-url: https://registry.npmjs.org
 
     - name: Yarn cache directory
