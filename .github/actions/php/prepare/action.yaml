@@ -13,7 +13,7 @@ inputs:
   work-directory:
     description: 'Working Directory'
     required: false
-    default: '.'
+    default: 'packages/core-v2'
 
 runs:
   using: composite
