@@ -2,11 +2,11 @@ name: Check PHP V2
 
 on:
   workflow_call:
-    inputs:
-      working-directory:
-        required: false
-        default: packages/core-v2
-        type: string
+    # inputs:
+    #   working-directory:
+    #     required: false
+    #     default: packages/core-v2
+    #     type: string
 
 defaults:
   run:
