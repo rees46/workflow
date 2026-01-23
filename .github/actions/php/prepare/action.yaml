@@ -10,6 +10,10 @@ inputs:
     description: 'PHP Extensions'
     required: false
     default: 'apcu, amqp, protobuf, intl, gmp, sockets, zip, opcache, pdo_pgsql'
+  work-directory:
+    description: 'Working Directory'
+    required: false
+    default: '.'
 
 runs:
   using: composite
@@ -21,10 +25,12 @@ runs:
         php-version: ${{ inputs.php }}
 
     - name: Validate Composer
+      working-directory: ${{ inputs.work-directory }}
       shell: bash
       run: composer validate
 
     - name: Get Composer Cache Directory
+      working-directory: ${{ inputs.work-directory }}
       shell: bash
       id: composer-cache
       run: |
@@ -44,4 +50,5 @@ runs:
         timeout_minutes: 5
         max_attempts: 3
         command: |
+          cd ${{ inputs.work-directory }}
           composer install --prefer-dist --no-interaction --no-progress
