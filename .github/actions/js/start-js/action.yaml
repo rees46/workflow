@@ -31,7 +31,7 @@ runs:
         app-id: ${{ inputs.appId }}
         private-key: ${{ inputs.appSecret }}
 
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
       with:
         fetch-depth: 0
         token: ${{ steps.app-token.outputs.token }}
@@ -40,9 +40,10 @@ runs:
       shell: bash
       run: sudo chmod -R ugo+rwX .
 
-    - uses: actions/setup-node@v4
+    - uses: actions/setup-node@v6
       with:
         node-version: ${{ inputs.nodeVersion }}
+        registry-url: https://registry.npmjs.org
 
     - name: Yarn cache directory
       id: yarn-cache-dir-path
