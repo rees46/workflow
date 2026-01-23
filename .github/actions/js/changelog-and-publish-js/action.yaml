@@ -41,17 +41,10 @@ runs:
       run: yarn workspaces foreach --since=$BASE_COMMIT^ --exclude=$EXCLUDE -vp --jobs=2 run changelog
       shell: bash
 
-    - name: Force Yarn to use NPM Registry
-      run: |
-        yarn config set npmScopes.rees46.npmRegistryServer ${{ inputs.registryServer }}
-        yarn config set npmRegistryServer ${{ inputs.registryServer }}
-      shell: bash
-
     - name: Publish
       if: inputs.onlyChangelog == 'false'
       working-directory: ${{ inputs.workingDirectory }}
       env:
-        YARN_NPM_AUTH_TOKEN: ${{ inputs.npmAuthToken }}
         BASE_COMMIT: ${{ inputs.baseCommit }}
         EXCLUDE: ${{ inputs.exclude }}
       run: yarn workspaces foreach --since=$BASE_COMMIT^ --exclude=$EXCLUDE --no-private -vp --jobs=2 npm publish --access public
