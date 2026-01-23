@@ -24,6 +24,7 @@ jobs:
           echo "CHANGED_FILES: $CHANGED_FILES"
 
           packages=$(echo "$CHANGED_FILES" | tr ' ' '\n' | grep "^${SEARCH_PATH}/" | awk -F '/' '{print $2}' | uniq | tr '\n' ' ')
+          packages=" $packages "
           echo "packages=${packages}" >> "$GITHUB_OUTPUT"
 
           echo "Found packages: $packages"
@@ -65,7 +66,7 @@ jobs:
           cache-to: type=gha,mode=max,scope=core
 
       - name: Build and push all docker images
-        if: contains(steps.changed_packages.outputs.packages, 'core')
+        if: contains(steps.changed_packages.outputs.packages, ' core ')
         env:
           REPOSITORY_OWNER: ${{ github.repository_owner }}
           SOURCE_PATH: packages
@@ -102,7 +103,7 @@ jobs:
           done
 
       - name: Build and push changed docker images
-        if: ${{ !contains(steps.changed_packages.outputs.packages, 'core') }}
+        if: ${{ !contains(steps.changed_packages.outputs.packages, ' core ') }}
         env:
           REPOSITORY_OWNER: ${{ github.repository_owner }}
           CHANGED_FILES: ${{ steps.changed_packages.outputs.packages }}
