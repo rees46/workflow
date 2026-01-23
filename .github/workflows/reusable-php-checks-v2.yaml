@@ -26,8 +26,6 @@ jobs:
           git config --global core.eol lf
 
       - uses: rees46/workflow/.github/actions/php/prepare@master
-        with:
-          working-directory: ${{ inputs.working-directory }}
 
       - name: Composer Audit
         working-directory: ${{ inputs.working-directory }}
@@ -54,8 +52,6 @@ jobs:
           git config --global core.eol lf
 
       - uses: rees46/workflow/.github/actions/php/prepare@master
-        with:
-          working-directory: ${{ inputs.working-directory }}
 
       - name: Static Analysis
         working-directory: ${{ inputs.working-directory }}
@@ -78,8 +74,6 @@ jobs:
           git config --global core.eol lf
 
       - uses: rees46/workflow/.github/actions/php/prepare@master
-        with:
-          working-directory: ${{ inputs.working-directory }}
 
       - name: Check Code Style
         working-directory: ${{ inputs.working-directory }}
@@ -119,8 +113,6 @@ jobs:
           git config --global core.eol lf
 
       - uses: rees46/workflow/.github/actions/php/prepare@master
-        with:
-          working-directory: ${{ inputs.working-directory }}
 
       - name: Symfony Container Tests
         working-directory: ${{ inputs.working-directory }}
