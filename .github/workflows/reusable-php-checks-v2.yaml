@@ -8,15 +8,14 @@ on:
         default: packages/core-v2
         type: string
 
-defaults:
-  run:
-    shell: bash
-    working-directory: ${{ inputs.working-directory }}
-
 jobs:
   security:
     name: Security
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+        working-directory: ${{ inputs.working-directory }}
     steps:
       - uses: actions/checkout@v5
 
@@ -37,6 +36,10 @@ jobs:
   phpstan:
     name: Linter
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+        working-directory: ${{ inputs.working-directory }}
     steps:
       - uses: actions/checkout@v5
 
@@ -54,6 +57,10 @@ jobs:
   php-cs-fixer:
     name: Code Style
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+        working-directory: ${{ inputs.working-directory }}
     steps:
       - uses: actions/checkout@v5
 
@@ -71,6 +78,10 @@ jobs:
   tests:
     name: Tests
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+        working-directory: ${{ inputs.working-directory }}
     services:
       rabbit:
         image: rabbitmq:management-alpine
