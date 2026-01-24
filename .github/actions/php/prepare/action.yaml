@@ -35,7 +35,7 @@ runs:
       uses: actions/cache@v5
       with:
         path: ${{ steps.composer-cache.outputs.dir }}
-        key: core-v2-composer-${{ hashFiles('composer.lock')) }}
+        key: core-v2-composer-${{ hashFiles('composer.lock') }}
         restore-keys: |
           core-v2-composer-
 
