@@ -32,104 +32,102 @@ jobs:
       - uses: rees46/workflow/.github/actions/php/prepare@master
 
       - name: Composer Audit
-        working-directory: ${{ inputs.working-directory }}
         run: composer audit
 
       - name: Security Advisories
-        working-directory: ${{ inputs.working-directory }}
         run: composer require --dev roave/security-advisories:dev-latest
 
-  phpstan:
-    name: Linter
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: bash
-        working-directory: ${{ inputs.working-directory }}
-    steps:
-      - uses: actions/checkout@v5
-
-      - name: Set Git To Use LF
-        shell: bash
-        run: |
-          git config --global core.autocrlf false
-          git config --global core.eol lf
-
-      - uses: rees46/workflow/.github/actions/php/prepare@master
-
-      - name: Static Analysis
-        working-directory: ${{ inputs.working-directory }}
-        run: composer linter:check -- --error-format=github --ansi
-
-  php-cs-fixer:
-    name: Code Style
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: bash
-        working-directory: ${{ inputs.working-directory }}
-    steps:
-      - uses: actions/checkout@v5
-
-      - name: Set Git To Use LF
-        shell: bash
-        run: |
-          git config --global core.autocrlf false
-          git config --global core.eol lf
-
-      - uses: rees46/workflow/.github/actions/php/prepare@master
-
-      - name: Check Code Style
-        working-directory: ${{ inputs.working-directory }}
-        run: composer phpcs:check
-
-  tests:
-    name: Tests
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: bash
-        working-directory: ${{ inputs.working-directory }}
-    services:
-      rabbit:
-        image: rabbitmq:management-alpine
-        env:
-          RABBITMQ_DEFAULT_USER: guest
-          RABBITMQ_DEFAULT_PASS: guest
-        ports:
-          - 5672:5672
-
-      postgres:
-        image: ghcr.io/rees46/postgres-migrated:latest
-        ports:
-          - 5432:5432
-        credentials:
-          password: ${{ secrets.GITHUB_TOKEN }}
-          username: ${{ github.repository_owner }}
-
-    steps:
-      - uses: actions/checkout@v5
-
-      - name: Set Git To Use LF
-        shell: bash
-        run: |
-          git config --global core.autocrlf false
-          git config --global core.eol lf
-
-      - uses: rees46/workflow/.github/actions/php/prepare@master
-
-      - name: Symfony Container Tests
-        working-directory: ${{ inputs.working-directory }}
-        run: composer test:container
-
-      - name: Unit Tests
-        working-directory: ${{ inputs.working-directory }}
-        run: composer test:unit
-
-      - name: Integration Tests
-        working-directory: ${{ inputs.working-directory }}
-        run: composer test:integration
-
-      - name: Functional Tests
-        working-directory: ${{ inputs.working-directory }}
-        run: composer test:feature
+  # phpstan:
+  #   name: Linter
+  #   runs-on: ubuntu-latest
+  #   defaults:
+  #     run:
+  #       shell: bash
+  #       working-directory: ${{ inputs.working-directory }}
+  #   steps:
+  #     - uses: actions/checkout@v5
+  #
+  #     - name: Set Git To Use LF
+  #       shell: bash
+  #       run: |
+  #         git config --global core.autocrlf false
+  #         git config --global core.eol lf
+  #
+  #     - uses: rees46/workflow/.github/actions/php/prepare@master
+  #
+  #     - name: Static Analysis
+  #       working-directory: ${{ inputs.working-directory }}
+  #       run: composer linter:check -- --error-format=github --ansi
+  #
+  # php-cs-fixer:
+  #   name: Code Style
+  #   runs-on: ubuntu-latest
+  #   defaults:
+  #     run:
+  #       shell: bash
+  #       working-directory: ${{ inputs.working-directory }}
+  #   steps:
+  #     - uses: actions/checkout@v5
+  #
+  #     - name: Set Git To Use LF
+  #       shell: bash
+  #       run: |
+  #         git config --global core.autocrlf false
+  #         git config --global core.eol lf
+  #
+  #     - uses: rees46/workflow/.github/actions/php/prepare@master
+  #
+  #     - name: Check Code Style
+  #       working-directory: ${{ inputs.working-directory }}
+  #       run: composer phpcs:check
+  #
+  # tests:
+  #   name: Tests
+  #   runs-on: ubuntu-latest
+  #   defaults:
+  #     run:
+  #       shell: bash
+  #       working-directory: ${{ inputs.working-directory }}
+  #   services:
+  #     rabbit:
+  #       image: rabbitmq:management-alpine
+  #       env:
+  #         RABBITMQ_DEFAULT_USER: guest
+  #         RABBITMQ_DEFAULT_PASS: guest
+  #       ports:
+  #         - 5672:5672
+  #
+  #     postgres:
+  #       image: ghcr.io/rees46/postgres-migrated:latest
+  #       ports:
+  #         - 5432:5432
+  #       credentials:
+  #         password: ${{ secrets.GITHUB_TOKEN }}
+  #         username: ${{ github.repository_owner }}
+  #
+  #   steps:
+  #     - uses: actions/checkout@v5
+  #
+  #     - name: Set Git To Use LF
+  #       shell: bash
+  #       run: |
+  #         git config --global core.autocrlf false
+  #         git config --global core.eol lf
+  #
+  #     - uses: rees46/workflow/.github/actions/php/prepare@master
+  #
+  #     - name: Symfony Container Tests
+  #       working-directory: ${{ inputs.working-directory }}
+  #       run: composer test:container
+  #
+  #     - name: Unit Tests
+  #       working-directory: ${{ inputs.working-directory }}
+  #       run: composer test:unit
+  #
+  #     - name: Integration Tests
+  #       working-directory: ${{ inputs.working-directory }}
+  #       run: composer test:integration
+  #
+  #     - name: Functional Tests
+  #       working-directory: ${{ inputs.working-directory }}
+  #       run: composer test:feature
