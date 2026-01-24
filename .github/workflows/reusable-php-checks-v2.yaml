@@ -32,11 +32,9 @@ jobs:
       - uses: rees46/workflow/.github/actions/php/prepare@master
 
       - name: Composer Audit
-        working-directory: ${{ inputs.working-directory }}
         run: composer audit
 
       - name: Security Advisories
-        working-directory: ${{ inputs.working-directory }}
         run: composer require --dev roave/security-advisories:dev-latest
 
   phpstan:
@@ -58,7 +56,6 @@ jobs:
       - uses: rees46/workflow/.github/actions/php/prepare@master
 
       - name: Static Analysis
-        working-directory: ${{ inputs.working-directory }}
         run: composer linter:check -- --error-format=github --ansi
 
   php-cs-fixer:
@@ -80,7 +77,6 @@ jobs:
       - uses: rees46/workflow/.github/actions/php/prepare@master
 
       - name: Check Code Style
-        working-directory: ${{ inputs.working-directory }}
         run: composer phpcs:check
 
   tests:
@@ -119,17 +115,13 @@ jobs:
       - uses: rees46/workflow/.github/actions/php/prepare@master
 
       - name: Symfony Container Tests
-        working-directory: ${{ inputs.working-directory }}
         run: composer test:container
 
       - name: Unit Tests
-        working-directory: ${{ inputs.working-directory }}
         run: composer test:unit
 
       - name: Integration Tests
-        working-directory: ${{ inputs.working-directory }}
         run: composer test:integration
 
       - name: Functional Tests
-        working-directory: ${{ inputs.working-directory }}
         run: composer test:feature

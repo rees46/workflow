@@ -10,13 +10,10 @@ inputs:
     description: 'PHP Extensions'
     required: false
     default: 'apcu, amqp, protobuf, intl, gmp, sockets, zip, opcache, pdo_pgsql'
-  work-directory:
-    description: 'Working Directory'
-    required: false
-    default: 'packages/core-v2'
 
 runs:
   using: composite
+
   steps:
     - name: Setup PHP ${{ inputs.php }}
       uses: shivammathur/setup-php@v2
@@ -25,12 +22,10 @@ runs:
         php-version: ${{ inputs.php }}
 
     - name: Validate Composer
-      working-directory: ${{ inputs.work-directory }}
       shell: bash
       run: composer validate
 
     - name: Get Composer Cache Directory
-      working-directory: ${{ inputs.work-directory }}
       shell: bash
       id: composer-cache
       run: |
@@ -40,9 +35,9 @@ runs:
       uses: actions/cache@v5
       with:
         path: ${{ steps.composer-cache.outputs.dir }}
-        key: core-v2-composer-${{ hashFiles(format('{0}/composer.lock', inputs.work-directory)) }}
+        key: core-v2-composer-${{ hashFiles('composer.lock')) }}
         restore-keys: |
-          ${{ runner.os }}-core-v2-composer-
+          core-v2-composer-
 
     - name: Install Dependencies
       uses: nick-invision/retry@v2
@@ -50,5 +45,4 @@ runs:
         timeout_minutes: 5
         max_attempts: 3
         command: |
-          cd ${{ inputs.work-directory }}
           composer install --prefer-dist --no-interaction --no-progress
