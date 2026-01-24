@@ -47,6 +47,5 @@ runs:
     - name: Install Dependencies
       shell: bash
       working-directory: ${{ inputs.working-directory }}
-      id: composer-cache
       run: |
         composer install --prefer-dist --no-interaction --no-progress
