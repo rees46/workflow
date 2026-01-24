@@ -40,15 +40,13 @@ runs:
       uses: actions/cache@v5
       with:
         path: ${{ steps.composer-cache.outputs.dir }}
-        key: core-v2-composer-${{ hashFiles('composer.lock') }}
+        key: core-v2-composer-${{ hashFiles(format('{0}/composer.lock', inputs.working-directory)) }}
         restore-keys: |
           core-v2-composer-
 
     - name: Install Dependencies
-      uses: nick-invision/retry@v2
+      shell: bash
       working-directory: ${{ inputs.working-directory }}
-      with:
-        timeout_minutes: 5
-        max_attempts: 3
-        command: |
-          composer install --prefer-dist --no-interaction --no-progress
+      id: composer-cache
+      run: |
+        composer install --prefer-dist --no-interaction --no-progress
