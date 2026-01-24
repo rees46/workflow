@@ -35,9 +35,9 @@ runs:
       uses: actions/cache@v5
       with:
         path: ${{ steps.composer-cache.outputs.dir }}
-        key: core-v2-composer-${{ hashFiles(format('{0}/composer.lock')) }}
+        key: core-v2-composer-${{ hashFiles('composer.lock')) }}
         restore-keys: |
-          ${{ runner.os }}-core-v2-composer-
+          core-v2-composer-
 
     - name: Install Dependencies
       uses: nick-invision/retry@v2
