@@ -38,7 +38,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - id: app-token
-        if: ${{ inputs.GH_APP_ID && secrets.GH_APP_PRIVATE_KEY }}
+        if: ${{ inputs.appId && secrets.appSecret }}
         uses: actions/create-github-app-token@v1
         with:
           app-id: ${{ inputs.appId }}
