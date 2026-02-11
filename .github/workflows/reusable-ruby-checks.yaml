@@ -34,6 +34,8 @@ on:
 jobs:
   run:
     runs-on: ubuntu-latest
+    env:
+      APP_SECRET: ${{ secrets.appSecret }}
     defaults:
       run:
         working-directory: ${{ inputs.workingDirectory }}
@@ -46,11 +48,11 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - id: app-token
-        if: ${{ inputs.appId && secrets.appSecret }}
+        if: ${{ inputs.appId && env.APP_SECRET != '' }}
         uses: actions/create-github-app-token@v1
         with:
           app-id: ${{ inputs.appId }}
-          private-key: ${{ secrets.appSecret }}
+          private-key: ${{ env.APP_SECRET }}
           installation-id: ${{ inputs.appInstallationId }}
 
       - uses: actions/checkout@v5
