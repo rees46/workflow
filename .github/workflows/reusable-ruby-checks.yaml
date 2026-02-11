@@ -15,6 +15,10 @@ on:
         description: Optional GitHub App installation ID
         required: false
         type: string
+      rubocopEnabled:
+        required: false
+        type: boolean
+        default: false
       workingDirectory:
         description: Working direction for action
         default: ./
@@ -118,6 +122,9 @@ jobs:
           if test -f "config/secrets.yml.example"; then
             mv ./config/secrets.yml.example ./config/secrets.yml
           fi
+          if test -f ".env.example"; then
+            mv .env.example .env
+          fi
 
       - name: Test
         if: ${{ !cancelled() }}
@@ -126,35 +133,71 @@ jobs:
           RAILS_ENV: test
           PG_USER: rees46
           PG_PASSWORD: rees46
-        run: bin/rspec
+        run: |
+          if test -f ".env"; then
+            source .env
+          fi
+          bin/rspec
 
-      - name: Bundle
-        env:
-          RAILS_ENV: test
+      - name: Scan for common Rails security vulnerabilities using static analysis
         if: ${{ !cancelled() }}
         run: |
+          if test -f ".env"; then
+            source .env
+          fi
+          if test -f "bin/brakeman"; then
+            bin/brakeman --no-pager
+          fi
+
+      - name: Scan for known security vulnerabilities in gems used
+        if: ${{ !cancelled() }}
+        run: |
+          if test -f ".env"; then
+            source .env
+          fi
+          if test -f "bin/bundler-audit"; then
+            bin/bundler-audit
+          fi
+
+      - name: Bundle
+        if: ${{ !cancelled() }}
+        env:
+          RAILS_ENV: test
+        run: |
+          if test -f ".env"; then
+            source .env
+          fi
           if test -f "bin/bundle"; then
             bin/bundle
-          else
+          fi
+
+      - name: Prepare RuboCop cache
+        if: ${{ !cancelled() && inputs.rubocopEnabled == true }}
+        uses: actions/cache@v4
+        env:
+          DEPENDENCIES_HASH: ${{ hashFiles('.ruby-version', '**/.rubocop.yml', '**/.rubocop_todo.yml', 'Gemfile.lock') }}
+        with:
+          path: tmp/rubocop
+          key: rubocop-${{ runner.os }}-${{ env.DEPENDENCIES_HASH }}-${{ github.ref_name == github.event.repository.default_branch && github.run_id || 'default' }}
+          restore-keys: |
+            rubocop-${{ runner.os }}-${{ env.DEPENDENCIES_HASH }}-
+
+      - name: Lint
+        if: ${{ !cancelled() && inputs.rubocopEnabled == true }}
+        env:
+          CHANGED_FILES: ${{ steps.changed_files.outputs.all_changed_files }}
+        run: |
+          set -e
+          RUBY_FILES=$(echo "$CHANGED_FILES" | tr ' ' '\n' | grep '\.rb$' || true)
+
+          if [ -z "$RUBY_FILES" ]; then
+            echo "No Ruby files changed, skipping rubocop"
             exit 0
           fi
 
-      # - name: Lint
-      #   if: ${{ !cancelled() }}
-      #   env:
-      #     CHANGED_FILES: ${{ steps.changed_files.outputs.all_changed_files }}
-      #   run: |
-      #     set -e
-      #     RUBY_FILES=$(echo "$CHANGED_FILES" | tr ' ' '\n' | grep '\.rb$' || true)
-      #
-      #     if [ -z "$RUBY_FILES" ]; then
-      #       echo "No Ruby files changed, skipping rubocop"
-      #       exit 0
-      #     fi
-      #
-      #     if bundle show rubocop > /dev/null 2>&1; then
-      #       echo "Running rubocop..."
-      #       bundle exec rubocop $RUBY_FILES
-      #     else
-      #       echo "Rubocop not installed, skipping lint step"
-      #     fi
+          if bundle show rubocop > /dev/null 2>&1; then
+            echo "Running rubocop..."
+            bundle exec rubocop -f github $RUBY_FILES
+          else
+            echo "Rubocop not installed, skipping lint step"
+          fi
