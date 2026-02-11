@@ -63,7 +63,7 @@ jobs:
         with:
           app-id: ${{ inputs.appId }}
           private-key: ${{ env.APP_SECRET }}
-          installation-id: ${{ inputs.appInstallationId }}
+          owner: ${{ github.repository_owner }}
 
       - uses: actions/checkout@v5
         with:
