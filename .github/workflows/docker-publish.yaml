@@ -2,7 +2,19 @@ name: Reusable docker publish
 
 on:
   workflow_call:
+    secrets:
+      appSecret:
+        description: GitHub App private key (PEM) for generating a token
+        required: false
     inputs:
+      appId:
+        description: GitHub App ID for generating a token
+        required: false
+        type: string
+      appInstallationId:
+        description: Optional GitHub App installation ID
+        required: false
+        type: string
       packageName:
         description: Name of the package to publish
         required: false
@@ -25,9 +37,18 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - id: app-token
+        if: ${{ inputs.GH_APP_ID && secrets.GH_APP_PRIVATE_KEY }}
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ inputs.appId }}
+          private-key: ${{ secrets.appSecret }}
+          installation-id: ${{ inputs.appInstallationId }}
+
       - uses: actions/checkout@v5
         with:
           submodules: 'true'
+          token: ${{ steps.app-token.outputs.token || github.token }}
 
       - uses: docker/setup-buildx-action@v3
 

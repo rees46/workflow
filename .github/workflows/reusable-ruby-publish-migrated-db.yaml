@@ -2,7 +2,19 @@ name: Reusable Ruby publish migrated DB
 
 on:
   workflow_call:
+    secrets:
+      appSecret:
+        description: GitHub App private key (PEM) for generating a token
+        required: false
     inputs:
+      appId:
+        description: GitHub App ID for generating a token
+        required: false
+        type: string
+      appInstallationId:
+        description: Optional GitHub App installation ID
+        required: false
+        type: string
       workingDirectory:
         description: Working direction for action
         default: ./
@@ -43,9 +55,18 @@ jobs:
           docker exec postgres psql -U postgres -c "CREATE USER rees46 WITH SUPERUSER PASSWORD 'rees46';"
           docker exec postgres rm -rf /docker-entrypoint-initdb.d/*
 
+      - id: app-token
+        if: ${{ inputs.GH_APP_ID && secrets.GH_APP_PRIVATE_KEY }}
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ inputs.appId }}
+          private-key: ${{ secrets.appSecret }}
+          installation-id: ${{ inputs.appInstallationId }}
+
       - uses: actions/checkout@v5
         with:
           submodules: 'true'
+          token: ${{ steps.app-token.outputs.token || github.token }}
 
       - name: Start clickhouse server
         run: |
