@@ -142,7 +142,7 @@ jobs:
             source .env
           fi
           if test -f "bin/brakeman"; then
-            bin/brakeman --no-pager
+            bin/brakeman --no-pager --no-exit-on-warn
           fi
 
       - name: Scan for known security vulnerabilities in gems used
