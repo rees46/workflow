@@ -34,8 +34,6 @@ on:
 jobs:
   run:
     runs-on: ubuntu-latest
-    env:
-      APP_SECRET: ${{ secrets.appSecret }}
     defaults:
       run:
         working-directory: ${{ inputs.workingDirectory }}
@@ -58,11 +56,11 @@ jobs:
           docker exec postgres rm -rf /docker-entrypoint-initdb.d/*
 
       - id: app-token
-        if: ${{ inputs.appId && env.APP_SECRET != '' }}
+        if: ${{ inputs.appId }}
         uses: actions/create-github-app-token@v1
         with:
           app-id: ${{ inputs.appId }}
-          private-key: ${{ env.APP_SECRET }}
+          private-key: ${{ secrets.appSecret }}
           owner: ${{ github.repository_owner }}
 
       - uses: actions/checkout@v5
