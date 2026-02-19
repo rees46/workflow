@@ -127,6 +127,7 @@ jobs:
               --file "$SEARCH_PATH/${package}/Dockerfile" \
               --tag "${IMAGE_NAME}" \
               --tag "${IMAGE_NAME_LATEST}" \
+              --build-arg APP_BUILD_VERSION="${IMAGE_NAME}" \
               --cache-from type=gha,scope="${package}" \
               --cache-to type=gha,scope="${package}" \
               --push \
