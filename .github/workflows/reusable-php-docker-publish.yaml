@@ -94,6 +94,7 @@ jobs:
               --file "${package}" \
               --tag "${IMAGE_NAME}" \
               --tag "${IMAGE_NAME_LATEST}" \
+              --build-arg APP_BUILD_VERSION="${IMAGE_NAME}" \
               --cache-from type=gha,scope="${PACKAGE_NAME}" \
               --cache-to type=gha,scope="${PACKAGE_NAME}" \
               --push \
