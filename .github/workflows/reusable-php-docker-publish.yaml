@@ -87,6 +87,7 @@ jobs:
 
             IMAGE_NAME=ghcr.io/$REPOSITORY_OWNER/$PACKAGE_NAME:${{ steps.tags.outputs.tagPrefix }}$(git rev-parse --short HEAD)-$(date +%s)
             IMAGE_NAME_LATEST=ghcr.io/$REPOSITORY_OWNER/$PACKAGE_NAME:${{ steps.tags.outputs.tagSuffix }}
+            IMAGE_VERSION=${{ steps.tags.outputs.tagSuffix }}
 
             echo "📦  ${IMAGE_NAME} → ${IMAGE_NAME_LATEST}"
 
@@ -94,7 +95,7 @@ jobs:
               --file "${package}" \
               --tag "${IMAGE_NAME}" \
               --tag "${IMAGE_NAME_LATEST}" \
-              --build-arg APP_BUILD_VERSION="${IMAGE_NAME}" \
+              --build-arg APP_BUILD_VERSION="${IMAGE_VERSION}" \
               --cache-from type=gha,scope="${PACKAGE_NAME}" \
               --cache-to type=gha,scope="${PACKAGE_NAME}" \
               --push \
@@ -120,6 +121,7 @@ jobs:
 
             IMAGE_NAME=ghcr.io/$REPOSITORY_OWNER/$package:${{ steps.tags.outputs.tagPrefix }}$(git rev-parse --short HEAD)-$(date +%s)
             IMAGE_NAME_LATEST=ghcr.io/$REPOSITORY_OWNER/$package:${{ steps.tags.outputs.tagSuffix }}
+            IMAGE_VERSION=${{ steps.tags.outputs.tagSuffix }}
 
             echo "📦  ${IMAGE_NAME} → ${IMAGE_NAME_LATEST}"
 
@@ -127,7 +129,7 @@ jobs:
               --file "$SEARCH_PATH/${package}/Dockerfile" \
               --tag "${IMAGE_NAME}" \
               --tag "${IMAGE_NAME_LATEST}" \
-              --build-arg APP_BUILD_VERSION="${IMAGE_NAME}" \
+              --build-arg APP_BUILD_VERSION="${IMAGE_VERSION}" \
               --cache-from type=gha,scope="${package}" \
               --cache-to type=gha,scope="${package}" \
               --push \
