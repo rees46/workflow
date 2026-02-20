@@ -87,7 +87,7 @@ jobs:
 
             IMAGE_NAME=ghcr.io/$REPOSITORY_OWNER/$PACKAGE_NAME:${{ steps.tags.outputs.tagPrefix }}$(git rev-parse --short HEAD)-$(date +%s)
             IMAGE_NAME_LATEST=ghcr.io/$REPOSITORY_OWNER/$PACKAGE_NAME:${{ steps.tags.outputs.tagSuffix }}
-            IMAGE_VERSION=${{ steps.tags.outputs.tagSuffix }}
+            IMAGE_VERSION=${{ steps.tags.outputs.tagPrefix }}
 
             echo "📦  ${IMAGE_NAME} → ${IMAGE_NAME_LATEST}"
 
@@ -121,7 +121,7 @@ jobs:
 
             IMAGE_NAME=ghcr.io/$REPOSITORY_OWNER/$package:${{ steps.tags.outputs.tagPrefix }}$(git rev-parse --short HEAD)-$(date +%s)
             IMAGE_NAME_LATEST=ghcr.io/$REPOSITORY_OWNER/$package:${{ steps.tags.outputs.tagSuffix }}
-            IMAGE_VERSION=${{ steps.tags.outputs.tagSuffix }}
+            IMAGE_VERSION=${{ steps.tags.outputs.tagPrefix }}
 
             echo "📦  ${IMAGE_NAME} → ${IMAGE_NAME_LATEST}"
 
