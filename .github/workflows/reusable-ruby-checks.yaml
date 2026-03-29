@@ -85,8 +85,9 @@ jobs:
 
       - name: Rewrite GitHub SSH URLs to HTTPS for Bundler
         run: |
-          git config --global url."https://github.com/".insteadOf git@github.com:
-          git config --global url."https://github.com/".insteadOf ssh://git@github.com/
+          git config --global --add url."https://github.com/".insteadOf git@github.com:
+          git config --global --add url."https://github.com/".insteadOf ssh://git@github.com/
+          git config --global --get-all url."https://github.com/".insteadOf
 
       - uses: ruby/setup-ruby@v1
         with:
