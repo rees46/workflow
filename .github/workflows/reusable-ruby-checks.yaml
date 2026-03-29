@@ -83,6 +83,11 @@ jobs:
         with:
           node-version: ${{ inputs.nodeVersion }}
 
+      - name: Rewrite GitHub SSH URLs to HTTPS for Bundler
+        run: |
+          git config --global url."https://github.com/".insteadOf git@github.com:
+          git config --global url."https://github.com/".insteadOf ssh://git@github.com/
+
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{ inputs.rubyVersion }}
