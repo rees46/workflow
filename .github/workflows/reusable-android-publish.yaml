@@ -60,9 +60,10 @@ on:
         required: true
 
 jobs:
-  run:
+  prepare:
     runs-on: ubuntu-latest
-
+    outputs:
+      SONATYPE_REPOSITORY_ID: ${{ steps.createStagingRepoStep.outputs.repository_id }}
     steps:
       - uses: actions/create-github-app-token@v1
         id: app-token
@@ -95,9 +96,8 @@ jobs:
           SIGNING_KEY_FILE_AS_BASE64_STRING: ${{ secrets.SIGNING_KEY_FILE_AS_BASE64_STRING }}
 
       - name: Create staging repository
-        if: ${{ !cancelled() }}
-        uses: nexus-actions/create-nexus-staging-repo@990063f02160c633c168037b8b3e8585c76469fe
         id: createStagingRepoStep
+        uses: nexus-actions/create-nexus-staging-repo@990063f02160c633c168037b8b3e8585c76469fe
         with:
           username: ${{ secrets.SONATA_USERNAME }}
           password: ${{ secrets.SONATA_PASSWORD }}
@@ -105,26 +105,32 @@ jobs:
           base_url: 'https://s01.oss.sonatype.org/service/local/'
 
       - name: Grant execute permission to gradlew
-        if: ${{ !cancelled() }}
         run: chmod +x gradlew
 
       - name: Clean gradlew cache
-        if: ${{ !cancelled() }}
-        run: |
-          ./gradlew clean
+        run: ./gradlew clean
 
-      - name: Publish
-        if: ${{ !cancelled() }}
+  publish_sonatype:
+    needs: prepare
+    runs-on: ubuntu-latest
+    steps:
+      - name: Publish to Sonatype
         env:
-          SONATYPE_REPOSITORY_ID: ${{ steps.createStagingRepoStep.outputs.repository_id }}
-        run: |
-          ./gradlew publish -Psonatype
+          SONATYPE_REPOSITORY_ID: ${{ needs.prepare.outputs.SONATYPE_REPOSITORY_ID }}
+        run: ./gradlew publish -Psonatype
+        continue-on-error: true
 
-      - name: Release
-        if: ${{ !cancelled() }}
+      - name: Release Sonatype staging repo
         uses: nexus-actions/release-nexus-staging-repo@6632a81bfab63557b2717e8423b0a620ae5aa414
         with:
           username: ${{ secrets.SONATA_USERNAME }}
           password: ${{ secrets.SONATA_PASSWORD }}
-          staging_repository_id: ${{ steps.createStagingRepoStep.outputs.repository_id }}
+          staging_repository_id: ${{ needs.prepare.outputs.SONATYPE_REPOSITORY_ID }}
           base_url: 'https://s01.oss.sonatype.org/service/local/'
+
+  publish_github:
+    needs: prepare
+    runs-on: ubuntu-latest
+    steps:
+      - name: Publish to GitHub Packages
+        run: ./gradlew publish -Pgithub
