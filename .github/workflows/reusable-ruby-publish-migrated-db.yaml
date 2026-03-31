@@ -188,6 +188,7 @@ jobs:
           docker stop clickhouse_server
           docker run -d \
           --name clickhouse \
+          -e CLICKHOUSE_SKIP_USER_SETUP=1 \
           -p 8123:8123 \
           -p 9000:9000 \
           -p 9009:9009 \
