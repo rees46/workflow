@@ -195,13 +195,12 @@ jobs:
           -p 9005:9005 \
           --ulimit nofile=262144:262144 \
           clickhouse/clickhouse-server
-          docker cp ./config/clickhouse-config.xml clickhouse:/etc/clickhouse-server/config.xml
+
           timeout 20s bash -c '
             until curl -fsS http://localhost:8123/ping | grep -qx "Ok."; do
               sleep 1
             done
           '
-          curl -fsS http://localhost:8123/ --data-binary "SELECT version()"
 
       - name: Run clickhouse migrations
         run: |
