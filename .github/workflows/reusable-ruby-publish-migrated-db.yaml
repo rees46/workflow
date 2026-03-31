@@ -182,3 +182,40 @@ jobs:
           echo $GITHUB_TOKEN | docker login ghcr.io -u $REPOSITORY_OWNER --password-stdin
           docker commit --change "ENV PGDATA=/data" postgres ghcr.io/rees46/postgres-migrated:latest
           docker push ghcr.io/rees46/postgres-migrated:latest
+
+      - name: Start clickhouse
+        run: |
+          docker stop clickhouse_server
+          docker run -d \
+          --name clickhouse \
+          -p 8123:8123 \
+          -p 9000:9000 \
+          -p 9009:9009 \
+          -p 9004:9004 \
+          -p 9005:9005 \
+          --ulimit nofile=262144:262144 \
+          clickhouse/clickhouse-server
+          docker cp ./config/clickhouse-config.xml clickhouse:/etc/clickhouse-server/config.xml
+
+      - name: Run clickhouse migrations
+        run: |
+          bundle exec rake clickhouse:create
+          bundle exec rake clickhouse:schema:load
+          docker exec clickhouse clickhouse-client --query="rename database rees46 to rees46_test"
+          bundle exec rake clickhouse:create
+          bundle exec rake clickhouse:schema:load
+          docker exec clickhouse clickhouse-client --query="show databases"
+          docker exec clickhouse clickhouse-client --query="show tables from rees46_test"
+          docker exec clickhouse clickhouse-client --query="show tables from rees46"
+
+      - name: Publish clickhouse docker image
+        env:
+          REPOSITORY_OWNER: ${{ github.repository_owner }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          docker exec clickhouse cp -r /var/lib/clickhouse/. /data/
+          docker exec clickhouse sed -i 's|<path>/var/lib/clickhouse</path>|<path>/data</path>|g' /etc/clickhouse-server/config.xml
+          docker stop clickhouse
+          echo $GITHUB_TOKEN | docker login ghcr.io -u $REPOSITORY_OWNER --password-stdin
+          docker commit clickhouse ghcr.io/rees46/clickhouse-migrated:latest
+          docker push ghcr.io/rees46/clickhouse-migrated:latest
