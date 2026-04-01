@@ -203,6 +203,25 @@ jobs:
             done
           '
 
+          cat <<'EOF' > /tmp/99-data-path.xml
+          <clickhouse>
+            <path>/data/</path>
+            <tmp_path>/data/tmp/</tmp_path>
+            <user_files_path>/data/user_files/</user_files_path>
+            <format_schema_path>/data/format_schemas/</format_schema_path>
+          </clickhouse>
+          EOF
+          docker cp /tmp/99-data-path.xml clickhouse:/etc/clickhouse-server/config.d/99-data-path.xml
+          docker exec clickhouse mkdir -p /data/tmp /data/user_files /data/format_schemas
+          docker exec clickhouse chown -R clickhouse:clickhouse /data
+          docker restart clickhouse
+
+          timeout 20s bash -c '
+            until curl -fsS http://localhost:8123/ping | grep -qx "Ok."; do
+              sleep 1
+            done
+          '
+
       - name: Run clickhouse migrations
         run: |
           bundle exec rake clickhouse:create
@@ -219,8 +238,6 @@ jobs:
           REPOSITORY_OWNER: ${{ github.repository_owner }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          docker exec clickhouse cp -r /var/lib/clickhouse/. /data/
-          docker exec clickhouse sed -i 's|<path>/var/lib/clickhouse</path>|<path>/data</path>|g' /etc/clickhouse-server/config.xml
           docker stop clickhouse
           echo $GITHUB_TOKEN | docker login ghcr.io -u $REPOSITORY_OWNER --password-stdin
           docker commit clickhouse ghcr.io/rees46/clickhouse-migrated:latest
