@@ -64,7 +64,7 @@ jobs:
             *rust)   TAG_PREFIX="";       TAG_SUFFIX="latest" ;;
             *go)   TAG_PREFIX="";       TAG_SUFFIX="latest" ;;
             *stage)  TAG_PREFIX="stage-"; TAG_SUFFIX="stage"  ;;
-            *) echo "❌ Unsupported branch: ${BRANCH_NAME}" >&2; exit 1 ;;
+            *)   TAG_PREFIX="";       TAG_SUFFIX="latest" ;;
           esac
 
           echo "tagPrefix=$TAG_PREFIX" >> "$GITHUB_OUTPUT"
