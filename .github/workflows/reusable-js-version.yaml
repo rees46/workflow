@@ -19,7 +19,7 @@ on:
         required: false
       reviewerUsername:
         description: Default reviewer
-        default: nelfimov
+        default: Xyzcancer
         type: string
         required: false
       exclude:

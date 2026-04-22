@@ -19,11 +19,11 @@ inputs:
     required: false
   reviewerUsername:
     description: PullRequest reviewer username
-    default: nelfimov
+    default: Xyzcancer
     required: true
   lastPrAuthor:
     description: PullRequest reviewer username
-    default: TorinAsakura
+    default: Xyzcancer
     required: true
   commitMessage:
     default: 'feat: automated commit'
@@ -40,8 +40,8 @@ runs:
   using: composite
 
   steps:
-    -  shell: bash
-       run: |
+    - shell: bash
+      run: |
         sudo chmod -R ugo+rwX .
 
     - name: Create Pull Request
