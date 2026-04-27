@@ -1,10 +1,12 @@
 name: Sync Repositories
 
-on:
+"on":
   workflow_call:
     inputs:
       node-version:
-        description: 'Node version to run this workflow. Default: 18 as it is in action cache'
+        description: >-
+          Node version to run this workflow. Default: 18 as it is in action
+          cache
         default: '18'
         required: false
         type: string
@@ -37,13 +39,23 @@ jobs:
 
       - name: Determine if changes are in the specified path
         run: |
-          echo "path_changes=$(echo '${{ steps.changed_files.outputs.all_changed_files }}' | grep -c '${{ inputs.changeLookUpPath }}')" >> $GITHUB_ENV
+          path_changes_count="$(printf '%s' \
+            '${{ steps.changed_files.outputs.all_changed_files }}' | \
+            grep -F -c '${{ inputs.changeLookUpPath }}')"
+          echo "path_changes=$path_changes_count" >> "$GITHUB_ENV"
 
       - name: Get last merged PR author login
         run: |
-          PR_NUMBER=$(gh pr list --state merged --limit 1 --json number --jq '.[0].number')
-          LAST_PR_AUTHOR=$(gh pr view $PR_NUMBER --json author --jq '.author.login')
-          echo "LAST_PR_AUTHOR=$LAST_PR_AUTHOR" >> $GITHUB_ENV
+          PR_NUMBER=$(gh pr list \
+            --state merged \
+            --limit 1 \
+            --json number \
+            --jq '.[0].number')
+          LAST_PR_AUTHOR=$(gh pr view \
+            "$PR_NUMBER" \
+            --json author \
+            --jq '.author.login')
+          echo "LAST_PR_AUTHOR=$LAST_PR_AUTHOR" >> "$GITHUB_ENV"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -71,28 +83,57 @@ jobs:
           find . -type f -name 'package.json' -exec sed -i \
             -e 's|rees46/react-native|personaclick/rn|g' \
             -e 's|Rees46/react-native|PersonaClick/rn|g' \
+            -e 's/REES46/PersonaClick/g' \
             -e 's/Rees46/PersonaClick/g' {} +
 
-      - name: Apply changes to JavaScript files
+      - name: Apply changes to JavaScript and TypeScript files
         if: env.path_changes != '0'
         working-directory: repo2
         run: |
-          find . -type f \( -name '*.js' \) -exec sed -i \
+          find . -type f \( \
+            -name '*.js' -o \
+            -name '*.ts' -o \
+            -name '*.tsx' -o \
+            -name '*.d.ts' \
+          \) -exec sed -i \
             -e 's|https://api.rees46.ru/|https://api.personaclick.com/|g' \
-            -e 's/rees46/personaClick/g' \
-            -e 's/Rees46/PersonaClick/g' {} +
+            -e 's/REES46/PersonaClick/g' \
+            -e 's/Rees46/PersonaClick/g' \
+            -e 's/rees46/personaClick/g' {} +
+
+      - name: Apply changes to YAML files
+        if: env.path_changes != '0'
+        working-directory: repo2
+        run: |
+          find . -type f \( -name '*.yml' -o -name '*.yaml' \) -exec sed -i \
+            -e 's/REES46/PersonaClick/g' \
+            -e 's/Rees46/PersonaClick/g' \
+            -e 's/rees46/personaclick/g' {} +
 
       - name: Apply changes to CHANGELOG.md
         if: env.path_changes != '0'
         working-directory: repo2
         run: |
-          find . -type f -name 'CHANGELOG.md' -exec sed -i 's|\[\([^]]*\)\]\(([^)]*)\)|\1|g' {} +
+          find . -type f -name 'CHANGELOG.md' -exec sed -i \
+            -e 's|\[\([^]]*\)\]\(([^)]*)\)|\1|g' \
+            -e 's/REES46/PersonaClick/g' \
+            -e 's/Rees46/PersonaClick/g' \
+            -e 's/rees46/personaclick/g' {} +
+
+      - name: Validate PersonaClick rewrites
+        if: env.path_changes != '0'
+        working-directory: repo2
+        run: |
+          if grep -RInE 'REES46|Rees46|rees46' . --exclude-dir='.git'; then
+            echo "Found unconverted REES46 references in synced repository"
+            exit 1
+          fi
 
       - name: Create commit
         if: env.path_changes != '0'
         working-directory: repo2
         run: |
-          git config --global user.name Jade Smith 
+          git config --global user.name Jade Smith
           git config --global user.email github-bot@rees46.com
           git add .
           echo "Changes to be committed:"
@@ -103,7 +144,9 @@ jobs:
 
       - name: Set branch name
         if: env.path_changes != '0'
-        run: echo "BRANCH_NAME=feat/new-release-$(date +%Y%m%d%H%M%S)" >> $GITHUB_ENV
+        run: |
+          echo "BRANCH_NAME=feat/new-release-$(date +%Y%m%d%H%M%S)" \
+            >> "$GITHUB_ENV"
 
       - name: Checkout new branch and push
         if: env.path_changes != '0'
@@ -119,9 +162,15 @@ jobs:
         working-directory: repo2
         run: |
           PR_TITLE="Automated release"
-          PR_BODY="This is an automated pull request to update from branch $BRANCH_NAME"
+          PR_BODY="This is an automated pull request to update from branch \
+            $BRANCH_NAME"
           echo "ASSIGNEES: $LAST_PR_AUTHOR"
-          gh pr create --title "$PR_TITLE" --body "$PR_BODY" --base master --head $BRANCH_NAME --assignee $MANAGER
+          gh pr create \
+            --title "$PR_TITLE" \
+            --body "$PR_BODY" \
+            --base master \
+            --head "$BRANCH_NAME" \
+            --assignee "$MANAGER"
         env:
           GITHUB_TOKEN: ${{ secrets.token }}
           BRANCH_NAME: ${{ env.BRANCH_NAME }}
