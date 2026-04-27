@@ -39,9 +39,10 @@ jobs:
 
       - name: Determine if changes are in the specified path
         run: |
-          echo "path_changes=$(echo \
+          path_changes_count="$(printf '%s' \
             '${{ steps.changed_files.outputs.all_changed_files }}' | \
-            grep -c '${{ inputs.changeLookUpPath }}')" >> $GITHUB_ENV
+            grep -F -c '${{ inputs.changeLookUpPath }}')"
+          echo "path_changes=$path_changes_count" >> "$GITHUB_ENV"
 
       - name: Get last merged PR author login
         run: |
@@ -54,7 +55,7 @@ jobs:
             "$PR_NUMBER" \
             --json author \
             --jq '.author.login')
-          echo "LAST_PR_AUTHOR=$LAST_PR_AUTHOR" >> $GITHUB_ENV
+          echo "LAST_PR_AUTHOR=$LAST_PR_AUTHOR" >> "$GITHUB_ENV"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -145,7 +146,7 @@ jobs:
         if: env.path_changes != '0'
         run: |
           echo "BRANCH_NAME=feat/new-release-$(date +%Y%m%d%H%M%S)" \
-            >> $GITHUB_ENV
+            >> "$GITHUB_ENV"
 
       - name: Checkout new branch and push
         if: env.path_changes != '0'
