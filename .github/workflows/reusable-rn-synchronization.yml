@@ -71,22 +71,46 @@ jobs:
           find . -type f -name 'package.json' -exec sed -i \
             -e 's|rees46/react-native|personaclick/rn|g' \
             -e 's|Rees46/react-native|PersonaClick/rn|g' \
+            -e 's/REES46/PersonaClick/g' \
             -e 's/Rees46/PersonaClick/g' {} +
 
-      - name: Apply changes to JavaScript files
+      - name: Apply changes to JavaScript and TypeScript files
         if: env.path_changes != '0'
         working-directory: repo2
         run: |
-          find . -type f \( -name '*.js' \) -exec sed -i \
+          find . -type f \( -name '*.js' -o -name '*.ts' -o -name '*.tsx' -o -name '*.d.ts' \) -exec sed -i \
             -e 's|https://api.rees46.ru/|https://api.personaclick.com/|g' \
-            -e 's/rees46/personaClick/g' \
-            -e 's/Rees46/PersonaClick/g' {} +
+            -e 's/REES46/PersonaClick/g' \
+            -e 's/Rees46/PersonaClick/g' \
+            -e 's/rees46/personaClick/g' {} +
+
+      - name: Apply changes to YAML files
+        if: env.path_changes != '0'
+        working-directory: repo2
+        run: |
+          find . -type f \( -name '*.yml' -o -name '*.yaml' \) -exec sed -i \
+            -e 's/REES46/PersonaClick/g' \
+            -e 's/Rees46/PersonaClick/g' \
+            -e 's/rees46/personaclick/g' {} +
 
       - name: Apply changes to CHANGELOG.md
         if: env.path_changes != '0'
         working-directory: repo2
         run: |
-          find . -type f -name 'CHANGELOG.md' -exec sed -i 's|\[\([^]]*\)\]\(([^)]*)\)|\1|g' {} +
+          find . -type f -name 'CHANGELOG.md' -exec sed -i \
+            -e 's|\[\([^]]*\)\]\(([^)]*)\)|\1|g' \
+            -e 's/REES46/PersonaClick/g' \
+            -e 's/Rees46/PersonaClick/g' \
+            -e 's/rees46/personaclick/g' {} +
+
+      - name: Validate PersonaClick rewrites
+        if: env.path_changes != '0'
+        working-directory: repo2
+        run: |
+          if grep -RInE 'REES46|Rees46|rees46' . --exclude-dir='.git'; then
+            echo "Found unconverted REES46 references in synced repository"
+            exit 1
+          fi
 
       - name: Create commit
         if: env.path_changes != '0'
