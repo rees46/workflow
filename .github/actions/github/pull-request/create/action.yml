@@ -44,6 +44,22 @@ runs:
       run: |
         sudo chmod -R ugo+rwX .
 
+    # Resolve the PR base from the destination repo's default branch so it
+    # follows whatever that repo uses (main or master), not the source ref.
+    # Falls back to the current repository when targetRepository is empty
+    # (e.g. the in-repo release version-bump flow).
+    - name: Resolve PR base branch
+      id: baseBranch
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.githubToken }}
+      run: |
+        repo="${{ inputs.targetRepository }}"
+        [ -z "$repo" ] && repo="${{ github.repository }}"
+        base="$(gh api "repos/$repo" --jq '.default_branch')"
+        echo "Base branch for $repo: $base"
+        echo "base=$base" >> "$GITHUB_OUTPUT"
+
     - name: Create Pull Request
       uses: peter-evans/create-pull-request@v7
       id: cpr
@@ -57,12 +73,13 @@ runs:
         token: ${{ inputs.githubToken }}
         title: ${{ inputs.prTitle }}
         body: ${{ inputs.prBody }}
-        base: ${{ github.ref }}
+        base: ${{ steps.baseBranch.outputs.base }}
         assignees: ${{ inputs.lastPrAuthor || inputs.reviewerUsername }}
         reviewers: ${{ inputs.reviewerUsername }}
 
     - name: Enable Pull Request Automerge
       shell: bash
-      run: gh pr merge --squash --admin "${{ steps.cpr.outputs.pull-request-number }}"
       env:
         GH_TOKEN: ${{ inputs.githubToken }}
+        PR_NUMBER: ${{ steps.cpr.outputs.pull-request-number }}
+      run: gh pr merge --squash --admin "$PR_NUMBER"
