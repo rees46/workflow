@@ -1,0 +1,40 @@
+# Replacement rules for syncing rees46/flutter-sdk -> personaclick/flutter-sdk.
+# Consumed by rees46/workflow/.github/actions/sync/read-replacements (replacementsRepo: rees46/workflow)
+# and applied by @scripts/repo-replacement (renames paths + file contents, then deletions).
+#
+# Order matters: the api-domain rule must run BEFORE the generic "rees46" rule,
+# otherwise "api.rees46.ru" would become "api.personaclick.ru" (wrong TLD).
+replacements:
+  - from: "api.rees46.ru"
+    to: "api.personaclick.com"
+  - from: "REES46"
+    to: "PERSONACLICK"
+  - from: "Rees46"
+    to: "Personaclick"
+  - from: "rees46"
+    to: "personaclick"
+  # pub.dev package names are globally unique — the mirror must publish under a
+  # distinct name. Renames the package id + import paths + barrel file + podspec,
+  # without touching the internal `PersonalizationSdk` class / personalization_sdk.dart.
+  - from: "personalization_flutter_sdk"
+    to: "personaclick_flutter_sdk"
+
+# rees46-Firebase-project files: tied to project "rees46-com" / package com.rees46.* —
+# invalid in the personaclick mirror, which must provide its own Firebase config.
+# The source sync workflow itself must not be mirrored into the target.
+deletions:
+  - example/android/app/google-services.json
+  - example/ios/Runner/GoogleService-Info.plist
+  - .github/workflows/sync.yaml
+  # Thin unused brand wrapper — removed so the renamed barrel
+  # (personalization_flutter_sdk.dart -> personaclick_flutter_sdk.dart) takes its
+  # path without collision. The example uses PersonalizationSdk directly.
+  - lib/personaclick_flutter_sdk.dart
+
+# Preserve the target repo's own README only.
+# NB: ".git" is NOT listed here on purpose — the engine already hard-skips the
+# real .git dir by basename, and listing ".git" would substring-match ".github"
+# (".github".includes(".git") === true), wrongly skipping CI from the rename.
+# .github IS mirrored and renamed; the source sync.yaml is stripped via `deletions`.
+ignore:
+  - README.md
