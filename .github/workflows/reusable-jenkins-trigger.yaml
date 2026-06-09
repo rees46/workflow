@@ -66,7 +66,7 @@ jobs:
         run: |
           echo "Triggering Jenkins Job: $JOB_NAME"
 
-          curl -i -X POST -u "$JENKINS_DEPLOY_USER:$JENKINS_DEPLOY_TOKEN" \
+          curl -i --fail-with-body -X POST -u "$JENKINS_DEPLOY_USER:$JENKINS_DEPLOY_TOKEN" \
               "${JENKINS_URL}/job/${JOB_NAME}/buildWithParameters" \
               --data-urlencode "IMAGE_TAG=${IMAGE_TAG}" \
               --data-urlencode "GIT_BRANCH_NAME=${GIT_BRANCH_NAME}" \
@@ -129,7 +129,7 @@ jobs:
 
           for service in $PHP_SERVICES
           do
-            curl -s -X POST -u "$JENKINS_DEPLOY_USER:$JENKINS_DEPLOY_TOKEN" \
+            curl -s --fail-with-body -X POST -u "$JENKINS_DEPLOY_USER:$JENKINS_DEPLOY_TOKEN" \
               "${JENKINS_URL}/job/${service}/buildWithParameters?BRANCH_NAME=${GIT_BRANCH}"
           done
 
@@ -146,6 +146,6 @@ jobs:
 
           for package in $PACKAGES
           do
-            curl -i -X POST -u "$JENKINS_DEPLOY_USER:$JENKINS_DEPLOY_TOKEN" \
+            curl -i --fail-with-body -X POST -u "$JENKINS_DEPLOY_USER:$JENKINS_DEPLOY_TOKEN" \
               "${JENKINS_URL}/job/${package}/buildWithParameters?BRANCH_NAME=${GIT_BRANCH}"
           done
