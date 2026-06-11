@@ -15,7 +15,7 @@ runs:
   using: composite
 
   steps:
-    - uses: actions/setup-node@v5
+    - uses: actions/setup-node@v6
       with:
         node-version: ${{ inputs.nodeVersion }}
 
@@ -24,7 +24,7 @@ runs:
       run: echo "dir=$(yarn config get cacheFolder)" >> $GITHUB_OUTPUT
       shell: bash
 
-    - uses: actions/cache@v4
+    - uses: actions/cache@v5
       id: yarn-cache
       with:
         path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
