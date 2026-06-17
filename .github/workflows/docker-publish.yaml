@@ -28,6 +28,11 @@ on:
         required: false
         type: string
         default: .
+      file:
+        description: Location of Dockerfile
+        required: false
+        type: string
+        default: Dockerfile
 
 jobs:
   run:
@@ -91,6 +96,7 @@ jobs:
           cache-from: type=gha,scope=${{ inputs.packageName }}
           cache-to: type=gha,mode=max,scope=${{ inputs.packageName }}
           context: ${{ inputs.contextLocation }}
+          file: ${{ inputs.contextLocation }}/${{ inputs.file }}
 
       - if: ${{ !inputs.packageName }}
         uses: crazy-max/ghaction-github-runtime@v4
