@@ -39,12 +39,30 @@ jobs:
         working-directory: ${{ inputs.workingDirectory }}
 
     steps:
+      - uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create common network
+        run: |
+          docker network create rees46
+
       - name: Start postgres Docker
         run: |
           sudo systemctl stop postgresql.service
-          docker run -d --name postgres \
-          -e POSTGRES_PASSWORD=postgres -e POSTGRES_USER=postgres -e PGDATA=/data \
-          -p 5432:5432 postgres:alpine;
+
+          docker run -d \
+            --name postgres \
+            -e POSTGRES_PASSWORD=postgres \
+            -e POSTGRES_USER=postgres \
+            -e PGDATA=/data \
+            --network rees46 \
+            -p 5432:5432 \
+            --hostname postgres \
+            postgres:alpine;
+
           until docker exec postgres pg_isready -U postgres; do
             sleep 1
           done
@@ -170,6 +188,10 @@ jobs:
           DATABASE_CLICK_TEST_URL: postgres://rees46:rees46@localhost:5432/rees46_clickhouse_test
         run: |
           bundle exec rake db:seed
+
+      - name: Run dashboard seeds
+        run: |
+          docker run --rm --network rees46 ghcr.io/rees46/dashboard:latest rake db:seed
 
       - name: Publish postgres docker image
         env:
