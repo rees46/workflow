@@ -81,7 +81,7 @@ jobs:
           private-key: ${{ secrets.appSecret }}
           owner: ${{ github.repository_owner }}
 
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
         with:
           submodules: 'true'
           token: ${{ steps.app-token.outputs.token || github.token }}
@@ -89,14 +89,16 @@ jobs:
       - name: Start clickhouse server
         run: |
           docker run -d \
-          --name clickhouse_server \
-          -p 8123:8123 \
-          -p 9000:9000 \
-          -p 9009:9009 \
-          -p 9004:9004 \
-          -p 9005:9005 \
-          --ulimit nofile=262144:262144 \
-          yandex/clickhouse-server:22-alpine;
+            --name clickhouse_server \
+            --network rees46 \
+            -p 8123:8123 \
+            -p 9000:9000 \
+            -p 9009:9009 \
+            -p 9004:9004 \
+            -p 9005:9005 \
+            --ulimit nofile=262144:262144 \
+            yandex/clickhouse-server:22-alpine;
+
           docker cp ./config/clickhouse-config.xml clickhouse_server:/etc/clickhouse-server/config.xml
 
       - uses: ruby/setup-ruby@v1
@@ -140,14 +142,10 @@ jobs:
           docker exec clickhouse_server clickhouse-client --query="show tables from rees46"
 
       - name: Publish clickhouse server docker image
-        env:
-          REPOSITORY_OWNER: ${{ github.repository_owner }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           docker exec clickhouse_server cp -r /var/lib/clickhouse/. /data/
           docker exec clickhouse_server sed -i 's|<path>/var/lib/clickhouse</path>|<path>/data</path>|g' /etc/clickhouse-server/config.xml
           docker stop clickhouse_server
-          echo $GITHUB_TOKEN | docker login ghcr.io -u $REPOSITORY_OWNER --password-stdin
           docker commit clickhouse_server ghcr.io/rees46/clickhouse-server-migrated:latest
           docker push ghcr.io/rees46/clickhouse-server-migrated:latest
 
@@ -158,7 +156,7 @@ jobs:
           DATABASE_CLICK_TEST_URL: postgres://rees46:rees46@localhost:5432/rees46_clickhouse_test
         run: |
           bundle exec rake db:create
-          bundle exec rake db:functions:install || true
+          bundle exec rake db:functions:install
           bundle exec rake db:schema:load
           bundle exec rake clickhouse:create
           bundle exec rake clickhouse:schema:load -- --simple
@@ -170,7 +168,7 @@ jobs:
           RAILS_ENV: development
         run: |
           bundle exec rake db:create
-          bundle exec rake db:functions:install || true
+          bundle exec rake db:functions:install
           bundle exec rake db:schema:load
 
       - name: Run seeds dev
@@ -194,14 +192,10 @@ jobs:
           docker run --rm --network rees46 ghcr.io/rees46/dashboard:latest rake db:seed
 
       - name: Publish postgres docker image
-        env:
-          REPOSITORY_OWNER: ${{ github.repository_owner }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           docker exec postgres psql -U postgres -c "SELECT datname FROM pg_database WHERE datistemplate = false;"
 
           echo $(docker exec postgres psql -U rees46 -W rees46 -d rees46_test -c "\dt;")
-          echo $GITHUB_TOKEN | docker login ghcr.io -u $REPOSITORY_OWNER --password-stdin
           docker commit --change "ENV PGDATA=/data" postgres ghcr.io/rees46/postgres-migrated:latest
           docker push ghcr.io/rees46/postgres-migrated:latest
 
@@ -209,15 +203,16 @@ jobs:
         run: |
           docker stop clickhouse_server
           docker run -d \
-          --name clickhouse \
-          -e CLICKHOUSE_SKIP_USER_SETUP=1 \
-          -p 8123:8123 \
-          -p 9000:9000 \
-          -p 9009:9009 \
-          -p 9004:9004 \
-          -p 9005:9005 \
-          --ulimit nofile=262144:262144 \
-          clickhouse/clickhouse-server
+            --name clickhouse \
+            -e CLICKHOUSE_SKIP_USER_SETUP=1 \
+            --network rees46 \
+            -p 8123:8123 \
+            -p 9000:9000 \
+            -p 9009:9009 \
+            -p 9004:9004 \
+            -p 9005:9005 \
+            --ulimit nofile=262144:262144 \
+            clickhouse/clickhouse-server;
 
           timeout 20s bash -c '
             until curl -fsS http://localhost:8123/ping | grep -qx "Ok."; do
@@ -256,11 +251,7 @@ jobs:
           docker exec clickhouse clickhouse-client --query="show tables from rees46"
 
       - name: Publish clickhouse docker image
-        env:
-          REPOSITORY_OWNER: ${{ github.repository_owner }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           docker stop clickhouse
-          echo $GITHUB_TOKEN | docker login ghcr.io -u $REPOSITORY_OWNER --password-stdin
           docker commit clickhouse ghcr.io/rees46/clickhouse-migrated:latest
           docker push ghcr.io/rees46/clickhouse-migrated:latest
