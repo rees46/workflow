@@ -189,7 +189,7 @@ jobs:
 
       - name: Run dashboard seeds
         run: |
-          docker run --rm --network rees46 ghcr.io/rees46/dashboard:latest rake db:seed
+          docker run --rm --network rees46 -e RAILS_ENV=production ghcr.io/rees46/dashboard:latest rake environment db:seed
 
       - name: Publish postgres docker image
         run: |
