@@ -24,10 +24,6 @@ on:
         description: GitHub App ID for generating a token
         required: false
         type: string
-      appInstallationId:
-        description: Optional GitHub App installation ID
-        required: false
-        type: string
       rubyVersion:
         description: Ruby version to use
         default: '2.7.5'
