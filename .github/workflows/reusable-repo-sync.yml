@@ -5,7 +5,7 @@ env:
   WORKFLOW_TMP_PATH: tmp/workflow/
   TARGET_TMP_PATH: tmp/target/
   SOURCE_TMP_PATH: tmp/source/
-#
+
 on:
   workflow_call:
     secrets:
@@ -36,7 +36,6 @@ jobs:
   prepareSync:
     runs-on: ubuntu-latest
     steps:
-      # Prepare
       - uses: rees46/workflow/.github/actions/sync/prepare@master
         id: prepareSyncStep
         with:
@@ -45,7 +44,6 @@ jobs:
           repositoryOwner: ${{ inputs.repositoryOwner }}
           targetRepository: ${{ inputs.targetRepository }}
 
-      # Process
       - name: Write absolute path to tmp dir to env
         run: |
           echo "TARGET_TMP_ABS_PATH=$GITHUB_WORKSPACE/${{ env.TARGET_TMP_PATH }}" >> $GITHUB_ENV
@@ -75,7 +73,6 @@ jobs:
         working-directory: ${{ env.TARGET_TMP_PATH }}
         run: git diff
 
-      # Prepare pull request
       - uses: rees46/workflow/.github/actions/sync/prepare-pr@master
         with:
           appToken: ${{ steps.prepareSyncStep.outputs.appTokenStep }}

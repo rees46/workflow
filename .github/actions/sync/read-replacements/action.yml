@@ -37,7 +37,7 @@ runs:
         owner: ${{ inputs.repositoryOwner }}
 
     - name: Checkout target repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
       with:
         token: ${{ steps.appTokenStep.outputs.token }}
         repository: ${{inputs.replacementsRepo}}
