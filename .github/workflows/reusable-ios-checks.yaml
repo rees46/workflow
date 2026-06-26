@@ -1,3 +1,4 @@
+# yamllint disable rule:line-length
 name: iOS checks
 
 on:
@@ -30,10 +31,13 @@ jobs:
       env_vars: ${{ secrets.env_vars }}
     steps:
       - run: |
-          echo $env_vars
+          echo "$env_vars"
           for i in $env_vars; do
+            # shellcheck disable=SC2001,SC2086
             i=$(echo $i | sed 's/=.*//g')=$(echo ${i#*=} | base64 -d | base64 -d)
+            # shellcheck disable=SC2086
             echo ::add-mask::${i#*=}
+            # shellcheck disable=SC2086
             printf '%s\n' "$i" >> $GITHUB_ENV
           done
           env
@@ -75,17 +79,30 @@ jobs:
           cp ./DemoApp/REES46Demo/Supporting\ Files/GoogleService-Info.plist ./DemoApp/REES46.xcodeproj/xcshareddata/xcschemes/GoogleService-Info.plist
           cp ./DemoApp/REES46Demo/Supporting\ Files/GoogleService-Info.plist ./DemoApp/REES46Demo/GoogleService-Info.plist
 
+      - name: Select simulator
+        id: sim
+        run: |
+          # macos-latest floats: a runner Xcode bump can drop or rename a device (e.g. Xcode 26.5
+          # removed "iPhone 16"), which breaks a pinned name=... destination. Pick whatever iPhone
+          # simulator is available and target it by UDID so the build survives those changes.
+          UDID=$(xcrun simctl list devices available | grep -m1 -E 'iPhone' | grep -oE '[0-9A-Fa-f-]{36}')
+          if [ -z "$UDID" ]; then
+            echo "No available iPhone simulator found"; exit 1
+          fi
+          echo "Selected simulator:"; xcrun simctl list devices available | grep "$UDID"
+          echo "udid=$UDID" >> "$GITHUB_OUTPUT"
+
       - name: Build
         run: |
           xcodebuild build -workspace ./DemoApp/REES46.xcworkspace -scheme REES46Demo \
-          -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest' \
+          -sdk iphonesimulator -destination "id=${{ steps.sim.outputs.udid }}" \
           CODE_SIGN_IDENTITY='' CODE_SIGNING_REQUIRED='NO' CODE_SIGN_ENTITLEMENTS=''
 
       - name: Run tests
         if: ${{ !cancelled() }}
         run: |
           xcodebuild test -workspace ./DemoApp/REES46.xcworkspace -scheme REES46Demo \
-          -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest' \
+          -sdk iphonesimulator -destination "id=${{ steps.sim.outputs.udid }}" \
           CODE_SIGN_IDENTITY='' CODE_SIGNING_REQUIRED='NO' CODE_SIGN_ENTITLEMENTS=''
 
       - name: Lint spec
