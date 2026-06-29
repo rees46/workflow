@@ -4,7 +4,6 @@ description: setup node, setup yarn cache, install node-deps
 inputs:
   nodeVersion:
     description: Node version to run this workflow. Default 22 as it is in action cache
-    default: '22'
     required: false
   workingDirectory:
     required: false
@@ -18,6 +17,7 @@ runs:
     - uses: actions/setup-node@v6
       with:
         node-version: ${{ inputs.nodeVersion }}
+        node-version-file: package.json
 
     - name: Yarn cache directory
       id: yarn-cache-dir-path

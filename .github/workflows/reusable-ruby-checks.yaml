@@ -27,7 +27,6 @@ on:
         required: false
       nodeVersion:
         description: Node version to use
-        default: '20'
         type: string
         required: false
 
@@ -79,9 +78,10 @@ jobs:
           fi
 
       - if: ${{ steps.nodejs.outputs.node_needed == 'true' }}
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ inputs.nodeVersion }}
+          node-version-file: package.json
 
       - name: Rewrite GitHub SSH URLs to HTTPS for Bundler
         run: |

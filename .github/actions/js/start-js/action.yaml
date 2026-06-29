@@ -3,8 +3,7 @@ description: Prepare JS action - checkout, generate App token, yarn install
 
 inputs:
   nodeVersion:
-    description: Node version to run this workflow. Default 18 as it is in action cache
-    default: '18'
+    description: Node version to run this workflow
     required: false
   appId:
     description: App ID for committing and pushing
@@ -43,6 +42,7 @@ runs:
     - uses: actions/setup-node@v6
       with:
         registry-url: https://registry.npmjs.org
+        node-version-file: package.json
 
     - name: Yarn cache directory
       id: yarn-cache-dir-path
