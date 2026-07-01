@@ -63,7 +63,7 @@ jobs:
             ghcr.io/rees46/core:${{ steps.tags.outputs.tagSuffix }}
             ghcr.io/rees46/core:${{ steps.tags.outputs.tagPrefix }}${{ steps.tags.outputs.commitSha }}-${{ steps.tags.outputs.date }}
           cache-from: type=gha,scope=core
-          cache-to: type=gha,mode=max,scope=core
+          cache-to: type=gha,mode=min,scope=core,ignore-error=true
 
       - name: Build and push all docker images
         if: contains(steps.changed_packages.outputs.packages, ' core ')
