@@ -29,10 +29,10 @@ jobs:
         working-directory: ${{ inputs.workingDirectory }}
 
     steps:
-      - uses: actions/create-github-app-token@v1
+      - uses: actions/create-github-app-token@v3
         id: app-token
         with:
-          app-id: ${{ inputs.app-id }}
+          client-id: ${{ inputs.app-id }}
           private-key: ${{ secrets.private-key }}
 
       - uses: actions/checkout@v6
