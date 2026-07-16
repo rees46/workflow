@@ -22,7 +22,6 @@ on:
         required: false
       rubyVersion:
         description: Ruby version to use
-        default: '2.7.5'
         type: string
         required: false
       nodeVersion:
