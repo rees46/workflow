@@ -192,6 +192,7 @@ jobs:
         if: ${{ !cancelled() && steps.rubocop.outputs.rubocop_enabled == 'true' }}
         env:
           CHANGED_FILES: ${{ steps.changed_files.outputs.all_changed_files }}
+          RUBOCOP_CACHE_ROOT: tmp/rubocop
         run: |
           set -e
           RUBY_FILES=$(echo "$CHANGED_FILES" | tr ' ' '\n' | grep '\.rb$' || true)
