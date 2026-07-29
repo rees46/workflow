@@ -59,6 +59,17 @@ jobs:
       - id: changed_files
         uses: tj-actions/changed-files@v47.0.0
 
+      - name: Needs vips
+        run: |
+          if grep -ri 'vips' Gemfile; then
+            echo "🧙‍♂️ Vips detected, installing..."
+            sudo apt-get update
+            sudo apt-get install -y --no-install-recommends libvips-dev
+
+          else
+            echo "No vips found, skipping vips install."
+          fi
+
       - name: Needs ImageMagick
         run: |
           if grep -ri 'rmagick' Gemfile; then
