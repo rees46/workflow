@@ -30,6 +30,11 @@ on:
         default: '20'
         type: string
         required: false
+      clickhouseImage:
+        description: Multi-platform ClickHouse image used for the migrated database image
+        default: 'clickhouse/clickhouse-server:latest'
+        type: string
+        required: false
 
 jobs:
   run:
@@ -44,6 +49,8 @@ jobs:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: docker/setup-buildx-action@v4
 
       - name: Create common network
         run: |
@@ -200,6 +207,8 @@ jobs:
           docker push ghcr.io/rees46/postgres-migrated:latest
 
       - name: Start clickhouse
+        env:
+          CLICKHOUSE_IMAGE: ${{ inputs.clickhouseImage }}
         run: |
           docker stop clickhouse_server
           docker run -d \
@@ -212,7 +221,7 @@ jobs:
             -p 9004:9004 \
             -p 9005:9005 \
             --ulimit nofile=262144:262144 \
-            clickhouse/clickhouse-server;
+            "$CLICKHOUSE_IMAGE";
 
           timeout 20s bash -c '
             until curl -fsS http://localhost:8123/ping | grep -qx "Ok."; do
@@ -251,7 +260,34 @@ jobs:
           docker exec clickhouse clickhouse-client --query="show tables from rees46"
 
       - name: Publish clickhouse docker image
+        env:
+          CLICKHOUSE_IMAGE: ${{ inputs.clickhouseImage }}
         run: |
           docker stop clickhouse
-          docker commit clickhouse ghcr.io/rees46/clickhouse-migrated:latest
-          docker push ghcr.io/rees46/clickhouse-migrated:latest
+
+          build_context="$RUNNER_TEMP/clickhouse-migrated"
+          mkdir -p "$build_context/data"
+          docker cp clickhouse:/data/. "$build_context/data"
+
+          cat <<'EOF' > "$build_context/99-data-path.xml"
+          <clickhouse>
+            <path>/data/</path>
+            <tmp_path>/data/tmp/</tmp_path>
+            <user_files_path>/data/user_files/</user_files_path>
+            <format_schema_path>/data/format_schemas/</format_schema_path>
+          </clickhouse>
+          EOF
+
+          cat <<'EOF' > "$build_context/Dockerfile"
+          ARG CLICKHOUSE_IMAGE
+          FROM ${CLICKHOUSE_IMAGE}
+          COPY --chown=clickhouse:clickhouse data/ /data/
+          COPY 99-data-path.xml /etc/clickhouse-server/config.d/99-data-path.xml
+          EOF
+
+          docker buildx build \
+            --platform linux/amd64,linux/arm64 \
+            --build-arg "CLICKHOUSE_IMAGE=$CLICKHOUSE_IMAGE" \
+            --tag ghcr.io/rees46/clickhouse-migrated:latest \
+            --push \
+            "$build_context"
