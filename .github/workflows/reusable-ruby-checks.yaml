@@ -64,7 +64,8 @@ jobs:
           if grep -ri 'rmagick' Gemfile; then
             echo "🧙‍♂️ RMagick detected, installing ImageMagick..."
             sudo apt-get update
-            sudo apt-get install -y --no-install-recommends imagemagick-6.q16 libmagickwand-dev
+            sudo apt-get install -y --no-install-recommends imagemagick-6.q16 libmagickwand-dev libvips-dev
+
           else
             echo "No RMagick found, skipping ImageMagick install."
           fi
