@@ -259,6 +259,18 @@ jobs:
           docker exec clickhouse clickhouse-client --query="show tables from rees46_test"
           docker exec clickhouse clickhouse-client --query="show tables from rees46"
 
+          docker exec clickhouse clickhouse-client --multiquery --query="
+            CREATE USER IF NOT EXISTS rees46
+              IDENTIFIED WITH plaintext_password BY 'rees46';
+            GRANT ALL ON rees46.* TO rees46;
+            GRANT ALL ON rees46_test.* TO rees46;
+          "
+
+          docker exec clickhouse clickhouse-client \
+            --user rees46 \
+            --password rees46 \
+            --query="SELECT 1"
+
       - name: Publish clickhouse docker image
         env:
           CLICKHOUSE_IMAGE: ${{ inputs.clickhouseImage }}
