@@ -1,6 +1,7 @@
 # Replacement rules for syncing rees46/flutter-sdk -> personaclick/flutter-sdk.
 # Consumed by rees46/workflow/.github/actions/sync/read-replacements (replacementsRepo: rees46/workflow)
-# and applied by @scripts/repo-replacement (renames paths + file contents, then deletions).
+# and applied by @scripts/repo-replacement, which deletes first and only then renames
+# paths + file contents — so `deletions` below are SOURCE paths, pre-rename.
 #
 # Order matters: the api-domain rule must run BEFORE the generic "rees46" rule,
 # otherwise "api.rees46.ru" would become "api.personaclick.ru" (wrong TLD).
@@ -30,6 +31,24 @@ deletions:
   # (personalization_flutter_sdk.dart -> personaclick_flutter_sdk.dart) takes its
   # path without collision. The example uses PersonalizationSdk directly.
   - lib/personaclick_flutter_sdk.dart
+  # Quality gates belong to the canonical repo: both run green on rees46/flutter-sdk
+  # before a sync starts, and neither can pass in the mirror.
+  #   checks.yaml — `dart format --set-exit-if-changed` fails on 12 files, because
+  #     "personaclick" is twice the length of "rees46" and the rename pushes import
+  #     lines past 80 cols, so the formatter rewraps them.
+  #   integration-android.yaml — Patrol drives the example app against a live
+  #     backend, and the shop it hardcodes (c1140c…) does not exist on
+  #     api.personaclick.com. The example APK does not even build here: its
+  #     google-services.json is deleted above while build.gradle.kts still applies
+  #     the com.google.gms.google-services plugin.
+  - .github/workflows/checks.yaml
+  - .github/workflows/integration-android.yaml
+  # Versioning is decided in the canonical repo too: the mirror receives the bumped
+  # pubspec version through this sync. Its own semantic-release run would read the
+  # mirror's history, where every commit is `feat(release): sync (#N)` — a feat, so
+  # it would invent a minor bump of its own and drift from rees46. The mirror keeps
+  # deploy.yaml + publish.yaml only: see the new version, tag it, publish to pub.dev.
+  - .github/workflows/version.yaml
 
 # Preserve the target repo's own README only.
 # NB: ".git" is NOT listed here on purpose — the engine already hard-skips the
