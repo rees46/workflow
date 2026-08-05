@@ -31,9 +31,9 @@ See also: [`GITLAB_CI_MIGRATION_PLAN.md`](../GITLAB_CI_MIGRATION_PLAN.md) (days 
 
 | GHA workflow | Role | GitLab |
 |--------------|------|--------|
-| `reusable-ruby-checks.yaml` | rspec / brakeman / rubocop | Per-repo GL check jobs *or* keep dual on GHA until cutover |
-| `reusable-js-checks.yaml` | yarn lint/test/build `--since` | Per-repo GL |
-| `reusable-atls-checks.yaml` | Atlantis `yarn checks` | Per-repo GL (services/workers/shopify) |
+| `reusable-ruby-checks.yaml` | rspec / brakeman / rubocop | **Per-repo GL** `check-ruby.yml` (api-rails, api-rails-v2, dashboard, dashboard-v2, guides) |
+| `reusable-js-checks.yaml` | yarn lint/test/build `--since` | **Per-repo GL** `check-js.yml` (dashboard) |
+| `reusable-atls-checks.yaml` | Atlantis `yarn checks` | **Per-repo GL** `check-atls.yml` (services, workers, shopify-app) |
 | `reusable-php-checks.yaml` / `-v2` | PHP validate / phpstan / tests | Per-repo GL (see workflow-tests) |
 | `reusable-common-checks.yaml` | typos + commitlint | GitHub-only / optional later |
 | `reusable-android-checks.yaml` | Gradle test/lint | GitHub-only (mobile) |
