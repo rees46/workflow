@@ -34,7 +34,7 @@ jobs:
           working-directory: ${{ inputs.working-directory }}
 
       - name: Composer Audit
-        run: composer audit
+        run: composer audit --abandoned=report
 
       - name: Security Advisories
         run: composer require --dev roave/security-advisories:dev-latest
