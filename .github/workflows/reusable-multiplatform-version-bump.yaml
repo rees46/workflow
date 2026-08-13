@@ -1,4 +1,5 @@
-# action uses codfish/semantic-release-action and for correct work needs .releaserc.yml in project root with @semantic-release/exec + prepareCmd on config for correct bump work.
+# Uses codfish/semantic-release-action. Needs a .releaserc.yml in the project
+# root with @semantic-release/exec + a prepareCmd for the version bump to work.
 
 name: Reusable version bump
 
@@ -42,13 +43,18 @@ jobs:
       - uses: docker://ghcr.io/codfish/semantic-release-action:v3
         id: semanticReleaseStep
         env:
-          GH_TOKEN: ${{ secrets.githubToken || steps.app-token.outputs.token || secrets.GITHUB_TOKEN }}
+          GH_TOKEN: >-
+            ${{ secrets.githubToken || steps.app-token.outputs.token ||
+            secrets.GITHUB_TOKEN }}
         with:
+          # Pin: latest exec/git pull execa ^9 (needs Node >= 22); the codfish
+          # v3 image runs older Node. Unpin when the action ships Node >= 22.
           additional-packages: |
-            ['@semantic-release/exec', '@semantic-release/git']
+            ['@semantic-release/exec@6.0.3', '@semantic-release/git@10.0.1']
 
       - uses: rees46/workflow/.github/actions/release/prepare-pr@master
         with:
           reviewerUsername: ${{ inputs.reviewerUsername }}
           githubToken: ${{ steps.app-token.outputs.token }}
-          releaseVersion: ${{ steps.semanticReleaseStep.outputs.release-version }}
+          releaseVersion: >-
+            ${{ steps.semanticReleaseStep.outputs.release-version }}
