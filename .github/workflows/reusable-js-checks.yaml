@@ -47,6 +47,12 @@ jobs:
         with:
           nodeVersion: ${{ inputs.node-version }}
 
+      - name: Vulnerabilities
+        if: ${{ !cancelled() }}
+        env:
+          TARGET: ${{ github.base_ref }}
+        run: yarn npm audit --severity high --all
+
       - name: Lint
         if: ${{ !cancelled() }}
         env:
