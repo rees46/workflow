@@ -8,10 +8,14 @@
 replacements:
   - from: "api.rees46.ru"
     to: "api.personaclick.com"
+  # The brand is spelled "PersonaClick" in every casing the source uses: the
+  # all-caps source spelling reaches the iOS podspec, where the dependency has to
+  # name the pod exactly as it is published on CocoaPods trunk — "PersonaClick".
+  # "PERSONACLICK" is not a pod, so that spelling broke `pod install` in the mirror.
   - from: "REES46"
-    to: "PERSONACLICK"
+    to: "PersonaClick"
   - from: "Rees46"
-    to: "Personaclick"
+    to: "PersonaClick"
   - from: "rees46"
     to: "personaclick"
   # pub.dev package names are globally unique — the mirror must publish under a
