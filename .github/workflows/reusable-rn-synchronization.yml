@@ -68,11 +68,13 @@ jobs:
       - id: changed_files
         uses: tj-actions/changed-files@v42
 
+      # grep -c prints 0 but exits 1 when nothing matches; under bash -e that
+      # failed the run for every release without changes in the path.
       - name: Determine if changes are in the specified path
         run: |
           path_changes_count="$(printf '%s' \
             '${{ steps.changed_files.outputs.all_changed_files }}' | \
-            grep -F -c '${{ inputs.changeLookUpPath }}')"
+            grep -F -c '${{ inputs.changeLookUpPath }}' || true)"
           echo "path_changes=$path_changes_count" >> "$GITHUB_ENV"
 
       - name: Check out remote repository if changes
