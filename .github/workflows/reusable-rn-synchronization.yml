@@ -14,8 +14,23 @@ name: Sync Repositories
         description: 'Specify the folder to look for changes and publish'
         required: true
         type: string
+      targetRepository:
+        description: Repository to sync into, as owner/name
+        required: true
+        type: string
+      appId:
+        description: >-
+          GitHub App that pushes to the target repository and merges its
+          pull request
+        required: true
+        type: string
+      reviewerUsername:
+        description: Reviewer and assignee of the mirror pull request
+        default: Xyzcancer
+        required: false
+        type: string
     secrets:
-      token:
+      appSecret:
         required: true
 
 jobs:
@@ -27,8 +42,24 @@ jobs:
         with:
           ref: master
           fetch-depth: 0
+
+      - name: Split the target repository into owner and name
+        id: target
         env:
-          GITHUB_TOKEN: ${{ secrets.token }}
+          TARGET_REPOSITORY: ${{ inputs.targetRepository }}
+        run: |
+          echo "owner=${TARGET_REPOSITORY%%/*}" >> "$GITHUB_OUTPUT"
+          echo "name=${TARGET_REPOSITORY#*/}" >> "$GITHUB_OUTPUT"
+
+      # Before anything else, so an app without access to the target fails
+      # the run on every release, not only on one that has changes.
+      - uses: actions/create-github-app-token@v1
+        id: appToken
+        with:
+          app-id: ${{ inputs.appId }}
+          private-key: ${{ secrets.appSecret }}
+          owner: ${{ steps.target.outputs.owner }}
+          repositories: ${{ steps.target.outputs.name }}
 
       - uses: actions/setup-node@v4
         with:
@@ -44,27 +75,12 @@ jobs:
             grep -F -c '${{ inputs.changeLookUpPath }}')"
           echo "path_changes=$path_changes_count" >> "$GITHUB_ENV"
 
-      - name: Get last merged PR author login
-        run: |
-          PR_NUMBER=$(gh pr list \
-            --state merged \
-            --limit 1 \
-            --json number \
-            --jq '.[0].number')
-          LAST_PR_AUTHOR=$(gh pr view \
-            "$PR_NUMBER" \
-            --json author \
-            --jq '.author.login')
-          echo "LAST_PR_AUTHOR=$LAST_PR_AUTHOR" >> "$GITHUB_ENV"
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Check out remote repository if changes
         if: env.path_changes != '0'
         uses: actions/checkout@v4
         with:
-          repository: PersonaClick/rn-sdk
-          token: ${{ secrets.token }}
+          repository: ${{ inputs.targetRepository }}
+          token: ${{ steps.appToken.outputs.token }}
           path: repo2
 
       - name: Sync files to remote repository if changes
@@ -120,6 +136,21 @@ jobs:
             -e 's/Rees46/PersonaClick/g' \
             -e 's/rees46/personaclick/g' {} +
 
+      # The source keeps one lockfile for the whole monorepo, the target has
+      # its own. Without this a new dependency leaves the target's lockfile
+      # behind and its `yarn install --immutable` check fails. The yarn the
+      # target pins in .yarnrc.yml does the work; its install state is not
+      # part of the release.
+      - name: Bring the target lockfile in line with package.json
+        if: env.path_changes != '0'
+        working-directory: repo2
+        env:
+          COREPACK_ENABLE_DOWNLOAD_PROMPT: '0'
+        run: |
+          corepack enable
+          yarn install --mode=update-lockfile
+          git checkout -- .yarn/install-state.gz 2>/dev/null || true
+
       - name: Validate PersonaClick rewrites
         if: env.path_changes != '0'
         working-directory: repo2
@@ -129,50 +160,26 @@ jobs:
             exit 1
           fi
 
-      - name: Create commit
-        if: env.path_changes != '0'
-        working-directory: repo2
-        run: |
-          git config --global user.name Jade Smith
-          git config --global user.email github-bot@rees46.com
-          git add .
-          echo "Changes to be committed:"
-          git diff --staged
-          git commit -m "feat: release"
-        env:
-          GITHUB_TOKEN: ${{ secrets.token }}
-
       - name: Set branch name
         if: env.path_changes != '0'
         run: |
           echo "BRANCH_NAME=feat/new-release-$(date +%Y%m%d%H%M%S)" \
             >> "$GITHUB_ENV"
 
-      - name: Checkout new branch and push
+      # The shared sync action: commits as the app, opens the pull request
+      # and merges it at once.
+      - name: Open and merge the target pull request
         if: env.path_changes != '0'
-        working-directory: repo2
-        run: |
-          git checkout -b ${{ env.BRANCH_NAME }}
-          git push --set-upstream origin ${{ env.BRANCH_NAME }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.token }}
-
-      - name: Create Pull Request
-        if: env.path_changes != '0'
-        working-directory: repo2
-        run: |
-          PR_TITLE="Automated release"
-          PR_BODY="This is an automated pull request to update from branch \
-            $BRANCH_NAME"
-          echo "ASSIGNEES: $LAST_PR_AUTHOR"
-          gh pr create \
-            --title "$PR_TITLE" \
-            --body "$PR_BODY" \
-            --base master \
-            --head "$BRANCH_NAME" \
-            --assignee "$MANAGER"
-        env:
-          GITHUB_TOKEN: ${{ secrets.token }}
-          BRANCH_NAME: ${{ env.BRANCH_NAME }}
-          LAST_PR_AUTHOR: ${{ env.LAST_PR_AUTHOR }}
-          MANAGER: Xyzcancer
+        uses: rees46/workflow/.github/actions/github/pull-request/create@master
+        with:
+          targetDirectory: repo2
+          githubToken: ${{ steps.appToken.outputs.token }}
+          targetRepository: ${{ inputs.targetRepository }}
+          branchName: ${{ env.BRANCH_NAME }}
+          commitMessage: 'feat: release'
+          prTitle: Automated release
+          prBody: >-
+            This is an automated pull request to update from branch
+            ${{ env.BRANCH_NAME }}
+          reviewerUsername: ${{ inputs.reviewerUsername }}
+          lastPrAuthor: ${{ inputs.reviewerUsername }}

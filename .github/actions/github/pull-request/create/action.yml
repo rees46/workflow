@@ -77,9 +77,13 @@ runs:
         assignees: ${{ inputs.lastPrAuthor || inputs.reviewerUsername }}
         reviewers: ${{ inputs.reviewerUsername }}
 
+    # The repository is named explicitly: a bare number resolves against the
+    # git checkout in the working directory, which in a sync job can be the
+    # source repository rather than the one the pull request was opened in.
     - name: Enable Pull Request Automerge
       shell: bash
       env:
         GH_TOKEN: ${{ inputs.githubToken }}
         PR_NUMBER: ${{ steps.cpr.outputs.pull-request-number }}
-      run: gh pr merge --squash --admin "$PR_NUMBER"
+        TARGET_REPO: ${{ inputs.targetRepository || github.repository }}
+      run: gh pr merge --squash --admin --repo "$TARGET_REPO" "$PR_NUMBER"
