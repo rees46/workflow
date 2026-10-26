@@ -17,11 +17,6 @@ on:
       googleServicesString:
         description: Google services file as base64 string
         required: true
-      # No longer used: the CocoaPods lint steps are gone. Optional until the
-      # callers stop passing it, then it goes too.
-      cocoapodsToken:
-        description: Cocoapods token
-        required: false
       env_vars:
         required: false
 
