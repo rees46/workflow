@@ -119,6 +119,18 @@ jobs:
             -e 's/Rees46/PersonaClick/g' \
             -e 's/rees46/personaClick/g' {} +
 
+      # JSON other than package.json (test fixtures, for one) gets the rules of
+      # the code above: the tests compare these files with strings in the code.
+      - name: Apply changes to JSON files
+        if: env.path_changes != '0'
+        working-directory: repo2
+        run: |
+          find . -type f -name '*.json' ! -name 'package.json' -exec sed -i \
+            -e 's|https://api.rees46.ru/|https://api.personaclick.com/|g' \
+            -e 's/REES46/PersonaClick/g' \
+            -e 's/Rees46/PersonaClick/g' \
+            -e 's/rees46/personaClick/g' {} +
+
       - name: Apply changes to YAML files
         if: env.path_changes != '0'
         working-directory: repo2
