@@ -100,6 +100,26 @@ jobs:
           -sdk iphonesimulator -destination "id=${{ steps.sim.outputs.udid }}" \
           CODE_SIGN_IDENTITY='' CODE_SIGNING_REQUIRED='NO' CODE_SIGN_ENTITLEMENTS=''
 
+      - name: Boot the simulator and let it settle
+        run: |
+          xcrun simctl boot "${{ steps.sim.outputs.udid }}"
+          xcrun simctl bootstatus "${{ steps.sim.outputs.udid }}" -b
+          # A simulator booted for the first time spends minutes compiling shaders and drawing the lock
+          # screen's posters, and on the runner's three cores that leaves no CPU time to the utility-QoS
+          # queues the SDK's core runs on: tests that wait for them time out. Tests start once the first-boot
+          # work has calmed down (the mean idle CPU of the last five samples is 25 % or more), three minutes
+          # at most; the step never fails on its own.
+          start=$(date +%s)
+          last=""
+          while [ $(( $(date +%s) - start )) -lt 180 ]; do
+            idle=$(top -l 2 -s 1 -n 0 | awk '/CPU usage/ { v = $7 } END { sub("%", "", v); print int(v) }')
+            echo "$(date +%T) idle ${idle}%"
+            last=$(echo "$last $idle" | awk '{ for (i = (NF > 5 ? NF - 4 : 1); i <= NF; i++) printf "%s ", $i }')
+            mean=$(echo "$last" | awk '{ s = 0; for (i = 1; i <= NF; i++) s += $i; print (NF == 5 ? int(s / 5) : 0) }')
+            if [ "$mean" -ge 25 ]; then break; fi
+          done
+          echo "The simulator settled for $(( $(date +%s) - start )) s"
+
       - name: Run tests
         if: ${{ !cancelled() }}
         run: |
