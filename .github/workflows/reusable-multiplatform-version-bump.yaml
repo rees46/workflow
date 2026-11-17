@@ -52,8 +52,9 @@ jobs:
           additional-packages: |
             ['@semantic-release/exec@6.0.3', '@semantic-release/git@10.0.1']
 
-      # No new version (a merge of docs, tests, CI or a release commit): nothing to put in a release
-      # pull request, and the step would make a branch without a version.
+      # No new version (a merge of docs, tests, CI or a release commit):
+      # nothing goes in a release pull request, and the step would make a
+      # branch without a version.
       - uses: rees46/workflow/.github/actions/release/prepare-pr@master
         if: steps.semanticReleaseStep.outputs.new-release-published == 'true'
         with:
