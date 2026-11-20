@@ -85,15 +85,24 @@ jobs:
           token: ${{ steps.appToken.outputs.token }}
           path: repo2
 
+      # --delete drops what the source no longer has. The excluded paths are
+      # the target's own (its CI, readme, ignore file and yarn setup): they
+      # are neither copied nor deleted.
       - name: Sync files to remote repository if changes
         if: env.path_changes != '0'
         run: |
-          rsync -av --progress \
+          rsync -av --progress --delete \
             ${{ inputs.changeLookUpPath }}/ repo2/ \
             --exclude '.git' \
             --exclude '.github' \
             --exclude 'README.md' \
+            --exclude '/.gitignore' \
+            --exclude '/.yarn' \
+            --exclude '/.yarnrc.yml' \
+            --exclude '/yarn.lock' \
 
+      # codegenConfig names the Kotlin package of the native module: it gets
+      # the lowercase rule of the Android sources below.
       - name: Apply changes to package.json
         if: env.path_changes != '0'
         working-directory: repo2
@@ -102,7 +111,8 @@ jobs:
             -e 's|rees46/react-native|personaclick/rn|g' \
             -e 's|Rees46/react-native|PersonaClick/rn|g' \
             -e 's/REES46/PersonaClick/g' \
-            -e 's/Rees46/PersonaClick/g' {} +
+            -e 's/Rees46/PersonaClick/g' \
+            -e 's/rees46/personaclick/g' {} +
 
       - name: Apply changes to JavaScript and TypeScript files
         if: env.path_changes != '0'
@@ -150,6 +160,74 @@ jobs:
             -e 's/Rees46/PersonaClick/g' \
             -e 's/rees46/personaclick/g' {} +
 
+      # The native module builds against the mirrored native SDKs, so its
+      # sources get the rules each of those mirrors is made with. They differ
+      # in lowercase: the Android mirror keeps it all lowercase (its JitPack
+      # coordinates, the module's Kotlin package), the iOS one camel case.
+      - name: Apply changes to Android sources
+        if: env.path_changes != '0'
+        working-directory: repo2
+        run: |
+          find . -type f \( \
+            -name '*.kt' -o \
+            -name '*.kts' -o \
+            -name '*.java' -o \
+            -name '*.gradle' -o \
+            -name '*.properties' -o \
+            -name '*.xml' -o \
+            -name '*.pro' \
+          \) -exec sed -i \
+            -e 's|https://api.rees46.ru/|https://api.personaclick.com/|g' \
+            -e 's/REES46/PersonaClick/g' \
+            -e 's/Rees46/PersonaClick/g' \
+            -e 's/rees46/personaclick/g' {} +
+
+      # The iOS mirror's module and facade type get the same name, so a type
+      # reached through the module's name (Module.Type) does not compile
+      # there: the sources reach it through the facade type or unqualified.
+      # The podspec points at the target and at its release tag, which is the
+      # version after a v there.
+      - name: Apply changes to iOS sources
+        if: env.path_changes != '0'
+        working-directory: repo2
+        env:
+          TARGET_REPOSITORY: ${{ inputs.targetRepository }}
+        run: |
+          find . -type f \( \
+            -name '*.swift' -o \
+            -name '*.h' -o \
+            -name '*.m' -o \
+            -name '*.mm' -o \
+            -name '*.podspec' \
+          \) -exec sed -i \
+            -e "s|/$GITHUB_REPOSITORY|/$TARGET_REPOSITORY|g" \
+            -e 's|@rees46/react-native-sdk@|v|g' \
+            -e 's|https://api.rees46.ru/|https://api.personaclick.com/|g' \
+            -e 's/REES46/PersonaClick/g' \
+            -e 's/Rees46/PersonaClick/g' \
+            -e 's/rees46/personaClick/g' {} +
+
+      # Names follow the contents: CocoaPods finds a pod by the podspec named
+      # after it, codegen names the module's spec after its file, and Kotlin
+      # sources sit in their package's directories. File by file, so a
+      # renamed directory merges into one of the same name.
+      - name: Rename paths
+        if: env.path_changes != '0'
+        working-directory: repo2
+        run: |
+          find . -path ./.git -prune -o -type f \( \
+            -path '*REES46*' -o \
+            -path '*Rees46*' -o \
+            -path '*rees46*' \
+          \) -print | while IFS= read -r source; do
+            target="$(printf '%s' "$source" | sed \
+              -e 's/REES46/PersonaClick/g' \
+              -e 's/Rees46/PersonaClick/g' \
+              -e 's/rees46/personaclick/g')"
+            mkdir -p "$(dirname "$target")"
+            mv -f "$source" "$target"
+          done
+
       # The source keeps one lockfile for the whole monorepo, the target has
       # its own. Without this a new dependency leaves the target's lockfile
       # behind and its `yarn install --immutable` check fails. The yarn the
@@ -171,6 +249,11 @@ jobs:
         run: |
           if grep -RInE 'REES46|Rees46|rees46' . --exclude-dir='.git'; then
             echo "Found unconverted REES46 references in synced repository"
+            exit 1
+          fi
+          if find . -path ./.git -prune -o -type f -print |
+            grep -E 'REES46|Rees46|rees46'; then
+            echo "Found unconverted names among synced paths"
             exit 1
           fi
 
