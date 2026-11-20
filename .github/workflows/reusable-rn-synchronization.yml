@@ -85,14 +85,21 @@ jobs:
           token: ${{ steps.appToken.outputs.token }}
           path: repo2
 
+      # --delete drops what the source no longer has. The excluded paths are
+      # the target's own (its CI, readme, ignore file and yarn setup): they
+      # are neither copied nor deleted.
       - name: Sync files to remote repository if changes
         if: env.path_changes != '0'
         run: |
-          rsync -av --progress \
+          rsync -av --progress --delete \
             ${{ inputs.changeLookUpPath }}/ repo2/ \
             --exclude '.git' \
             --exclude '.github' \
             --exclude 'README.md' \
+            --exclude '/.gitignore' \
+            --exclude '/.yarn' \
+            --exclude '/.yarnrc.yml' \
+            --exclude '/yarn.lock' \
 
       # codegenConfig names the Kotlin package of the native module: it gets
       # the lowercase rule of the Android sources below.
@@ -178,8 +185,8 @@ jobs:
       # The iOS mirror's module and facade type get the same name, so a type
       # reached through the module's name (Module.Type) does not compile
       # there: the sources reach it through the facade type or unqualified.
-      # The podspec points at the target and names the package as
-      # package.json does.
+      # The podspec points at the target and at its release tag, which is the
+      # version after a v there.
       - name: Apply changes to iOS sources
         if: env.path_changes != '0'
         working-directory: repo2
@@ -194,7 +201,7 @@ jobs:
             -name '*.podspec' \
           \) -exec sed -i \
             -e "s|/$GITHUB_REPOSITORY|/$TARGET_REPOSITORY|g" \
-            -e 's|rees46/react-native|personaclick/rn|g' \
+            -e 's|@rees46/react-native-sdk@|v|g' \
             -e 's|https://api.rees46.ru/|https://api.personaclick.com/|g' \
             -e 's/REES46/PersonaClick/g' \
             -e 's/Rees46/PersonaClick/g' \
@@ -203,7 +210,7 @@ jobs:
       # Names follow the contents: CocoaPods finds a pod by the podspec named
       # after it, codegen names the module's spec after its file, and Kotlin
       # sources sit in their package's directories. File by file, so a
-      # directory the target already has takes them in.
+      # renamed directory merges into one of the same name.
       - name: Rename paths
         if: env.path_changes != '0'
         working-directory: repo2
