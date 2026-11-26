@@ -3,11 +3,14 @@
 # and applied by @scripts/repo-replacement, which deletes first and only then renames
 # paths + file contents — so `deletions` below are SOURCE paths, pre-rename.
 #
-# Order matters: the api-domain rule must run BEFORE the generic "rees46" rule,
-# otherwise "api.rees46.ru" would become "api.personaclick.ru" (wrong TLD).
+# Order matters: the api- and app-domain rules must run BEFORE the generic "rees46"
+# rule, otherwise "api.rees46.ru" would become "api.personaclick.ru" (wrong TLD), and
+# the same for "app.rees46.ru".
 replacements:
   - from: "api.rees46.ru"
     to: "api.personaclick.com"
+  - from: "app.rees46.ru"
+    to: "app.personaclick.com"
   # The brand is spelled "PersonaClick" in every casing the source uses: the
   # all-caps source spelling reaches the iOS podspec, where the dependency has to
   # name the pod exactly as it is published on CocoaPods trunk — "PersonaClick".
